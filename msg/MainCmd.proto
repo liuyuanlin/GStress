@@ -1,0 +1,24 @@
+syntax = "proto2";
+package msg;
+enum enMainCmdID{
+
+	LOGIN_MAIN_CMD						= 1;	// 与登录服务器交互的消息 子命令 和消息体定义在 LoginSubCmd.proto
+	GATE_MAIN_CMD						= 2;	// 与网关服务器交互的消息 子命令 和消息体定义在 GateSubCmd.proto
+	USER_INFO_MAIN_CMD					= 3;	// 用户基础信息相关的主消息 UserInfoSubCmd.proto
+	LOBBY_MAIN_CMD						= 4;	// 大厅相关消息
+	GAME_MAIN_USER					   	= 6;	// 用户指令
+	GAME_MAIN_GAME						= 8;	// 游戏消息
+	LOBBY_MAIN_SIGN						= 12;	// 签到
+	LOBBY_MAIN_INVENTORY				= 13;	// 背包
+	LOBBY_MAIN_SHOPPINGMALL				= 14;	// 商城
+	LOBBY_MAIN_BANK						= 15;	// 银行
+	LOBBY_MAIN_FRIEND					= 16;	// 好友
+	LOBBY_MAIN_CHAT						= 17;	// 聊天
+	LOBBY_MAIN_MAIL						= 18;	// 邮件
+	LOBBY_MAIN_RANK						= 20;	// 排行榜
+	LOBBY_MAIN_PERSON_SET				= 21;	//个人设置
+	LOBBY_MAIN_PURCHASE_REWARD			= 22;	//充值奖励相关	
+	
+	CLUB_MAIN_CMD						   = 23;	// 俱乐部相关消息
+}
+
