@@ -27,7 +27,7 @@ type Robot struct {
 	mIsWorkEnd         bool
 }
 
-func (r *Robot) Init() error {
+func (r *Robot) Init(robotAttr RobotAttr, taskMap TaskMap) error {
 	logger.Log4.Info("<ENTER> gamesvr start")
 	//基础数据处理
 
@@ -40,4 +40,10 @@ func (r *Robot) Init() error {
 	//初始化定时器组
 	r.mTimers = make(map[int32]int32)
 	return nil
+}
+
+func (r *Robot) Work() {
+	logger.Log4.Info("<ENTER> ")
+
+	return
 }

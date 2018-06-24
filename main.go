@@ -1,112 +1,145 @@
 package main
 
 import (
-	"encoding/binary"
-	"flag"
-	"log"
-	"os"
-	"os/signal"
-	"time"
-
-	"GStress/msg"
-
 	"GStress/logger"
-	"GStress/net"
-	"crypto/md5"
-	"encoding/hex"
-	"fmt"
-
-	"github.com/golang/protobuf/proto"
+	"strconv"
+	"sync"
 )
 
-var addr = flag.String("addr", "192.168.157.129:22001", "http service address")
-
-func Int32ToBytes(i int32) []byte {
-	var buf = make([]byte, 4)
-	binary.LittleEndian.PutUint32(buf, uint32(i))
-	return buf
-}
-
 func main() {
-	logger.AddFileFilter("gamesvr", "gamesvr.log")
-	logger.Log4.Info("<ENTER> gamesvr start")
+	logger.AddFileFilter("GStree", "gstree.log")
+	defer logger.Log4.Close()
 
-	flag.Parse()
-	log.SetFlags(0)
+	logger.Log4.Debug("<ENTER>")
+	defer logger.Log4.Debug("<LEAVE>")
 
-	interrupt := make(chan os.Signal, 1)
-	signal.Notify(interrupt, os.Interrupt)
+	var systemCfg ExcelCfg
+	systemCfg.Parser("./cfg/robotClientSys0.xlsx", "robotClientSys0")
+	var taskCfg ExcelCfg
+	taskCfg.Parser("./cfg/robotTask0.xlsx", "robotTask0")
+	var RobotsCfg ExcelCfg
+	RobotsCfg.Parser("./cfg/robots0.xlsx", "robots0")
 
-	lnetClient, err := net.NewNetClient("192.168.157.129:22001", "")
-	if err != nil {
-		log.Fatal("dial:", err)
-	}
-	defer lnetClient.Close()
+	//解析任务属性
+	lTaskMap := make(map[int]TaskInfo)
+	for _, row := range taskCfg.MExcelRows {
+		var lTaskInfo TaskInfo
 
-	done := make(chan struct{})
-
-	go func() {
-		defer lnetClient.Close()
-		defer close(done)
-		for {
-			cmd, para, data, err := lnetClient.ReadMsg()
-			if err != nil {
-				log.Println("read:", err)
-				return
-			}
-			log.Printf("recv: %v, %v", cmd, para)
-
-			newTest := &msg.LoginReturnInfo{}
-			err = proto.Unmarshal(data, newTest)
-			if err != nil {
-				log.Fatal("unmarshaling error: ", err)
-			}
-			log.Printf("lProtoCmd: %+v", newTest)
-
-		}
-	}()
-
-	ticker := time.NewTicker(time.Second)
-	defer ticker.Stop()
-	var lFlag bool = false
-
-	for {
-		select {
-		case t := <-ticker.C:
-
-			if lFlag {
-				break
-			}
-			lFlag = true
-			md5Ctx := md5.New()
-			md5Ctx.Write([]byte("123456"))
-			cipherStr := md5Ctx.Sum(nil)
-			fmt.Print(cipherStr)
-			secret := hex.EncodeToString(cipherStr)
-			fmt.Print(secret)
-
-			test := &msg.LoginRequestInfo{
-				Account:      proto.String("lll001"),
-				Passwd:       proto.String(secret),
-				DeviceString: proto.String("12345612133333333422222222222343434234322"),
-				Packageflag:  proto.String("QPB_WEB_1"),
-			}
-
-			err = lnetClient.SenMsg(int16(msg.EnMainCmdID_LOGIN_MAIN_CMD), int16(msg.EnSubCmdID_REQUEST_LOGIN_SUB_CMD), test)
-			if err != nil {
-				log.Println("write:", err)
-				return
-			}
-			log.Println("t:", t)
-		case <-interrupt:
-			log.Println("interrupt")
-
-			select {
-			case <-done:
-			case <-time.After(time.Second):
-			}
-			lnetClient.Close()
+		//获取任务ID
+		taskId, err := strconv.Atoi(row["taskId"])
+		if err != nil {
+			logger.Log4.Error("err:%s", err)
 			return
 		}
+		lTaskInfo.MTaskId = taskId
+
+		//获取任务类型
+		taskType, err := strconv.Atoi(row["taskType"])
+		if err != nil {
+			logger.Log4.Error("err:%s", err)
+			return
+		}
+		lTaskInfo.MTaskType = TaskType(taskType)
+
+		//获取参数个数
+		paramNum, err := strconv.Atoi(row["paramNum"])
+		if err != nil {
+			logger.Log4.Error("err:%s", err)
+			return
+		}
+		for i := 0; i < paramNum; i++ {
+			tmp0 := "param"
+			tmp1 := strconv.Itoa(i + 1)
+			tmp := tmp0 + tmp1
+
+			lTaskInfo.MParm = append(lTaskInfo.MParm, row[tmp])
+		}
+		lTaskInfo.MCountent = row["content"]
+		lTaskMap[lTaskInfo.MTaskId] = lTaskInfo
+
 	}
+	logger.Log4.Debug("lTaskInfo:%v", lTaskMap)
+
+	//解析机器人属性
+	var gRobots []*Robot
+	for _, row := range RobotsCfg.MExcelRows {
+		var robot Robot
+		var robotAttr RobotAttr
+		//获取机器人ID
+		userid, err := strconv.Atoi(row["Uid"])
+		if err != nil {
+			logger.Log4.Error("err:%s", err)
+			return
+		}
+		robotAttr.MUserId = userid
+		//获取机器人类型
+		userType, err := strconv.Atoi(row["UserType"])
+		if err != nil {
+			logger.Log4.Error("err:%s", err)
+			return
+		}
+		robotAttr.MUserType = userType
+		//获取机器人是否自动登陆
+		isNeedAutoLogin, err := strconv.Atoi(row["IsNeedAutoLogin"])
+		if err != nil {
+			logger.Log4.Error("err:%s", err)
+			return
+		}
+		if isNeedAutoLogin == 0 {
+			robotAttr.MIsNeedAutoLogin = false
+		} else {
+			robotAttr.MIsNeedAutoLogin = true
+		}
+
+		robotAttr.MUserNmae = row["UserName"]
+		robotAttr.MPassWord = row["Password"]
+		robotAttr.MTencentToken = row["TencentToken"]
+		robotAttr.MTencentCodeId = row["TencentCodeId"]
+
+		//获取积分房间id
+		appointRoomId, err := strconv.Atoi(row["AppointRoomId"])
+		if err != nil {
+			logger.Log4.Error("err:%s", err)
+			return
+		}
+		robotAttr.MApointRoomId = appointRoomId
+
+		//获取任务数量
+		taskCount, err := strconv.Atoi(row["TaskCount"])
+		if err != nil {
+			logger.Log4.Error("err:%s", err)
+			return
+		}
+		for i := 0; i < taskCount; i++ {
+			tmp0 := "TaskId"
+			tmp1 := strconv.Itoa(i + 1)
+			tmp := tmp0 + tmp1
+			//获取任务ID
+			taskId, err := strconv.Atoi(row[tmp])
+			if err != nil {
+				logger.Log4.Error("err:%s", err)
+				return
+			}
+			robotAttr.MTaskId = append(robotAttr.MTaskId, taskId)
+		}
+		logger.Log4.Error("robotAttr:%v", robotAttr)
+		err = robot.Init(robotAttr, lTaskMap)
+		if err != nil {
+			logger.Log4.Error("UserName-%s: Init Fail", robotAttr.MUserNmae)
+			continue
+		}
+		gRobots = append(gRobots, &robot)
+
+	}
+	var wg sync.WaitGroup
+	//启动所有机器人
+	for _, robot := range gRobots {
+		wg.Add(1)
+		go func() {
+			robot.Work()
+			wg.Done()
+		}()
+	}
+	wg.Wait()
+
 }

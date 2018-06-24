@@ -13,7 +13,7 @@ type RobotAttr struct {
 	MUserNmae        string
 	MPassWord        string
 	MTencentCodeId   string
-	MTencentToker    string
+	MTencentToken    string
 	MIsNeedAutoLogin bool
 	MApointRoomId    int
 	MTaskId          []int
