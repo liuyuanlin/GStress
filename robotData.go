@@ -1,20 +1,20 @@
 package main
 
 type RobotData struct {
-	MUserId   int32
-	MAccId    int32
+	MUserId   int
+	MAccId    int
 	MUserNmae string
 	MPassWord string
 	MUserNick string
 }
 type RobotAttr struct {
-	MUserId          int32
-	MUserType        int32
+	MUserId          int
+	MUserType        int
 	MUserNmae        string
 	MPassWord        string
 	MTencentCodeId   string
 	MTencentToker    string
 	MIsNeedAutoLogin bool
-	MApointRoomId    int32
-	MTaskId          []int32
+	MApointRoomId    int
+	MTaskId          []int
 }
