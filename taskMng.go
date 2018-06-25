@@ -3,6 +3,8 @@ package main
 import (
 	"GStress/logger"
 	"errors"
+	"fmt"
+	"os"
 
 	sq "github.com/yireyun/go-queue"
 )
@@ -324,4 +326,15 @@ func (t *TaskMng) GetTaskPrarmNum() int {
 func (t *TaskMng) OutputTaskReport() {
 	logger.Log4.Debug("UserId-%d:<ENTER>", t.MUserId)
 	defer logger.Log4.Debug("UserId-%d:<LEAVE>", t.MUserId)
+	var fleName string
+	fleName = fmt.Sprintf("./log/robotTaskReport_%d", t.MUserId)
+	f, err := os.OpenFile(fleName, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0x644)
+	if err != nil {
+		logger.Log4.Error("UserId-%d:Err:", t.MUserId, err)
+	}
+	defer f.Close()
+	_, err = f.WriteString("helloworld")
+	if err != nil {
+		panic(err)
+	}
 }

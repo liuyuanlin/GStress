@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/url"
 
+	"GStress/logger"
 	"errors"
 
 	"github.com/golang/protobuf/proto"
@@ -43,11 +44,11 @@ type NetClient struct {
 func NewNetClient(addr string, path string) (*NetClient, error) {
 
 	u := url.URL{Scheme: "ws", Host: addr, Path: ""}
-	log.Printf("connecting to %s", u.String())
+	logger.Log4.Debug("connecting to %s", u.String())
 
 	c, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
 	if err != nil {
-		log.Fatal("dial:", err)
+		logger.Log4.Error("dial:", err)
 		return nil, err
 	}
 
@@ -81,7 +82,7 @@ func (n *NetClient) SenMsg(mainCmd int16, paraCmd int16, pb proto.Message) error
 	//消息体封装
 	data, err := proto.Marshal(pb)
 	if err != nil {
-		log.Fatal("marshaling error: ", err)
+		logger.Log4.Error("marshaling error: ", err)
 		return err
 	}
 
@@ -95,8 +96,6 @@ func (n *NetClient) SenMsg(mainCmd int16, paraCmd int16, pb proto.Message) error
 	binary.Write(buf, binary.LittleEndian, lProtoCmd)
 	b1 := buf.Bytes()
 
-	log.Println("b1:", b1)
-
 	var buffer bytes.Buffer //Buffer是一个实现了读写方法的可变大小的字节缓冲
 
 	//整个消息长度封装
@@ -109,12 +108,11 @@ func (n *NetClient) SenMsg(mainCmd int16, paraCmd int16, pb proto.Message) error
 	buffer.Write(b1)
 	buffer.Write(data)
 	b3 := buffer.Bytes()
-	log.Println("b3:", b3)
 
 	//发送数据
 	err = n.mConn.WriteMessage(websocket.BinaryMessage, b3)
 	if err != nil {
-		log.Println("write:", err)
+		logger.Log4.Error("write:", err)
 		return err
 	}
 
@@ -142,7 +140,6 @@ func (n *NetClient) ReadMsg() (*MsgHead, error) {
 	lProtoCmd.dwTimeStamp = int32(binary.LittleEndian.Uint32(buf[8:12]))
 	lProtoCmd.roomID = int16(binary.LittleEndian.Uint16(buf[12:14]))
 	lProtoCmd.size = int32(binary.LittleEndian.Uint32(buf[14:18]))
-	log.Printf("lProtoCmd: %+v", lProtoCmd)
 
 	messagedata := buf[18:]
 	var lMsgHead MsgHead

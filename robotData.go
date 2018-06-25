@@ -4,7 +4,7 @@ type RobotData struct {
 	MUserId          int
 	MAccId           int
 	MUserType        int
-	MUserNmae        string
+	MUserName        string
 	MPassWord        string
 	MUserNick        string
 	MTencentCodeId   string
@@ -27,7 +27,7 @@ type RobotAttr struct {
 func (RD *RobotData) Init(robotAttr RobotAttr) error {
 	RD.MUserId = robotAttr.MUserId
 	RD.MUserType = robotAttr.MUserType
-	RD.MUserNmae = robotAttr.MUserName
+	RD.MUserName = robotAttr.MUserName
 	RD.MPassWord = robotAttr.MPassWord
 	RD.MTencentCodeId = robotAttr.MTencentCodeId
 	RD.MTencentToken = robotAttr.MTencentToken

@@ -5,6 +5,8 @@ import (
 	"GStress/logger"
 	"GStress/msg"
 	"GStress/net"
+	"crypto/md5"
+	"encoding/hex"
 	"errors"
 	"strconv"
 	"time"
@@ -12,6 +14,10 @@ import (
 	"github.com/golang/protobuf/proto"
 
 	sq "github.com/yireyun/go-queue"
+)
+
+const (
+	RequestTimeOut = time.Second * 3
 )
 
 type TimerType int
@@ -134,12 +140,12 @@ func (r *Robot) Work() {
 		if r.mIsWorkEnd == true {
 			//任务结束
 			logger.Log4.Debug("UserId-%d:work end", r.mRobotData.MUserId)
-
 			//处理资源,如：关闭socket
 			if r.mNetClient != nil {
 				r.mNetClient.Close()
-				break
+
 			}
+			break
 		}
 	}
 
@@ -362,7 +368,19 @@ func (r *Robot) RobotStateLoginEventSocketAbnormal(e *fsm.Event) {
 func (r *Robot) RobotStateLoginEventTimer(e *fsm.Event) {
 	logger.Log4.Debug("<ENTER> :UserId-%d:CurState：%d", r.mRobotData.MUserId, e.FSM.CurState())
 	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUserId)
-
+	if len(e.Args) == 0 {
+		logger.Log4.Error("UserId-%d: no Remote Msg", r.mRobotData.MUserId)
+		return
+	}
+	timerData := e.Args[0].(*TimertData)
+	switch timerData.MTimerType {
+	case TimerLoginLoginSvr:
+		r.mCurTaskStepReuslt = TaskResultLogin_Lobbysvr_SendLoginRequestTimeOut
+		r.FsmSendEvent(RobotEventTaskAnalysis, nil)
+		break
+	default:
+		break
+	}
 }
 
 //登陆状态：处理任务解析
@@ -413,13 +431,38 @@ func (r *Robot) RobotStateLoginEventLoginLoginSvrd(e *fsm.Event) {
 		r.FsmSendEvent(RobotEventTaskAnalysis, nil)
 		return
 	} else {
-		//设置请求定时器，TODO-先完成定时器逻辑流程
+		//设置请求定时器
+		r.SetTimer(TimerLoginLoginSvr, RequestTimeOut)
 
 	}
 	return
 }
 
 func (r *Robot) RequestLoginSvr() error {
+	logger.Log4.Debug("<ENTER> :UserId-%d", r.mRobotData.MUserId)
+	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUserId)
+
+	if r.mNetClient == nil {
+		logger.Log4.Error("UserId-%d: no connect", r.mRobotData.MUserId)
+		return errors.New("ERR_NO_NET_CONNECT")
+	}
+	md5Ctx := md5.New()
+	md5Ctx.Write([]byte(r.mRobotData.MPassWord))
+	cipherStr := md5Ctx.Sum(nil)
+	secret := hex.EncodeToString(cipherStr)
+
+	m := &msg.LoginRequestInfo{
+		Account:      proto.String(r.mRobotData.MUserName),
+		Passwd:       proto.String(secret),
+		DeviceString: proto.String("12345612133333333422222222222343434234322"),
+		Packageflag:  proto.String("QPB_WEB_1"),
+	}
+
+	err := r.mNetClient.SenMsg(int16(msg.EnMainCmdID_LOGIN_MAIN_CMD), int16(msg.EnSubCmdID_REQUEST_LOGIN_SUB_CMD), m)
+	if err != nil {
+		logger.Log4.Error("UserId-%d: send fail", r.mRobotData.MUserId)
+		return errors.New("ERR_NET_SEND_FAIL")
+	}
 	return nil
 }
 
@@ -437,6 +480,17 @@ func (r *Robot) ConnectLoginSvr() error {
 		return err
 	}
 	r.mNetClient = lnetClient
+
+	go func() {
+		r.mNetClient.ReadMsg()
+		msgHead, err := r.mNetClient.ReadMsg()
+		if err != nil {
+			r.FsmSendEvent(RobotEventSocketAbnormal, nil)
+			return
+		}
+
+		r.FsmSendEvent(RobotEventRemoteMsg, msgHead)
+	}()
 	return nil
 
 }
