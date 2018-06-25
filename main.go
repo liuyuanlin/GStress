@@ -91,7 +91,7 @@ func main() {
 			robotAttr.MIsNeedAutoLogin = true
 		}
 
-		robotAttr.MUserNmae = row["UserName"]
+		robotAttr.MUserName = row["UserName"]
 		robotAttr.MPassWord = row["Password"]
 		robotAttr.MTencentToken = row["TencentToken"]
 		robotAttr.MTencentCodeId = row["TencentCodeId"]
@@ -123,9 +123,9 @@ func main() {
 			robotAttr.MTaskId = append(robotAttr.MTaskId, taskId)
 		}
 		logger.Log4.Error("robotAttr:%v", robotAttr)
-		err = robot.Init(robotAttr, lTaskMap)
+		err = robot.Init(robotAttr, lTaskMap, systemCfg, "Init")
 		if err != nil {
-			logger.Log4.Error("UserName-%s: Init Fail", robotAttr.MUserNmae)
+			logger.Log4.Error("UserName-%s: Init Fail", robotAttr.MUserName)
 			continue
 		}
 		gRobots = append(gRobots, &robot)

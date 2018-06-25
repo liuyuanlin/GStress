@@ -99,6 +99,7 @@ func (t *TaskMng) Init(taskMap TaskMap, robotAttr RobotAttr) error {
 			continue
 		}
 		var lTaskAttr TaskAttr
+		lTaskInfo = taskMap[taskId]
 		lTaskAttr.MTaskInfo.MTaskId = lTaskInfo.MTaskId
 		lTaskAttr.MTaskInfo.MTaskType = lTaskInfo.MTaskType
 		lTaskAttr.MTaskInfo.MParm = lTaskInfo.MParm
