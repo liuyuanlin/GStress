@@ -13,6 +13,15 @@ const (
 	TaskResultNone = iota
 	TaskResultSuccess
 	TaskResultSocketErr
+	TaskResultLogin_Loginsvr_ConnectFail
+	TaskResultLogin_Loginsvr_SendLoginRequestFail
+	TaskResultLogin_Loginsvr_SendLoginRequestTimeOut
+	TaskResultLogin_Loginsvr_LoginResponseFail
+
+	TaskResultLogin_Lobbysvr_ConnectFail
+	TaskResultLogin_Lobbysvr_SendLoginRequestFail
+	TaskResultLogin_Lobbysvr_SendLoginRequestTimeOut
+	TaskResultLogin_Lobbysvr_LoginResponseFail
 )
 
 type TaskState int

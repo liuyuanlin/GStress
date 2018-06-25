@@ -19,6 +19,12 @@ func Int32ToBytes(i int32) []byte {
 	return buf
 }
 
+type MsgHead struct {
+	MMainCmd int16
+	MSubCmd  int16
+	MData    []byte
+}
+
 type ProtoCmd struct {
 	cmd         int16
 	para        int16
@@ -116,18 +122,18 @@ func (n *NetClient) SenMsg(mainCmd int16, paraCmd int16, pb proto.Message) error
 }
 
 //TODO-liuyuanlin:
-func (n *NetClient) ReadMsg() (int16, int16, []byte, error) {
+func (n *NetClient) ReadMsg() (*MsgHead, error) {
 
 	//检查连接
 	if n.mConn == nil {
 
-		return 0, 0, nil, errors.New("no conn")
+		return nil, errors.New("no conn")
 	}
 
 	_, buf, err := n.mConn.ReadMessage()
 	if err != nil {
 		log.Println("read:", err)
-		return 0, 0, nil, err
+		return nil, err
 	}
 	log.Printf("recv: %v", buf)
 	lProtoCmd := new(ProtoCmd)
@@ -139,6 +145,9 @@ func (n *NetClient) ReadMsg() (int16, int16, []byte, error) {
 	log.Printf("lProtoCmd: %+v", lProtoCmd)
 
 	messagedata := buf[18:]
-
-	return lProtoCmd.cmd, lProtoCmd.para, messagedata, nil
+	var lMsgHead MsgHead
+	lMsgHead.MMainCmd = lProtoCmd.cmd
+	lMsgHead.MSubCmd = lProtoCmd.para
+	lMsgHead.MData = messagedata
+	return &lMsgHead, nil
 }

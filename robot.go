@@ -3,12 +3,22 @@ package main
 import (
 	"GStress/fsm"
 	"GStress/logger"
+	"GStress/msg"
 	"GStress/net"
 	"errors"
 	"strconv"
 	"time"
 
+	"github.com/golang/protobuf/proto"
+
 	sq "github.com/yireyun/go-queue"
+)
+
+type TimerType int
+
+const (
+	TimerLoginLoginSvr = iota
+	TimerLoginLobbySvr
 )
 
 type FsmState string
@@ -33,6 +43,7 @@ const (
 	RobotEventTimer          = "RobotEventTimer"
 	RobotEventTaskAnalysis   = "RobotEventTaskAnalysis"
 	RobotEventLoginLoginSvrd = "RobotEventLoginLoginSvrd"
+	RobotEventLoginLobbySvrd = "RobotEventLoginLobbySvrd"
 )
 
 type SystemConfig struct {
@@ -46,16 +57,21 @@ type RobotEventData struct {
 	MData  interface{}
 }
 
+type TimertData struct {
+	MTimerType TimerType
+	MTimeValue time.Duration
+}
+
 type Robot struct {
 	mFsm               *fsm.FSM
 	mTaskMng           TaskMng
 	mNetClient         *net.NetClient
 	mEventQueue        *sq.EsQueue
-	mTimers            map[int]int
+	mTimers            map[TimerType]*time.Timer
 	mCurTaskId         int
 	mCurTaskType       TaskType
 	mCurTaskStep       TaskStep
-	mCurTaskStepReuslt int
+	mCurTaskStepReuslt TaskResult
 	mRobotData         RobotData
 	mIsWorkEnd         bool
 	mSystemCfg         SystemConfig
@@ -102,7 +118,7 @@ func (r *Robot) Init(robotAttr RobotAttr, taskMap TaskMap, systemCfg ExcelCfg, s
 	}
 
 	//初始化定时器组
-	r.mTimers = make(map[int]int)
+	r.mTimers = make(map[TimerType]*time.Timer)
 
 	//状态转移
 	r.FsmTransferState(RobotStateTaskMng)
@@ -206,6 +222,8 @@ func (r *Robot) FsmInit(startState FsmState) error {
 	r.mFsm.AddStateEvent(RobotStateLogin, RobotEventTimer, r.RobotStateLoginEventTimer)
 	r.mFsm.AddStateEvent(RobotStateLogin, RobotEventTaskAnalysis, r.RobotStateLoginEventTaskAnalysis)
 	r.mFsm.AddStateEvent(RobotStateLogin, RobotEventLoginLoginSvrd, r.RobotStateLoginEventLoginLoginSvrd)
+	r.mFsm.AddStateEvent(RobotStateLogin, RobotEventLoginLobbySvrd, r.RobotStateLoginEventLoginLobbySvrd)
+
 	//......
 	return nil
 }
@@ -267,32 +285,80 @@ func (r *Robot) RobotStateTaskMngEventDispatch(e *fsm.Event) {
 
 //登陆状态
 func (r *Robot) RobotStateLoginEventInit(e *fsm.Event) {
-	logger.Log4.Debug("<ENTER> :UserId-%d:CurState：%d", r.mRobotData.MUserId, e.FSM.CurState())
+	logger.Log4.Debug("<ENTER> :UserId-%d:CurState：%s", r.mRobotData.MUserId, e.FSM.CurState())
 	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUserId)
-
+	r.FsmSendEvent(RobotEventTaskAnalysis, nil)
 }
 
 func (r *Robot) RobotStateLoginEventQuit(e *fsm.Event) {
-	logger.Log4.Debug("<ENTER> :UserId-%d:CurState：%d", r.mRobotData.MUserId, e.FSM.CurState())
+	logger.Log4.Debug("<ENTER> :UserId-%d:CurState：%s", r.mRobotData.MUserId, e.FSM.CurState())
 	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUserId)
 
 }
 
 //登陆状态：处理远程消息
 func (r *Robot) RobotStateLoginEventRemoteMsg(e *fsm.Event) {
-	logger.Log4.Debug("<ENTER> :UserId-%d:CurState：%d", r.mRobotData.MUserId, e.FSM.CurState())
+	logger.Log4.Debug("<ENTER> :UserId-%d:CurState：%s", r.mRobotData.MUserId, e.FSM.CurState())
 	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUserId)
 
+	if len(e.Args) == 0 {
+		logger.Log4.Error("UserId-%d: no Remote Msg", r.mRobotData.MUserId)
+		return
+	}
+	msgHead := e.Args[0].(*net.MsgHead)
+	switch msgHead.MMainCmd {
+	case int16(msg.EnMainCmdID_LOGIN_MAIN_CMD):
+		r.HandelLoginMainMsg(msgHead)
+		break
+	default:
+		break
+	}
+
+}
+
+func (r *Robot) HandelLoginMainMsg(msgHead *net.MsgHead) {
+	logger.Log4.Debug("<ENTER> :UserId-%d:", r.mRobotData.MUserId)
+	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUserId)
+
+	if msgHead == nil {
+		return
+	}
+	switch msgHead.MSubCmd {
+	case int16(msg.EnSubCmdID_RETURN_LOGININFO_SUB_CMD):
+		r.HandelReturnLoginInfo(msgHead)
+		break
+	default:
+		break
+	}
+
+	return
+}
+func (r *Robot) HandelReturnLoginInfo(msgHead *net.MsgHead) {
+	logger.Log4.Debug("<ENTER> :UserId-%d:", r.mRobotData.MUserId)
+	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUserId)
+
+	if msgHead == nil {
+		return
+	}
+
+	loginReturnInfo := &msg.LoginReturnInfo{}
+	err := proto.Unmarshal(msgHead.MData, loginReturnInfo)
+	if err != nil {
+		logger.Log4.Debug("unmarshal LoginReturnInfo error: %s", err)
+	}
+	logger.Log4.Debug("loginReturnInfo: %+v", loginReturnInfo)
 }
 
 //登陆状态：处理网络异常
 func (r *Robot) RobotStateLoginEventSocketAbnormal(e *fsm.Event) {
 	logger.Log4.Debug("<ENTER> :UserId-%d:CurState：%d", r.mRobotData.MUserId, e.FSM.CurState())
 	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUserId)
+	r.mCurTaskStepReuslt = TaskResultSocketErr
+	r.FsmSendEvent(RobotEventTaskAnalysis, nil)
 
 }
 
-//登陆状态：处理网络异常
+//登陆状态：处理定时事件
 func (r *Robot) RobotStateLoginEventTimer(e *fsm.Event) {
 	logger.Log4.Debug("<ENTER> :UserId-%d:CurState：%d", r.mRobotData.MUserId, e.FSM.CurState())
 	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUserId)
@@ -303,12 +369,128 @@ func (r *Robot) RobotStateLoginEventTimer(e *fsm.Event) {
 func (r *Robot) RobotStateLoginEventTaskAnalysis(e *fsm.Event) {
 	logger.Log4.Debug("<ENTER> :UserId-%d:CurState：%d", r.mRobotData.MUserId, e.FSM.CurState())
 	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUserId)
+	if r.mCurTaskStep != TaskStepNone {
+		r.mTaskMng.ReportTaskStepCompleteResult(r.mCurTaskId, r.mCurTaskType, r.mCurTaskStep, r.mCurTaskStepReuslt)
+	}
+	var taskStep TaskStep = TaskStepNone
+	taskStep, _ = r.mTaskMng.DispatchTaskStep()
+	if taskStep == TaskStepNone {
+		//当前任务步骤已作完，跳到任务管理状态继续分配任务
+		r.FsmTransferState(RobotStateTaskMng)
+		return
+	}
+	r.mCurTaskStep = taskStep
+	r.mCurTaskStepReuslt = TaskResultNone
 
+	switch r.mCurTaskStep {
+	case TaskStepLoginSvr:
+		r.FsmSendEvent(RobotEventLoginLoginSvrd, nil)
+		break
+	case TaskStepLobbySvr:
+		r.FsmSendEvent(RobotEventLoginLobbySvrd, nil)
+		break
+	default:
+		break
+	}
+	return
 }
 
 //登陆状态：处理登陆loginsvr
 func (r *Robot) RobotStateLoginEventLoginLoginSvrd(e *fsm.Event) {
 	logger.Log4.Debug("<ENTER> :UserId-%d:CurState：%d", r.mRobotData.MUserId, e.FSM.CurState())
 	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUserId)
+	err := r.ConnectLoginSvr()
+	if err != nil {
+		//网络连接失败，结束当前任务
+		r.mCurTaskStepReuslt = TaskResultLogin_Loginsvr_ConnectFail
+		r.FsmSendEvent(RobotEventTaskAnalysis, nil)
+		return
+	}
+	err = r.RequestLoginSvr()
+	if err != nil {
+		//网络连接失败，结束当前任务
+		r.mCurTaskStepReuslt = TaskResultLogin_Loginsvr_SendLoginRequestFail
+		r.FsmSendEvent(RobotEventTaskAnalysis, nil)
+		return
+	} else {
+		//设置请求定时器，TODO-先完成定时器逻辑流程
 
+	}
+	return
+}
+
+func (r *Robot) RequestLoginSvr() error {
+	return nil
+}
+
+func (r *Robot) ConnectLoginSvr() error {
+	if r.mNetClient != nil {
+		r.mNetClient.Close()
+		r.mNetClient = nil
+	}
+	tmp0 := r.mSystemCfg.MLoginSvrAddr
+	tmp1 := strconv.Itoa(r.mSystemCfg.MLoginSvrPort)
+	tmp := tmp0 + ":" + tmp1
+	lnetClient, err := net.NewNetClient(tmp, "")
+	if err != nil {
+		logger.Log4.Debug("UserId-%d: connet err:%s", r.mRobotData.MUserId, err)
+		return err
+	}
+	r.mNetClient = lnetClient
+	return nil
+
+}
+
+//登陆状态：处理登陆lobbysvr
+func (r *Robot) RobotStateLoginEventLoginLobbySvrd(e *fsm.Event) {
+	logger.Log4.Debug("<ENTER> :UserId-%d:CurState：%s", r.mRobotData.MUserId, e.FSM.CurState())
+	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUserId)
+
+}
+
+func (r *Robot) SetTimer(timerType TimerType, timeValue time.Duration) error {
+	logger.Log4.Debug("<ENTER> :UserId-%d", r.mRobotData.MUserId)
+	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUserId)
+	var lRetErr error
+	if _, ok := r.mTimers[timerType]; ok {
+		lRetErr = errors.New("ERR_EXIST")
+		return lRetErr
+	}
+	t := time.AfterFunc(timeValue, func() {
+		var timerData TimertData
+		timerData.MTimerType = timerType
+		timerData.MTimeValue = timeValue
+		r.mFsm.Event(string(RobotEventTimer), &timerData)
+
+	})
+	r.mTimers[timerType] = t
+	return nil
+}
+func (r *Robot) ReSetTimer(timerType TimerType, timeValue time.Duration) error {
+	logger.Log4.Debug("<ENTER> :UserId-%d", r.mRobotData.MUserId)
+	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUserId)
+	var lRetErr error
+	var t *time.Timer
+	var ok bool
+	if t, ok = r.mTimers[timerType]; !ok {
+		lRetErr = errors.New("ERR_NOT_EXIST")
+		return lRetErr
+	}
+	t.Reset(timeValue)
+	return nil
+}
+
+func (r *Robot) CancelTimer(timerType TimerType) error {
+	logger.Log4.Debug("<ENTER> :UserId-%d", r.mRobotData.MUserId)
+	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUserId)
+	var lRetErr error
+	var t *time.Timer
+	var ok bool
+	if t, ok = r.mTimers[timerType]; !ok {
+		lRetErr = errors.New("ERR_NOT_EXIST")
+		return lRetErr
+	}
+	t.Stop()
+	delete(r.mTimers, timerType)
+	return nil
 }
