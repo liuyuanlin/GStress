@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/binary"
 
-	"log"
 	"net/url"
 
 	"GStress/logger"
@@ -121,7 +120,10 @@ func (n *NetClient) SenMsg(mainCmd int16, paraCmd int16, pb proto.Message) error
 
 //TODO-liuyuanlin:
 func (n *NetClient) ReadMsg() (*MsgHead, error) {
+	logger.Log4.Debug("<ENTER>")
+	defer logger.Log4.Debug("<LEAVE>")
 
+	var lMsgHead MsgHead
 	//检查连接
 	if n.mConn == nil {
 
@@ -130,10 +132,12 @@ func (n *NetClient) ReadMsg() (*MsgHead, error) {
 
 	_, buf, err := n.mConn.ReadMessage()
 	if err != nil {
-		log.Println("read:", err)
+		logger.Log4.Error("read:", err)
 		return nil, err
+
 	}
-	log.Printf("recv: %v", buf)
+
+	logger.Log4.Info("recv: %v", buf)
 	lProtoCmd := new(ProtoCmd)
 	lProtoCmd.cmd = int16(binary.LittleEndian.Uint16(buf[4:6]))
 	lProtoCmd.para = int16(binary.LittleEndian.Uint16(buf[6:8]))
@@ -142,9 +146,12 @@ func (n *NetClient) ReadMsg() (*MsgHead, error) {
 	lProtoCmd.size = int32(binary.LittleEndian.Uint32(buf[14:18]))
 
 	messagedata := buf[18:]
-	var lMsgHead MsgHead
+
 	lMsgHead.MMainCmd = lProtoCmd.cmd
 	lMsgHead.MSubCmd = lProtoCmd.para
 	lMsgHead.MData = messagedata
+	logger.Log4.Info("recv-lMsgHead: %v", lMsgHead)
+
 	return &lMsgHead, nil
+
 }

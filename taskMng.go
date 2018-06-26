@@ -150,7 +150,7 @@ func (t *TaskMng) LoadTaskStep(taskAttr *TaskAttr) error {
 
 		//登陆大厅服务
 		var lTaskStepReport1 TaskStepReport
-		lTaskStepReport1.MTaskStep = TaskStepLoginSvr
+		lTaskStepReport1.MTaskStep = TaskStepLobbySvr
 		taskAttr.MTaskReport.MTaskStepReport = append(taskAttr.MTaskReport.MTaskStepReport, lTaskStepReport1)
 	case TaskTypeClub:
 		//创建俱乐部

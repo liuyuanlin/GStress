@@ -2,11 +2,13 @@ package main
 
 import (
 	"GStress/logger"
+	"runtime"
 	"strconv"
 	"sync"
 )
 
 func main() {
+	runtime.GOMAXPROCS(1)
 	logger.AddFileFilter("GStree", "gstree.log")
 	defer logger.Log4.Close()
 

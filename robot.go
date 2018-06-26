@@ -333,6 +333,9 @@ func (r *Robot) HandelLoginMainMsg(msgHead *net.MsgHead) {
 	case int16(msg.EnSubCmdID_RETURN_LOGININFO_SUB_CMD):
 		r.HandelReturnLoginInfo(msgHead)
 		break
+	case int16(msg.EnSubCmdID_LOGIN_ERROR_CODE_SUB_CMD):
+		r.HandelLoginErrorCode(msgHead)
+		break
 	default:
 		break
 	}
@@ -346,6 +349,8 @@ func (r *Robot) HandelReturnLoginInfo(msgHead *net.MsgHead) {
 	if msgHead == nil {
 		return
 	}
+	//收到响应取消定时器
+	r.CancelTimer(TimerLoginLoginSvr)
 
 	loginReturnInfo := &msg.LoginReturnInfo{}
 	err := proto.Unmarshal(msgHead.MData, loginReturnInfo)
@@ -353,14 +358,41 @@ func (r *Robot) HandelReturnLoginInfo(msgHead *net.MsgHead) {
 		logger.Log4.Debug("unmarshal LoginReturnInfo error: %s", err)
 	}
 	logger.Log4.Debug("loginReturnInfo: %+v", loginReturnInfo)
+
+	r.mCurTaskStepReuslt = TaskResultSuccess
+	r.FsmSendEvent(RobotEventTaskAnalysis, nil)
+}
+
+func (r *Robot) HandelLoginErrorCode(msgHead *net.MsgHead) {
+	logger.Log4.Debug("<ENTER> :UserId-%d:", r.mRobotData.MUserId)
+	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUserId)
+
+	if msgHead == nil {
+		return
+	}
+
+	//收到响应取消定时器
+	r.CancelTimer(TimerLoginLoginSvr)
+
+	loginErrorCode := &msg.LoginErrorCode{}
+	err := proto.Unmarshal(msgHead.MData, loginErrorCode)
+	if err != nil {
+		logger.Log4.Debug("unmarshal LoginErrorCode error: %s", err)
+	}
+	logger.Log4.Debug("loginErrorCode: %+v", loginErrorCode)
+	r.mCurTaskStepReuslt = TaskResultLogin_Loginsvr_LoginResponseFail
+	r.FsmSendEvent(RobotEventTaskAnalysis, nil)
 }
 
 //登陆状态：处理网络异常
 func (r *Robot) RobotStateLoginEventSocketAbnormal(e *fsm.Event) {
 	logger.Log4.Debug("<ENTER> :UserId-%d:CurState：%d", r.mRobotData.MUserId, e.FSM.CurState())
 	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUserId)
-	r.mCurTaskStepReuslt = TaskResultSocketErr
-	r.FsmSendEvent(RobotEventTaskAnalysis, nil)
+
+	if r.mCurTaskStepReuslt != TaskResultNone {
+		r.mCurTaskStepReuslt = TaskResultSocketErr
+		r.FsmSendEvent(RobotEventTaskAnalysis, nil)
+	}
 
 }
 
@@ -476,20 +508,21 @@ func (r *Robot) ConnectLoginSvr() error {
 	tmp := tmp0 + ":" + tmp1
 	lnetClient, err := net.NewNetClient(tmp, "")
 	if err != nil {
-		logger.Log4.Debug("UserId-%d: connet err:%s", r.mRobotData.MUserId, err)
+		logger.Log4.Error("UserId-%d: connet err:%s", r.mRobotData.MUserId, err)
 		return err
 	}
 	r.mNetClient = lnetClient
-
 	go func() {
-		r.mNetClient.ReadMsg()
 		msgHead, err := r.mNetClient.ReadMsg()
 		if err != nil {
+			logger.Log4.Error("UserId-%d: ReadMsg err:%s", r.mRobotData.MUserId, err)
 			r.FsmSendEvent(RobotEventSocketAbnormal, nil)
 			return
+		} else {
+			logger.Log4.Error("UserId-%d: msgHead :%v", r.mRobotData.MUserId, msgHead)
+			r.FsmSendEvent(RobotEventRemoteMsg, msgHead)
 		}
 
-		r.FsmSendEvent(RobotEventRemoteMsg, msgHead)
 	}()
 	return nil
 
