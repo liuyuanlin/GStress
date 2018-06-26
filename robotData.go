@@ -1,7 +1,8 @@
 package main
 
 type RobotData struct {
-	MUserId          int
+	MUId             int //配置的ID
+	MUserId          int //服务器中实际的ID
 	MAccId           int
 	MUserType        int
 	MUserName        string
@@ -13,6 +14,7 @@ type RobotData struct {
 	MApointRoomId    int
 }
 type RobotAttr struct {
+	MUId             int
 	MUserId          int
 	MUserType        int
 	MUserName        string
@@ -25,6 +27,7 @@ type RobotAttr struct {
 }
 
 func (RD *RobotData) Init(robotAttr RobotAttr) error {
+	RD.MUId = robotAttr.MUId
 	RD.MUserId = robotAttr.MUserId
 	RD.MUserType = robotAttr.MUserType
 	RD.MUserName = robotAttr.MUserName

@@ -68,12 +68,12 @@ func main() {
 		var robot Robot
 		var robotAttr RobotAttr
 		//获取机器人ID
-		userid, err := strconv.Atoi(row["Uid"])
+		Uid, err := strconv.Atoi(row["Uid"])
 		if err != nil {
 			logger.Log4.Error("err:%s", err)
 			return
 		}
-		robotAttr.MUserId = userid
+		robotAttr.MUId = Uid
 		//获取机器人类型
 		userType, err := strconv.Atoi(row["UserType"])
 		if err != nil {

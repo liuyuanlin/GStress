@@ -139,7 +139,7 @@ func (r *Robot) Work() {
 		r.DispatchEvent()
 		if r.mIsWorkEnd == true {
 			//任务结束
-			logger.Log4.Debug("UserId-%d:work end", r.mRobotData.MUserId)
+			logger.Log4.Debug("UserId-%d:work end", r.mRobotData.MUId)
 			//处理资源,如：关闭socket
 			if r.mNetClient != nil {
 				r.mNetClient.Close()
@@ -156,10 +156,10 @@ func (r *Robot) DispatchEvent() {
 	for {
 		event, ok, quantity := r.mEventQueue.Get()
 		if !ok {
-			logger.Log4.Info("UserId-%d:Get event Fail,the mEventQueue Size is %d", r.mRobotData.MUserId, quantity)
+			logger.Log4.Info("UserId-%d:Get event Fail,the mEventQueue Size is %d", r.mRobotData.MUId, quantity)
 			break
 		}
-		logger.Log4.Info("UserId-%d:Get event success,the mEventQueue Size is %d", r.mRobotData.MUserId, quantity)
+		logger.Log4.Info("UserId-%d:Get event success,the mEventQueue Size is %d", r.mRobotData.MUId, quantity)
 		lEventCount++
 		eventData := event.(*RobotEventData)
 		if eventData.MState == RobotStateNone {
@@ -194,7 +194,7 @@ func (r *Robot) FsmTransferState(state FsmState) error {
 	/*
 		_, ok, quantity := r.mEventQueue.Get()
 		if !ok {
-			logger.Log4.Info("UserId-%d:Get event Fail,the mEventQueue Size is %d", r.mRobotData.MUserId, quantity)
+			logger.Log4.Info("UserId-%d:Get event Fail,the mEventQueue Size is %d", r.mRobotData.MUId, quantity)
 		}
 	*/
 	return nil
@@ -236,38 +236,38 @@ func (r *Robot) FsmInit(startState FsmState) error {
 
 //初始化状态
 func (r *Robot) RobotStateInitEventInit(e *fsm.Event) {
-	logger.Log4.Debug("<ENTER> :UserId-%d:CurState：%d", r.mRobotData.MUserId, e.FSM.CurState())
-	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUserId)
+	logger.Log4.Debug("<ENTER> :UserId-%d:CurState：%d", r.mRobotData.MUId, e.FSM.CurState())
+	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
 
 }
 
 func (r *Robot) RobotStateInitEventQuit(e *fsm.Event) {
-	logger.Log4.Debug("<ENTER> :UserId-%d:CurState：%d", r.mRobotData.MUserId, e.FSM.CurState())
-	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUserId)
+	logger.Log4.Debug("<ENTER> :UserId-%d:CurState：%d", r.mRobotData.MUId, e.FSM.CurState())
+	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
 
 }
 
 //任务管理状态
 func (r *Robot) RobotStateTaskMngEventInit(e *fsm.Event) {
-	logger.Log4.Debug("<ENTER> :UserId-%d:CurState：%d", r.mRobotData.MUserId, e.FSM.CurState())
-	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUserId)
+	logger.Log4.Debug("<ENTER> :UserId-%d:CurState：%d", r.mRobotData.MUId, e.FSM.CurState())
+	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
 
 	r.FsmSendEvent(RobotEventDispatch, nil)
 
 }
 
 func (r *Robot) RobotStateTaskMngEventQuit(e *fsm.Event) {
-	logger.Log4.Debug("<ENTER> :UserId-%d:CurState：%d", r.mRobotData.MUserId, e.FSM.CurState())
-	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUserId)
+	logger.Log4.Debug("<ENTER> :UserId-%d:CurState：%d", r.mRobotData.MUId, e.FSM.CurState())
+	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
 
 }
 func (r *Robot) RobotStateTaskMngEventDispatch(e *fsm.Event) {
-	logger.Log4.Debug("<ENTER> :UserId-%d:CurState：%d", r.mRobotData.MUserId, e.FSM.CurState())
-	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUserId)
+	logger.Log4.Debug("<ENTER> :UserId-%d:CurState：%d", r.mRobotData.MUId, e.FSM.CurState())
+	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
 	taskType, err := r.mTaskMng.DispatchTask()
 	if taskType == TaskTypeNone {
 		r.mIsWorkEnd = true
-		logger.Log4.Debug("<ENTER> :UserId-%d: work end,err:%s", r.mRobotData.MUserId, err)
+		logger.Log4.Debug("<ENTER> :UserId-%d: work end,err:%s", r.mRobotData.MUId, err)
 		return
 	}
 
@@ -276,7 +276,7 @@ func (r *Robot) RobotStateTaskMngEventDispatch(e *fsm.Event) {
 	r.mCurTaskStep = TaskStepNone
 	r.mCurTaskStepReuslt = TaskResultNone
 
-	logger.Log4.Debug("<ENTER> :UserId-%d:get task-%d", r.mRobotData.MUserId, r.mCurTaskId)
+	logger.Log4.Debug("<ENTER> :UserId-%d:get task-%d", r.mRobotData.MUId, r.mCurTaskId)
 	switch taskType {
 	case TaskTypeLogin:
 		r.FsmTransferState(RobotStateLogin)
@@ -291,24 +291,24 @@ func (r *Robot) RobotStateTaskMngEventDispatch(e *fsm.Event) {
 
 //登陆状态
 func (r *Robot) RobotStateLoginEventInit(e *fsm.Event) {
-	logger.Log4.Debug("<ENTER> :UserId-%d:CurState：%s", r.mRobotData.MUserId, e.FSM.CurState())
-	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUserId)
+	logger.Log4.Debug("<ENTER> :UserId-%d:CurState：%s", r.mRobotData.MUId, e.FSM.CurState())
+	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
 	r.FsmSendEvent(RobotEventTaskAnalysis, nil)
 }
 
 func (r *Robot) RobotStateLoginEventQuit(e *fsm.Event) {
-	logger.Log4.Debug("<ENTER> :UserId-%d:CurState：%s", r.mRobotData.MUserId, e.FSM.CurState())
-	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUserId)
+	logger.Log4.Debug("<ENTER> :UserId-%d:CurState：%s", r.mRobotData.MUId, e.FSM.CurState())
+	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
 
 }
 
 //登陆状态：处理远程消息
 func (r *Robot) RobotStateLoginEventRemoteMsg(e *fsm.Event) {
-	logger.Log4.Debug("<ENTER> :UserId-%d:CurState：%s", r.mRobotData.MUserId, e.FSM.CurState())
-	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUserId)
+	logger.Log4.Debug("<ENTER> :UserId-%d:CurState：%s", r.mRobotData.MUId, e.FSM.CurState())
+	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
 
 	if len(e.Args) == 0 {
-		logger.Log4.Error("UserId-%d: no Remote Msg", r.mRobotData.MUserId)
+		logger.Log4.Error("UserId-%d: no Remote Msg", r.mRobotData.MUId)
 		return
 	}
 	msgHead := e.Args[0].(*net.MsgHead)
@@ -323,8 +323,8 @@ func (r *Robot) RobotStateLoginEventRemoteMsg(e *fsm.Event) {
 }
 
 func (r *Robot) HandelLoginMainMsg(msgHead *net.MsgHead) {
-	logger.Log4.Debug("<ENTER> :UserId-%d:", r.mRobotData.MUserId)
-	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUserId)
+	logger.Log4.Debug("<ENTER> :UserId-%d:", r.mRobotData.MUId)
+	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
 
 	if msgHead == nil {
 		return
@@ -343,8 +343,8 @@ func (r *Robot) HandelLoginMainMsg(msgHead *net.MsgHead) {
 	return
 }
 func (r *Robot) HandelReturnLoginInfo(msgHead *net.MsgHead) {
-	logger.Log4.Debug("<ENTER> :UserId-%d:", r.mRobotData.MUserId)
-	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUserId)
+	logger.Log4.Debug("<ENTER> :UserId-%d:", r.mRobotData.MUId)
+	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
 
 	if msgHead == nil {
 		return
@@ -364,8 +364,8 @@ func (r *Robot) HandelReturnLoginInfo(msgHead *net.MsgHead) {
 }
 
 func (r *Robot) HandelLoginErrorCode(msgHead *net.MsgHead) {
-	logger.Log4.Debug("<ENTER> :UserId-%d:", r.mRobotData.MUserId)
-	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUserId)
+	logger.Log4.Debug("<ENTER> :UserId-%d:", r.mRobotData.MUId)
+	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
 
 	if msgHead == nil {
 		return
@@ -386,8 +386,8 @@ func (r *Robot) HandelLoginErrorCode(msgHead *net.MsgHead) {
 
 //登陆状态：处理网络异常
 func (r *Robot) RobotStateLoginEventSocketAbnormal(e *fsm.Event) {
-	logger.Log4.Debug("<ENTER> :UserId-%d:CurState：%d", r.mRobotData.MUserId, e.FSM.CurState())
-	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUserId)
+	logger.Log4.Debug("<ENTER> :UserId-%d:CurState：%d", r.mRobotData.MUId, e.FSM.CurState())
+	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
 
 	if r.mCurTaskStepReuslt != TaskResultNone {
 		r.mCurTaskStepReuslt = TaskResultSocketErr
@@ -398,10 +398,10 @@ func (r *Robot) RobotStateLoginEventSocketAbnormal(e *fsm.Event) {
 
 //登陆状态：处理定时事件
 func (r *Robot) RobotStateLoginEventTimer(e *fsm.Event) {
-	logger.Log4.Debug("<ENTER> :UserId-%d:CurState：%d", r.mRobotData.MUserId, e.FSM.CurState())
-	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUserId)
+	logger.Log4.Debug("<ENTER> :UserId-%d:CurState：%d", r.mRobotData.MUId, e.FSM.CurState())
+	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
 	if len(e.Args) == 0 {
-		logger.Log4.Error("UserId-%d: no Remote Msg", r.mRobotData.MUserId)
+		logger.Log4.Error("UserId-%d: no Remote Msg", r.mRobotData.MUId)
 		return
 	}
 	timerData := e.Args[0].(*TimertData)
@@ -417,8 +417,8 @@ func (r *Robot) RobotStateLoginEventTimer(e *fsm.Event) {
 
 //登陆状态：处理任务解析
 func (r *Robot) RobotStateLoginEventTaskAnalysis(e *fsm.Event) {
-	logger.Log4.Debug("<ENTER> :UserId-%d:CurState：%d", r.mRobotData.MUserId, e.FSM.CurState())
-	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUserId)
+	logger.Log4.Debug("<ENTER> :UserId-%d:CurState：%d", r.mRobotData.MUId, e.FSM.CurState())
+	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
 	if r.mCurTaskStep != TaskStepNone {
 		r.mTaskMng.ReportTaskStepCompleteResult(r.mCurTaskId, r.mCurTaskType, r.mCurTaskStep, r.mCurTaskStepReuslt)
 	}
@@ -447,8 +447,8 @@ func (r *Robot) RobotStateLoginEventTaskAnalysis(e *fsm.Event) {
 
 //登陆状态：处理登陆loginsvr
 func (r *Robot) RobotStateLoginEventLoginLoginSvrd(e *fsm.Event) {
-	logger.Log4.Debug("<ENTER> :UserId-%d:CurState：%d", r.mRobotData.MUserId, e.FSM.CurState())
-	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUserId)
+	logger.Log4.Debug("<ENTER> :UserId-%d:CurState：%d", r.mRobotData.MUId, e.FSM.CurState())
+	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
 	err := r.ConnectLoginSvr()
 	if err != nil {
 		//网络连接失败，结束当前任务
@@ -471,11 +471,11 @@ func (r *Robot) RobotStateLoginEventLoginLoginSvrd(e *fsm.Event) {
 }
 
 func (r *Robot) RequestLoginSvr() error {
-	logger.Log4.Debug("<ENTER> :UserId-%d", r.mRobotData.MUserId)
-	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUserId)
+	logger.Log4.Debug("<ENTER> :UserId-%d", r.mRobotData.MUId)
+	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
 
 	if r.mNetClient == nil {
-		logger.Log4.Error("UserId-%d: no connect", r.mRobotData.MUserId)
+		logger.Log4.Error("UserId-%d: no connect", r.mRobotData.MUId)
 		return errors.New("ERR_NO_NET_CONNECT")
 	}
 	md5Ctx := md5.New()
@@ -492,7 +492,7 @@ func (r *Robot) RequestLoginSvr() error {
 
 	err := r.mNetClient.SenMsg(int16(msg.EnMainCmdID_LOGIN_MAIN_CMD), int16(msg.EnSubCmdID_REQUEST_LOGIN_SUB_CMD), m)
 	if err != nil {
-		logger.Log4.Error("UserId-%d: send fail", r.mRobotData.MUserId)
+		logger.Log4.Error("UserId-%d: send fail", r.mRobotData.MUId)
 		return errors.New("ERR_NET_SEND_FAIL")
 	}
 	return nil
@@ -508,18 +508,18 @@ func (r *Robot) ConnectLoginSvr() error {
 	tmp := tmp0 + ":" + tmp1
 	lnetClient, err := net.NewNetClient(tmp, "")
 	if err != nil {
-		logger.Log4.Error("UserId-%d: connet err:%s", r.mRobotData.MUserId, err)
+		logger.Log4.Error("UserId-%d: connet err:%s", r.mRobotData.MUId, err)
 		return err
 	}
 	r.mNetClient = lnetClient
 	go func() {
 		msgHead, err := r.mNetClient.ReadMsg()
 		if err != nil {
-			logger.Log4.Error("UserId-%d: ReadMsg err:%s", r.mRobotData.MUserId, err)
+			logger.Log4.Error("UserId-%d: ReadMsg err:%s", r.mRobotData.MUId, err)
 			r.FsmSendEvent(RobotEventSocketAbnormal, nil)
 			return
 		} else {
-			logger.Log4.Error("UserId-%d: msgHead :%v", r.mRobotData.MUserId, msgHead)
+			logger.Log4.Error("UserId-%d: msgHead :%v", r.mRobotData.MUId, msgHead)
 			r.FsmSendEvent(RobotEventRemoteMsg, msgHead)
 		}
 
@@ -530,14 +530,14 @@ func (r *Robot) ConnectLoginSvr() error {
 
 //登陆状态：处理登陆lobbysvr
 func (r *Robot) RobotStateLoginEventLoginLobbySvrd(e *fsm.Event) {
-	logger.Log4.Debug("<ENTER> :UserId-%d:CurState：%s", r.mRobotData.MUserId, e.FSM.CurState())
-	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUserId)
+	logger.Log4.Debug("<ENTER> :UserId-%d:CurState：%s", r.mRobotData.MUId, e.FSM.CurState())
+	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
 
 }
 
 func (r *Robot) SetTimer(timerType TimerType, timeValue time.Duration) error {
-	logger.Log4.Debug("<ENTER> :UserId-%d", r.mRobotData.MUserId)
-	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUserId)
+	logger.Log4.Debug("<ENTER> :UserId-%d", r.mRobotData.MUId)
+	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
 	var lRetErr error
 	if _, ok := r.mTimers[timerType]; ok {
 		lRetErr = errors.New("ERR_EXIST")
@@ -554,8 +554,8 @@ func (r *Robot) SetTimer(timerType TimerType, timeValue time.Duration) error {
 	return nil
 }
 func (r *Robot) ReSetTimer(timerType TimerType, timeValue time.Duration) error {
-	logger.Log4.Debug("<ENTER> :UserId-%d", r.mRobotData.MUserId)
-	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUserId)
+	logger.Log4.Debug("<ENTER> :UserId-%d", r.mRobotData.MUId)
+	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
 	var lRetErr error
 	var t *time.Timer
 	var ok bool
@@ -568,8 +568,8 @@ func (r *Robot) ReSetTimer(timerType TimerType, timeValue time.Duration) error {
 }
 
 func (r *Robot) CancelTimer(timerType TimerType) error {
-	logger.Log4.Debug("<ENTER> :UserId-%d", r.mRobotData.MUserId)
-	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUserId)
+	logger.Log4.Debug("<ENTER> :UserId-%d", r.mRobotData.MUId)
+	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
 	var lRetErr error
 	var t *time.Timer
 	var ok bool

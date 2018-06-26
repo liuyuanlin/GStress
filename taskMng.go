@@ -90,18 +90,18 @@ type TaskMng struct {
 	MTaskInfo        TaskMap
 	MUnCompletedTask *sq.EsQueue
 	MCompletedTask   *sq.EsQueue
-	MUserId          int
+	MUId             int
 }
 
 func (t *TaskMng) Init(taskMap TaskMap, robotAttr RobotAttr) error {
-	logger.Log4.Info("UserId-%d:<ENTER>", robotAttr.MUserId)
-	defer logger.Log4.Debug("UserId-%d:<LEAVE>", robotAttr.MUserId)
+	logger.Log4.Info("UserId-%d:<ENTER>", robotAttr.MUId)
+	defer logger.Log4.Debug("UserId-%d:<LEAVE>", robotAttr.MUId)
 	var lRetErr error
 	//1.初始化相关
 	t.MUnCompletedTask = sq.NewQueue(1024 * 1024)
 	t.MCompletedTask = sq.NewQueue(1024 * 1024)
 	t.MTaskInfo = make(TaskMap)
-	t.MUserId = robotAttr.MUserId
+	t.MUId = robotAttr.MUId
 	t.MCurTask = nil
 
 	for _, taskId := range robotAttr.MTaskId {
@@ -132,8 +132,8 @@ END:
 
 //加载任务具体执行步骤
 func (t *TaskMng) LoadTaskStep(taskAttr *TaskAttr) error {
-	logger.Log4.Debug("UserId-%d:<ENTER>", t.MUserId)
-	defer logger.Log4.Debug("UserId-%d:<LEAVE>", t.MUserId)
+	logger.Log4.Debug("UserId-%d:<ENTER>", t.MUId)
+	defer logger.Log4.Debug("UserId-%d:<LEAVE>", t.MUId)
 
 	var lRetErr error
 	if taskAttr == nil {
@@ -186,8 +186,8 @@ func (t *TaskMng) LoadTaskStep(taskAttr *TaskAttr) error {
 
 //报告任务结果
 func (t *TaskMng) ReportTaskStepCompleteResult(taskId int, taskType TaskType, taskStep TaskStep, taskResult TaskResult) error {
-	logger.Log4.Debug("UserId-%d:<ENTER>", t.MUserId)
-	defer logger.Log4.Debug("UserId-%d:<LEAVE>", t.MUserId)
+	logger.Log4.Debug("UserId-%d:<ENTER>", t.MUId)
+	defer logger.Log4.Debug("UserId-%d:<LEAVE>", t.MUId)
 	var lRetErr error
 	if t.MCurTask == nil {
 		lRetErr = errors.New("ERR_NO_CUAR_TASK")
@@ -196,13 +196,13 @@ func (t *TaskMng) ReportTaskStepCompleteResult(taskId int, taskType TaskType, ta
 
 	if taskId != t.MCurTask.MTaskInfo.MTaskId {
 		logger.Log4.Debug("User-%d:The current task id does not match!,The report taskid is %d ,but curt task id is %d",
-			t.MUserId, taskId, t.MCurTask.MTaskInfo.MTaskId)
+			t.MUId, taskId, t.MCurTask.MTaskInfo.MTaskId)
 		lRetErr = errors.New("ERR_TASKID")
 		return lRetErr
 	}
 	if taskType != t.MCurTask.MTaskInfo.MTaskType {
 		logger.Log4.Debug("User-%d:The current task type does not match!,The report taskid is %d ,but curt task type is %d",
-			t.MUserId, taskType, t.MCurTask.MTaskInfo.MTaskType)
+			t.MUId, taskType, t.MCurTask.MTaskInfo.MTaskType)
 		lRetErr = errors.New("ERR_TASKTYPE")
 		return lRetErr
 	}
@@ -211,7 +211,7 @@ func (t *TaskMng) ReportTaskStepCompleteResult(taskId int, taskType TaskType, ta
 
 	if taskStep != curTaskStepReport.MTaskStep {
 		logger.Log4.Debug("User-%d:The current task step does not match!,The report taskid is %d ,but curt task step is %d",
-			t.MUserId, taskType, t.MCurTask.MTaskInfo.MTaskType)
+			t.MUId, taskType, t.MCurTask.MTaskInfo.MTaskType)
 		lRetErr = errors.New("ERR_TASKStep")
 		return lRetErr
 	}
@@ -223,12 +223,12 @@ func (t *TaskMng) ReportTaskStepCompleteResult(taskId int, taskType TaskType, ta
 
 //获取当前任务ID
 func (t *TaskMng) GetCurTaskId() (int, error) {
-	logger.Log4.Debug("UserId-%d:<ENTER>", t.MUserId)
-	defer logger.Log4.Debug("UserId-%d:<LEAVE>", t.MUserId)
+	logger.Log4.Debug("UserId-%d:<ENTER>", t.MUId)
+	defer logger.Log4.Debug("UserId-%d:<LEAVE>", t.MUId)
 	var lRetErr error
 
 	if t.MCurTask == nil {
-		logger.Log4.Debug("UserId-%d:no cur task", t.MUserId)
+		logger.Log4.Debug("UserId-%d:no cur task", t.MUId)
 		lRetErr = errors.New("ERR_PARAM")
 		return 0, lRetErr
 	}
@@ -237,12 +237,12 @@ func (t *TaskMng) GetCurTaskId() (int, error) {
 
 //分发任务步骤
 func (t *TaskMng) DispatchTaskStep() (TaskStep, error) {
-	logger.Log4.Debug("UserId-%d:<ENTER>", t.MUserId)
-	defer logger.Log4.Debug("UserId-%d:<LEAVE>", t.MUserId)
+	logger.Log4.Debug("UserId-%d:<ENTER>", t.MUId)
+	defer logger.Log4.Debug("UserId-%d:<LEAVE>", t.MUId)
 	var lRetErr error
 	var taskStep TaskStep = TaskStepNone
 	if t.MCurTask == nil {
-		logger.Log4.Debug("UserId-%d:no cur task", t.MUserId)
+		logger.Log4.Debug("UserId-%d:no cur task", t.MUId)
 		lRetErr = errors.New("ERR_PARAM")
 		return taskStep, lRetErr
 	}
@@ -271,8 +271,8 @@ func (t *TaskMng) DispatchTaskStep() (TaskStep, error) {
 
 //分发任务
 func (t *TaskMng) DispatchTask() (TaskType, error) {
-	logger.Log4.Debug("UserId-%d:<ENTER>", t.MUserId)
-	defer logger.Log4.Debug("UserId-%d:<LEAVE>", t.MUserId)
+	logger.Log4.Debug("UserId-%d:<ENTER>", t.MUId)
+	defer logger.Log4.Debug("UserId-%d:<LEAVE>", t.MUId)
 	var lRetErr error
 	var taskType TaskType = TaskTypeNone
 
@@ -284,7 +284,7 @@ func (t *TaskMng) DispatchTask() (TaskType, error) {
 	if t.MUnCompletedTask.Quantity() > 0 {
 		task, ok, quantity := t.MUnCompletedTask.Get()
 		if !ok {
-			logger.Log4.Error("UserId-%d:Get Task Fail,the UnCompleted Size is %d", t.MUserId, quantity)
+			logger.Log4.Error("UserId-%d:Get Task Fail,the UnCompleted Size is %d", t.MUId, quantity)
 		} else {
 			t.MCurTask = task.(*TaskAttr)
 			taskType = t.MCurTask.MTaskInfo.MTaskType
@@ -296,8 +296,8 @@ func (t *TaskMng) DispatchTask() (TaskType, error) {
 }
 
 func (t *TaskMng) GetTaskPrarm(place int) string {
-	logger.Log4.Debug("UserId-%d:<ENTER>", t.MUserId)
-	defer logger.Log4.Debug("UserId-%d:<LEAVE>", t.MUserId)
+	logger.Log4.Debug("UserId-%d:<ENTER>", t.MUId)
+	defer logger.Log4.Debug("UserId-%d:<LEAVE>", t.MUId)
 	if place < 0 {
 		return ""
 	}
@@ -313,8 +313,8 @@ func (t *TaskMng) GetTaskPrarm(place int) string {
 }
 
 func (t *TaskMng) GetTaskPrarmNum() int {
-	logger.Log4.Debug("UserId-%d:<ENTER>", t.MUserId)
-	defer logger.Log4.Debug("UserId-%d:<LEAVE>", t.MUserId)
+	logger.Log4.Debug("UserId-%d:<ENTER>", t.MUId)
+	defer logger.Log4.Debug("UserId-%d:<LEAVE>", t.MUId)
 
 	if t.MCurTask == nil {
 		return 0
@@ -335,8 +335,8 @@ func PathExists(path string) (bool, error) {
 }
 
 func (t *TaskMng) OutputTaskReport() {
-	logger.Log4.Debug("UserId-%d:<ENTER>", t.MUserId)
-	defer logger.Log4.Debug("UserId-%d:<LEAVE>", t.MUserId)
+	logger.Log4.Debug("UserId-%d:<ENTER>", t.MUId)
+	defer logger.Log4.Debug("UserId-%d:<LEAVE>", t.MUId)
 
 	//判断文件夹是否存在
 	isExist, _ := PathExists("./log")
@@ -345,18 +345,18 @@ func (t *TaskMng) OutputTaskReport() {
 	}
 
 	var fleName string
-	fleName = fmt.Sprintf("./log/robotTaskReport_%d.txt", t.MUserId)
+	fleName = fmt.Sprintf("./log/robotTaskReport_%d.txt", t.MUId)
 	f, err := os.OpenFile(fleName, os.O_RDWR|os.O_CREATE|os.O_APPEND, os.ModeAppend|os.ModePerm)
 	if err != nil {
-		logger.Log4.Error("UserId-%d:Err:", t.MUserId, err)
+		logger.Log4.Error("UserId-%d:Err:", t.MUId, err)
 		return
 	}
 	defer f.Close()
 	//记录头信息
-	recordTime := fmt.Sprintf("\n===============%d report time:%s========\n", t.MUserId, time.Now().Format("2006-01-02 15:04:05"))
+	recordTime := fmt.Sprintf("\n===============%d report time:%s========\n", t.MUId, time.Now().Format("2006-01-02 15:04:05"))
 	_, err = f.WriteString(recordTime)
 	if err != nil {
-		logger.Log4.Error("UserId-%d:Err:", t.MUserId, err)
+		logger.Log4.Error("UserId-%d:Err:", t.MUId, err)
 		return
 	}
 	//记录任务信息
@@ -379,7 +379,7 @@ func (t *TaskMng) OutputTaskReport() {
 	)
 	_, err = f.WriteString(taskInfo)
 	if err != nil {
-		logger.Log4.Error("UserId-%d:Err:", t.MUserId, err)
+		logger.Log4.Error("UserId-%d:Err:", t.MUId, err)
 		return
 	}
 	//记录单步任务状态
@@ -398,7 +398,7 @@ func (t *TaskMng) OutputTaskReport() {
 		)
 		_, err = f.WriteString(taskStepInfo)
 		if err != nil {
-			logger.Log4.Error("UserId-%d:Err:", t.MUserId, err)
+			logger.Log4.Error("UserId-%d:Err:", t.MUId, err)
 			return
 		}
 	}
