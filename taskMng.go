@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"time"
 
 	sq "github.com/yireyun/go-queue"
 )
@@ -322,19 +323,83 @@ func (t *TaskMng) GetTaskPrarmNum() int {
 	return len(t.MCurTask.MTaskInfo.MParm)
 
 }
+func PathExists(path string) (bool, error) {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true, nil
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	return false, err
+}
 
 func (t *TaskMng) OutputTaskReport() {
 	logger.Log4.Debug("UserId-%d:<ENTER>", t.MUserId)
 	defer logger.Log4.Debug("UserId-%d:<LEAVE>", t.MUserId)
+
+	//判断文件夹是否存在
+	isExist, _ := PathExists("./log")
+	if !isExist {
+		os.Mkdir("./log", os.ModeDir|os.ModePerm)
+	}
+
 	var fleName string
-	fleName = fmt.Sprintf("./log/robotTaskReport_%d", t.MUserId)
-	f, err := os.OpenFile(fleName, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0x644)
+	fleName = fmt.Sprintf("./log/robotTaskReport_%d.txt", t.MUserId)
+	f, err := os.OpenFile(fleName, os.O_RDWR|os.O_CREATE|os.O_APPEND, os.ModeAppend|os.ModePerm)
 	if err != nil {
 		logger.Log4.Error("UserId-%d:Err:", t.MUserId, err)
+		return
 	}
 	defer f.Close()
-	_, err = f.WriteString("helloworld")
+	//记录头信息
+	recordTime := fmt.Sprintf("\n===============%d report time:%s========\n", t.MUserId, time.Now().Format("2006-01-02 15:04:05"))
+	_, err = f.WriteString(recordTime)
 	if err != nil {
-		panic(err)
+		logger.Log4.Error("UserId-%d:Err:", t.MUserId, err)
+		return
+	}
+	//记录任务信息
+	taskInfo := fmt.Sprintf(`
+	taskId                             %-15d
+	taskType                           %-15d
+	taskContent                        %-15s
+	taskState                          %-15d
+	taskResult                         %-15d
+	taskStepNum                        %-15d
+	taskCurStepNum                     %-15d
+	`,
+		t.MCurTask.MTaskInfo.MTaskId,
+		t.MCurTask.MTaskInfo.MTaskType,
+		t.MCurTask.MTaskInfo.MCountent,
+		t.MCurTask.MTaskReport.MTaskState,
+		t.MCurTask.MTaskReport.MTaskResult,
+		len(t.MCurTask.MTaskReport.MTaskStepReport),
+		t.MCurTask.MTaskReport.MCurTaskStepPlace+1,
+	)
+	_, err = f.WriteString(taskInfo)
+	if err != nil {
+		logger.Log4.Error("UserId-%d:Err:", t.MUserId, err)
+		return
+	}
+	//记录单步任务状态
+	for i := 0; i <= t.MCurTask.MTaskReport.MCurTaskStepPlace; i++ {
+		//记录任务信息
+		taskStepInfo := fmt.Sprintf(`
+		curTaskStepNum                     %-15d
+		taskStep                           %-15d
+		taskStepState                      %-15d
+		taskStepResult                     %-15d
+		`,
+			i+1,
+			t.MCurTask.MTaskReport.MTaskStepReport[i].MTaskStep,
+			t.MCurTask.MTaskReport.MTaskStepReport[i].MTaskState,
+			t.MCurTask.MTaskReport.MTaskStepReport[i].MTaskResult,
+		)
+		_, err = f.WriteString(taskStepInfo)
+		if err != nil {
+			logger.Log4.Error("UserId-%d:Err:", t.MUserId, err)
+			return
+		}
 	}
 }
