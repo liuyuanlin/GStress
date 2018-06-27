@@ -13,23 +13,23 @@ import (
 type TaskResult int
 
 const (
-	TaskResultNone = iota
-	TaskResultSuccess
-	TaskResultSocketErr
+	TaskResultNone      = iota
+	TaskResultSuccess   = 1
+	TaskResultSocketErr = 2
 
-	TaskResultLogin_Loginsvr_ConnectFail
-	TaskResultLogin_Loginsvr_SendRegisterRequestFail
-	TaskResultLogin_Loginsvr_SendRegisterRequestTimeOut
-	TaskResultLogin_Loginsvr_RegisterResponseFail
+	TaskResultLogin_Loginsvr_ConnectFail                = 3
+	TaskResultLogin_Loginsvr_SendRegisterRequestFail    = 4
+	TaskResultLogin_Loginsvr_SendRegisterRequestTimeOut = 5
+	TaskResultLogin_Loginsvr_RegisterResponseFail       = 6
 
-	TaskResultLogin_Loginsvr_SendLoginRequestFail
-	TaskResultLogin_Loginsvr_SendLoginRequestTimeOut
-	TaskResultLogin_Loginsvr_LoginResponseFail
+	TaskResultLogin_Loginsvr_SendLoginRequestFail    = 7
+	TaskResultLogin_Loginsvr_SendLoginRequestTimeOut = 8
+	TaskResultLogin_Loginsvr_LoginResponseFail       = 9
 
-	TaskResultLogin_Lobbysvr_ConnectFail
-	TaskResultLogin_Lobbysvr_SendLoginRequestFail
-	TaskResultLogin_Lobbysvr_SendLoginRequestTimeOut
-	TaskResultLogin_Lobbysvr_LoginResponseFail
+	TaskResultLogin_Gatesvr_ConnectFail              = 10
+	TaskResultLogin_Lobbysvr_SendLoginRequestFail    = 11
+	TaskResultLogin_Lobbysvr_SendLoginRequestTimeOut = 12
+	TaskResultLogin_Lobbysvr_LoginResponseFail       = 13
 )
 
 type TaskState int
