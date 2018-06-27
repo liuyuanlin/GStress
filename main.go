@@ -5,6 +5,7 @@ import (
 	"runtime"
 	"strconv"
 	"sync"
+	//"time"
 )
 
 func main() {
@@ -95,6 +96,9 @@ func main() {
 
 		robotAttr.MUserName = row["UserName"]
 		robotAttr.MPassWord = row["Password"]
+		robotAttr.MDevice = row["Device"]
+		robotAttr.MClientIp = row["ClientIp"]
+		robotAttr.MPackageflag = row["Packagefla"]
 		robotAttr.MTencentToken = row["TencentToken"]
 		robotAttr.MTencentCodeId = row["TencentCodeId"]
 
@@ -137,8 +141,10 @@ func main() {
 	//启动所有机器人
 	for _, robot := range gRobots {
 		wg.Add(1)
+		robotTmp := robot
 		go func() {
-			robot.Work()
+			robotTmp.Work()
+
 			wg.Done()
 		}()
 	}

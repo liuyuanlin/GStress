@@ -16,7 +16,12 @@ const (
 	TaskResultNone = iota
 	TaskResultSuccess
 	TaskResultSocketErr
+
 	TaskResultLogin_Loginsvr_ConnectFail
+	TaskResultLogin_Loginsvr_SendRegisterRequestFail
+	TaskResultLogin_Loginsvr_SendRegisterRequestTimeOut
+	TaskResultLogin_Loginsvr_RegisterResponseFail
+
 	TaskResultLogin_Loginsvr_SendLoginRequestFail
 	TaskResultLogin_Loginsvr_SendLoginRequestTimeOut
 	TaskResultLogin_Loginsvr_LoginResponseFail
@@ -47,9 +52,10 @@ const (
 type TaskStep int
 
 const (
-	TaskStepNone     = 0
-	TaskStepLoginSvr = 10101
-	TaskStepLobbySvr = 10102
+	TaskStepNone          = 0
+	TaskStepRegister      = 10101
+	TaskStepLoginLoginSvr = 10102
+	TaskStepLoginLobbySvr = 10103
 
 	TaskStepClubCreate = 20101
 	TaskStepClubEnter  = 20102
@@ -143,15 +149,21 @@ func (t *TaskMng) LoadTaskStep(taskAttr *TaskAttr) error {
 
 	switch taskAttr.MTaskInfo.MTaskType {
 	case TaskTypeLogin:
-		//登陆登陆服务
+
+		//注册账号
 		var lTaskStepReport0 TaskStepReport
-		lTaskStepReport0.MTaskStep = TaskStepLoginSvr
+		lTaskStepReport0.MTaskStep = TaskStepRegister
 		taskAttr.MTaskReport.MTaskStepReport = append(taskAttr.MTaskReport.MTaskStepReport, lTaskStepReport0)
 
-		//登陆大厅服务
+		//登陆登陆服务
 		var lTaskStepReport1 TaskStepReport
-		lTaskStepReport1.MTaskStep = TaskStepLobbySvr
+		lTaskStepReport1.MTaskStep = TaskStepLoginLoginSvr
 		taskAttr.MTaskReport.MTaskStepReport = append(taskAttr.MTaskReport.MTaskStepReport, lTaskStepReport1)
+
+		//登陆大厅服务
+		var lTaskStepReport2 TaskStepReport
+		lTaskStepReport2.MTaskStep = TaskStepLoginLobbySvr
+		taskAttr.MTaskReport.MTaskStepReport = append(taskAttr.MTaskReport.MTaskStepReport, lTaskStepReport2)
 	case TaskTypeClub:
 		//创建俱乐部
 		var lTaskStepReport0 TaskStepReport

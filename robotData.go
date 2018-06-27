@@ -7,6 +7,9 @@ type RobotData struct {
 	MUserType        int
 	MUserName        string
 	MPassWord        string
+	MDevice          string
+	MPackageflag     string
+	MClientIp        string
 	MUserNick        string
 	MTencentCodeId   string
 	MTencentToken    string
@@ -19,6 +22,9 @@ type RobotAttr struct {
 	MUserType        int
 	MUserName        string
 	MPassWord        string
+	MDevice          string
+	MPackageflag     string
+	MClientIp        string
 	MTencentCodeId   string
 	MTencentToken    string
 	MIsNeedAutoLogin bool
@@ -32,6 +38,11 @@ func (RD *RobotData) Init(robotAttr RobotAttr) error {
 	RD.MUserType = robotAttr.MUserType
 	RD.MUserName = robotAttr.MUserName
 	RD.MPassWord = robotAttr.MPassWord
+
+	RD.MDevice = robotAttr.MDevice
+	RD.MPackageflag = robotAttr.MPackageflag
+	RD.MClientIp = robotAttr.MClientIp
+
 	RD.MTencentCodeId = robotAttr.MTencentCodeId
 	RD.MTencentToken = robotAttr.MTencentToken
 	RD.MIsNeedAutoLogin = robotAttr.MIsNeedAutoLogin

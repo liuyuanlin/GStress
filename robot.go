@@ -23,7 +23,8 @@ const (
 type TimerType int
 
 const (
-	TimerLoginLoginSvr = iota
+	TimerLoginRegister = iota
+	TimerLoginLoginSvr
 	TimerLoginLobbySvr
 )
 
@@ -48,6 +49,7 @@ const (
 	RobotEventSocketAbnormal = "RobotEventSocketAbnormal"
 	RobotEventTimer          = "RobotEventTimer"
 	RobotEventTaskAnalysis   = "RobotEventTaskAnalysis"
+	RobotEventRegister       = "RobotEventRegister"
 	RobotEventLoginLoginSvrd = "RobotEventLoginLoginSvrd"
 	RobotEventLoginLobbySvrd = "RobotEventLoginLobbySvrd"
 )
@@ -156,7 +158,7 @@ func (r *Robot) DispatchEvent() {
 	for {
 		event, ok, quantity := r.mEventQueue.Get()
 		if !ok {
-			logger.Log4.Info("UserId-%d:Get event Fail,the mEventQueue Size is %d", r.mRobotData.MUId, quantity)
+			logger.Log4.Info("UserId-%d:no event,the mEventQueue Size is %d", r.mRobotData.MUId, quantity)
 			break
 		}
 		logger.Log4.Info("UserId-%d:Get event success,the mEventQueue Size is %d", r.mRobotData.MUId, quantity)
@@ -172,6 +174,7 @@ func (r *Robot) DispatchEvent() {
 	}
 	if lEventCount == 0 {
 		time.Sleep(1000 * time.Millisecond)
+		logger.Log4.Info("UserId-%d:wait evet", r.mRobotData.MUId)
 	}
 }
 func (r *Robot) FsmSendEvent(event FsmStateEvent, data interface{}) error {
@@ -227,6 +230,7 @@ func (r *Robot) FsmInit(startState FsmState) error {
 	r.mFsm.AddStateEvent(RobotStateLogin, RobotEventSocketAbnormal, r.RobotStateLoginEventSocketAbnormal)
 	r.mFsm.AddStateEvent(RobotStateLogin, RobotEventTimer, r.RobotStateLoginEventTimer)
 	r.mFsm.AddStateEvent(RobotStateLogin, RobotEventTaskAnalysis, r.RobotStateLoginEventTaskAnalysis)
+	r.mFsm.AddStateEvent(RobotStateLogin, RobotEventRegister, r.RobotStateLoginEventRegister)
 	r.mFsm.AddStateEvent(RobotStateLogin, RobotEventLoginLoginSvrd, r.RobotStateLoginEventLoginLoginSvrd)
 	r.mFsm.AddStateEvent(RobotStateLogin, RobotEventLoginLobbySvrd, r.RobotStateLoginEventLoginLobbySvrd)
 
@@ -336,12 +340,51 @@ func (r *Robot) HandelLoginMainMsg(msgHead *net.MsgHead) {
 	case int16(msg.EnSubCmdID_LOGIN_ERROR_CODE_SUB_CMD):
 		r.HandelLoginErrorCode(msgHead)
 		break
+	case int16(msg.EnSubCmdID_RETURN_CREATE_ACCOUNT_RESULT_SUB_CMD):
+		r.HandelCreateAccountResult(msgHead)
+		break
 	default:
 		break
 	}
 
 	return
 }
+func (r *Robot) HandelCreateAccountResult(msgHead *net.MsgHead) {
+	logger.Log4.Debug("<ENTER> :UserId-%d:", r.mRobotData.MUId)
+	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
+
+	if msgHead == nil {
+		return
+	}
+
+	//收到响应取消定时器
+	r.CancelTimer(TimerLoginRegister)
+
+	createAccountResult := &msg.SC_Create_Account_Result{}
+	err := proto.Unmarshal(msgHead.MData, createAccountResult)
+	if err != nil {
+		logger.Log4.Debug("unmarshal SC_Create_Account_Result error: %s", err)
+	}
+	logger.Log4.Debug("loginErrorCode: %+v", createAccountResult)
+	lRet := createAccountResult.GetRetCode()
+	if lRet == 0 {
+		logger.Log4.Debug("UserId-%d: register success", r.mRobotData.MUId)
+	}
+	if lRet == 5 {
+		logger.Log4.Debug("UserId-%d: register exist", r.mRobotData.MUId)
+	}
+	if lRet != 0 && lRet != 5 {
+		r.mCurTaskStepReuslt = TaskResultLogin_Loginsvr_RegisterResponseFail
+		r.FsmSendEvent(RobotEventTaskAnalysis, nil)
+	} else {
+		r.mCurTaskStepReuslt = TaskResultSuccess
+		r.FsmSendEvent(RobotEventTaskAnalysis, nil)
+	}
+
+	return
+
+}
+
 func (r *Robot) HandelReturnLoginInfo(msgHead *net.MsgHead) {
 	logger.Log4.Debug("<ENTER> :UserId-%d:", r.mRobotData.MUId)
 	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
@@ -407,9 +450,14 @@ func (r *Robot) RobotStateLoginEventTimer(e *fsm.Event) {
 	timerData := e.Args[0].(*TimertData)
 	switch timerData.MTimerType {
 	case TimerLoginLoginSvr:
-		r.mCurTaskStepReuslt = TaskResultLogin_Lobbysvr_SendLoginRequestTimeOut
+		r.mCurTaskStepReuslt = TaskResultLogin_Loginsvr_SendLoginRequestTimeOut
 		r.FsmSendEvent(RobotEventTaskAnalysis, nil)
 		break
+	case TimerLoginRegister:
+		r.mCurTaskStepReuslt = TaskResultLogin_Loginsvr_SendRegisterRequestTimeOut
+		r.FsmSendEvent(RobotEventTaskAnalysis, nil)
+		break
+
 	default:
 		break
 	}
@@ -433,16 +481,75 @@ func (r *Robot) RobotStateLoginEventTaskAnalysis(e *fsm.Event) {
 	r.mCurTaskStepReuslt = TaskResultNone
 
 	switch r.mCurTaskStep {
-	case TaskStepLoginSvr:
+	case TaskStepRegister:
+		r.FsmSendEvent(RobotEventRegister, nil)
+		break
+	case TaskStepLoginLoginSvr:
 		r.FsmSendEvent(RobotEventLoginLoginSvrd, nil)
 		break
-	case TaskStepLobbySvr:
+	case TaskStepLoginLobbySvr:
 		r.FsmSendEvent(RobotEventLoginLobbySvrd, nil)
 		break
 	default:
 		break
 	}
 	return
+}
+
+func (r *Robot) RobotStateLoginEventRegister(e *fsm.Event) {
+	logger.Log4.Debug("<ENTER> :UserId-%d:CurState：%d", r.mRobotData.MUId, e.FSM.CurState())
+	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
+	err := r.ConnectLoginSvr()
+	if err != nil {
+		//网络连接失败，结束当前任务
+		r.mCurTaskStepReuslt = TaskResultSocketErr
+		r.FsmSendEvent(RobotEventTaskAnalysis, nil)
+		return
+	}
+	err = r.RequestRegister()
+	if err != nil {
+		//网络连接失败，结束当前任务
+		r.mCurTaskStepReuslt = TaskResultLogin_Loginsvr_SendRegisterRequestFail
+		r.FsmSendEvent(RobotEventTaskAnalysis, nil)
+		return
+	} else {
+		//设置请求定时器
+		r.SetTimer(TimerLoginRegister, RequestTimeOut)
+
+	}
+	return
+}
+
+func (r *Robot) RequestRegister() error {
+	logger.Log4.Debug("<ENTER> :UserId-%d", r.mRobotData.MUId)
+	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
+
+	if r.mNetClient == nil {
+		logger.Log4.Error("UserId-%d: no connect", r.mRobotData.MUId)
+		return errors.New("ERR_NO_NET_CONNECT")
+	}
+	md5Ctx := md5.New()
+	md5Ctx.Write([]byte(r.mRobotData.MPassWord))
+	cipherStr := md5Ctx.Sum(nil)
+	secret := hex.EncodeToString(cipherStr)
+
+	m := &msg.CS_Request_Mobile_Account{
+		PhoneNumber:  proto.String(r.mRobotData.MUserName),
+		Passwd:       proto.String(secret),
+		Token:        proto.String(""),
+		UiSpread:     proto.Uint32(0),
+		Devicestring: proto.String(r.mRobotData.MDevice),
+		Packageflag:  proto.String(r.mRobotData.MPackageflag),
+		IDevice:      proto.Int32(2),
+		ClientIp:     proto.String(r.mRobotData.MClientIp),
+	}
+
+	err := r.mNetClient.SenMsg(int16(msg.EnMainCmdID_LOGIN_MAIN_CMD), int16(msg.EnSubCmdID_REQUEST_CREATE_MOBILE_ACCOUNT_SUB_CMD), m)
+	if err != nil {
+		logger.Log4.Error("UserId-%d: send fail", r.mRobotData.MUId)
+		return errors.New("ERR_NET_SEND_FAIL")
+	}
+	return nil
 }
 
 //登陆状态：处理登陆loginsvr
