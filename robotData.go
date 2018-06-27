@@ -15,6 +15,7 @@ type RobotData struct {
 	MTencentToken    string
 	MIsNeedAutoLogin bool
 	MApointRoomId    int
+	MToken           string
 }
 type RobotAttr struct {
 	MUId             int

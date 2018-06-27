@@ -1,0 +1,179 @@
+syntax = "proto2";
+package GateSubCmd;
+// 主消息号 GATE_MAIN_CMD 对应子消息号定义
+
+enum enSubCmdID
+{
+	LOGIN_GATE_SUB_CMD                                   = 1;	//请求连接网关的消息
+	LOGIN_GATE_RESULT_SUB_CMD                            = 2;	//登录返回
+	SERVER_SEND_TIME_SUB_CMD                             = 3;	//发送游戏时间给客户端
+	REQUEST_USER_TIME_SUB_CMD                            = 4;	//请求客户端时间
+	USER_TIME_TOSERVER_SUB_CMD                           = 5;	//客户端发时间给服务器
+	REQUEST_BIND_MOBILE_TOKEN                            = 6;       //请求绑定手机时候的验证码	
+	REQUEST_BIND_MOBILE                                  = 7;       //请求绑定手机 			
+	RETURN_BIND_MOBILE_TOKEN_RESULT                      = 8;       //请求绑定手机验证码结果
+	RETURN_BIND_MOBILE_RESULT                            = 9;       //绑定结果	
+	REQUEST_UPGRADE_ACCOUNT                              = 10;       //客户端请求账号升级	
+	RETURN_UPGRADE_RESULT                                = 11;       //客户端请求账号升级结果	
+	REQUEST_UNBIND_MOBILE_TOKEN                          = 12;       //请求解绑定手机时候的验证码	
+	RETURN_UNBIND_MOBILE_TOKEN_RESULT                    = 13;       //请求解绑手机验证码结果
+	REQUEST_UNBIND_MOBILE                                = 14;       //请求解绑定手机 			
+	RETURN_UNBIND_MOBILE_RESULT                          = 15;       //请求解绑定结果
+   VERIFY_ANDROIDANDPC									 = 16;		//安卓和PC验证
+   
+   REQUEST_WXSERVER_SIGNATURE                           = 17;       //请求威信服务签名
+   RETURN_WXSERVER_SIGNATURE_RESULT                     = 18;       //请求威信服务签名 
+
+   RETURN_LEAVE_GAME 									= 19;      //离开游戏，不再重新连接，进入登录界面   
+    
+}
+
+
+// 登录错误代码枚举
+enum enLoginGameCode
+{
+	LG_Code_ok                 = 0; // 登录成功
+	LG_Code_Token              = 1; // token错误
+	LG_Code_InGame             = 2; // 重复登录
+	LG_Code_NoService          = 3; // 维护中
+	
+}
+
+// LOGIN_GATE_SUB_CMD   
+message LoginGateInfo
+{
+	required uint32 userid   = 1;			// 角色id	
+	required string token   = 2;				
+	required int32 iDevice   = 3			[default = 1];					//device id: 1 IOS, 2 Android, 3 Windo//ws
+	required int32 iPlatform = 4			[default = 1];					//platform id: 1 Apple Store, 2 360, 3 ?
+	required string iVersion = 5			[default = "1.0.0.0"];			//具体版本号
+	optional uint32  uiSpread = 6;                  //推广号
+	optional string packageflag  = 7;                  //标示包名
+	optional string devicestring  = 8;                  //设备串号
+	optional string userName  = 9;                  //登录用的用户名
+	optional string packmark = 10;					//包标识
+	optional string ip_address = 11;				//IP地址
+}
+
+
+
+// LOGIN_GATE_RESULT_SUB_CMD
+message LoginGateResultInfo
+{
+	 required int32 retcode = 1 [default = 0];   
+}
+
+// SERVER_SEND_TIME_SUB_CMD
+message ServerTimeSendClient
+{
+	required int64   gameTime = 1;	
+}
+
+
+// USER_TIME_TOSERVER_SUB_CMD
+message UserTimeSendServer
+{
+	required int64   gameTime = 1;	
+}
+
+
+//REQUEST_BIND_MOBILE_TOKEN                            = 6;       //请求绑定手机时候的验证码	
+message CS_Request_Mobile_Token
+{
+	required string account      = 1;                                  // 账号	
+	required string phoneNumber      = 2;                                  // 手机号	
+	optional string packageflag   = 3 ; // 包标识 不能为空
+}
+
+//REQUEST_BIND_MOBILE                                  = 7;       //请求绑定手机 			
+message CS_Request_Bind_Mobile
+{
+	required string account   = 1;				
+	required string phonenumber   = 2;				
+	required string  token   = 3;				
+}
+//	RETURN_BIND_MOBILE_TOKEN_RESULT                      = 8;       //请求绑定手机验证码结果
+message SC_Return_Bind_Mobile_Token_Result
+{
+	required int32  retCode            = 1;                                // 0 成功  1 获取验证码出错  2 账号不存在   3  该帐号已经绑定	
+}
+
+//	RETURN_BIND_MOBILE_RESULT                            = 9;       //绑定结果	
+message SC_Return_Bind_Mobile_Result
+{
+		required int32  retCode            = 1;    // 0 成功  1 绑定出错  2 账号不对 3 已经绑定了 4 验证码超时间 5 验证码不对 6  该手机绑定账号数量超过限制
+                              	
+
+}
+
+//REQUEST_UPGRADE_ACCOUNT                              = 10;       //客户端请求账号升级	
+message  CS_Request_Upgrade_Account
+{
+	required string oldaccount   = 1;			// 要升级的账号  客服端 设备号	
+	required string newaccount   = 2;			// 自定义的账号	
+	required string passwd       = 3;			// 密码	
+}
+
+//	RETURN_UPGRADE_RESULT                                = 11;       //客户端请求账号升级结果	
+message SC_Return_Upgrade_Account_Result
+{
+	required int32  retCode            = 1;                                //  retCode = 0; // 0 成功 1.老账号不对 2新账号不对   3. 已经不能再绑定账号了	
+}
+
+
+//REQUEST_UNBIND_MOBILE_TOKEN                          = 12;       //请求解绑定手机时候的验证码	
+message CS_Request_UnBind_Mobile_Token
+{
+	required string account      = 1;                                  // 账号	
+	required string phoneNumber      = 2;                                  // 手机号	
+	optional string packageflag   = 3 ; // 包标识 不能为空
+}
+
+//RETURN_UNBIND_MOBILE_TOKEN_RESULT                    = 13;       //请求解绑手机验证码结果
+message SC_Return_UnBind_Mobile_Token_Result
+{
+	required int32  retCode            = 1;                                // 0 成功  1 获取验证码出错  2 账号不存在   3  该帐号未绑定 4. 与绑定的手机不一致	
+}
+
+//REQUEST_UNBIND_MOBILE                                = 14;       //请求解绑定手机 			
+message CS_Request_UnBind_Mobile
+{
+	required string account   = 1;				
+	required string phonenumber   = 2;				
+	required string  token   = 3;				
+}
+
+//RETURN_UNBIND_MOBILE_RESULT
+message SC_Return_UnBind_Mobile_Result
+{
+		required int32  retCode            = 1;    // 0 成功  1 解绑定出错  2 账号不对 3 未绑定了 4 验证码超时间 5 验证码不对	
+                              	
+}
+
+//VERIFY_ANDROIDANDPC                                  = 16;      //安卓和PC验证
+message Verify_AndroidAndPC
+{
+	required string platform = 1;	// 平台
+	required string verifycode = 2;	// 验证码
+}
+
+//REQUEST_WXSERVER_SIGNATURE                           = 17;       //请求威信服务签名
+message RequestWxServerSignature
+{
+	required string  uri   = 1;		
+}
+//RETURN_WXSERVER_SIGNATURE_RESULT                     = 18;       //请求威信服务签名
+message ReturnWxServerSignatureResult
+{
+	required int32   retCode   = 1;	//0 成功  其它错误		
+	optional string  noncestr  = 2;	
+	optional int64   timestamp = 3;	
+	optional string  signature = 4;	
+		
+} 	
+
+// RETURN_LEAVE_GAME 									= 19;      //离开游戏，不再重新连接，进入登录界面  
+message ReturnLeaveGame
+{
+	 required int32 retcode = 1; //0 表示直接推出不提示， 1：表示账号在其他地方登陆，被挤下线。
+}

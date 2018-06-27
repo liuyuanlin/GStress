@@ -18,10 +18,14 @@ func main() {
 
 	var systemCfg ExcelCfg
 	systemCfg.Parser("./cfg/robotClientSys0.xlsx", "robotClientSys0")
+
+	robotTaskCfgFile := systemCfg.MExcelRows[0]["RobotTaskCfgFile"]
 	var taskCfg ExcelCfg
-	taskCfg.Parser("./cfg/robotTask0.xlsx", "robotTask0")
+	taskCfg.Parser(robotTaskCfgFile, "robotTask0")
+
+	robotsCfgFile := systemCfg.MExcelRows[0]["RobotsCfgFile"]
 	var RobotsCfg ExcelCfg
-	RobotsCfg.Parser("./cfg/robots0.xlsx", "robots0")
+	RobotsCfg.Parser(robotsCfgFile, "robots0")
 
 	//解析任务属性
 	lTaskMap := make(map[int]TaskInfo)

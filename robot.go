@@ -3,7 +3,8 @@ package main
 import (
 	"GStress/fsm"
 	"GStress/logger"
-	"GStress/msg"
+	"GStress/msg/LoginSubCmd"
+	"GStress/msg/Main"
 	"GStress/net"
 	"crypto/md5"
 	"encoding/hex"
@@ -57,6 +58,8 @@ const (
 type SystemConfig struct {
 	MLoginSvrAddr string
 	MLoginSvrPort int
+	MGateSvrAddr  string
+	MGateSvrPort  int
 }
 
 type RobotEventData struct {
@@ -317,7 +320,7 @@ func (r *Robot) RobotStateLoginEventRemoteMsg(e *fsm.Event) {
 	}
 	msgHead := e.Args[0].(*net.MsgHead)
 	switch msgHead.MMainCmd {
-	case int16(msg.EnMainCmdID_LOGIN_MAIN_CMD):
+	case int16(Main.EnMainCmdID_LOGIN_MAIN_CMD):
 		r.HandelLoginMainMsg(msgHead)
 		break
 	default:
@@ -334,13 +337,13 @@ func (r *Robot) HandelLoginMainMsg(msgHead *net.MsgHead) {
 		return
 	}
 	switch msgHead.MSubCmd {
-	case int16(msg.EnSubCmdID_RETURN_LOGININFO_SUB_CMD):
+	case int16(LoginSubCmd.EnSubCmdID_RETURN_LOGININFO_SUB_CMD):
 		r.HandelReturnLoginInfo(msgHead)
 		break
-	case int16(msg.EnSubCmdID_LOGIN_ERROR_CODE_SUB_CMD):
+	case int16(LoginSubCmd.EnSubCmdID_LOGIN_ERROR_CODE_SUB_CMD):
 		r.HandelLoginErrorCode(msgHead)
 		break
-	case int16(msg.EnSubCmdID_RETURN_CREATE_ACCOUNT_RESULT_SUB_CMD):
+	case int16(LoginSubCmd.EnSubCmdID_RETURN_CREATE_ACCOUNT_RESULT_SUB_CMD):
 		r.HandelCreateAccountResult(msgHead)
 		break
 	default:
@@ -360,7 +363,7 @@ func (r *Robot) HandelCreateAccountResult(msgHead *net.MsgHead) {
 	//收到响应取消定时器
 	r.CancelTimer(TimerLoginRegister)
 
-	createAccountResult := &msg.SC_Create_Account_Result{}
+	createAccountResult := &LoginSubCmd.SC_Create_Account_Result{}
 	err := proto.Unmarshal(msgHead.MData, createAccountResult)
 	if err != nil {
 		logger.Log4.Debug("unmarshal SC_Create_Account_Result error: %s", err)
@@ -395,12 +398,28 @@ func (r *Robot) HandelReturnLoginInfo(msgHead *net.MsgHead) {
 	//收到响应取消定时器
 	r.CancelTimer(TimerLoginLoginSvr)
 
-	loginReturnInfo := &msg.LoginReturnInfo{}
+	loginReturnInfo := &LoginSubCmd.LoginReturnInfo{}
 	err := proto.Unmarshal(msgHead.MData, loginReturnInfo)
 	if err != nil {
 		logger.Log4.Debug("unmarshal LoginReturnInfo error: %s", err)
 	}
 	logger.Log4.Debug("loginReturnInfo: %+v", loginReturnInfo)
+
+	/*
+	   message LoginReturnInfo
+	   {
+	   	required int32  userid = 2 ;	        	//账号对应id
+	   	required string lobbyAddress = 3 ;		//网关地址
+	   	required int32 lobbyPort = 4 ;          //网关端口端口
+	   	required string token = 5;	        	//登录token
+	   	required string account  = 6;	        // 登录对应的账号
+	   	required int32 accountType  = 7;	        // 登录类型,0-普通用户， 1-游客用户， 2-微信用户
+	   }
+	*/
+	r.mRobotData.MUserId = int(loginReturnInfo.GetUserid())
+	r.mRobotData.MToken = loginReturnInfo.GetToken()
+	r.mSystemCfg.MGateSvrAddr = loginReturnInfo.GetLobbyAddress()
+	r.mSystemCfg.MGateSvrPort = int(loginReturnInfo.GetLobbyPort())
 
 	r.mCurTaskStepReuslt = TaskResultSuccess
 	r.FsmSendEvent(RobotEventTaskAnalysis, nil)
@@ -417,7 +436,7 @@ func (r *Robot) HandelLoginErrorCode(msgHead *net.MsgHead) {
 	//收到响应取消定时器
 	r.CancelTimer(TimerLoginLoginSvr)
 
-	loginErrorCode := &msg.LoginErrorCode{}
+	loginErrorCode := &LoginSubCmd.LoginErrorCode{}
 	err := proto.Unmarshal(msgHead.MData, loginErrorCode)
 	if err != nil {
 		logger.Log4.Debug("unmarshal LoginErrorCode error: %s", err)
@@ -533,7 +552,7 @@ func (r *Robot) RequestRegister() error {
 	cipherStr := md5Ctx.Sum(nil)
 	secret := hex.EncodeToString(cipherStr)
 
-	m := &msg.CS_Request_Mobile_Account{
+	m := &LoginSubCmd.CS_Request_Mobile_Account{
 		PhoneNumber:  proto.String(r.mRobotData.MUserName),
 		Passwd:       proto.String(secret),
 		Token:        proto.String(""),
@@ -544,7 +563,7 @@ func (r *Robot) RequestRegister() error {
 		ClientIp:     proto.String(r.mRobotData.MClientIp),
 	}
 
-	err := r.mNetClient.SenMsg(int16(msg.EnMainCmdID_LOGIN_MAIN_CMD), int16(msg.EnSubCmdID_REQUEST_CREATE_MOBILE_ACCOUNT_SUB_CMD), m)
+	err := r.mNetClient.SenMsg(int16(Main.EnMainCmdID_LOGIN_MAIN_CMD), int16(LoginSubCmd.EnSubCmdID_REQUEST_CREATE_MOBILE_ACCOUNT_SUB_CMD), m)
 	if err != nil {
 		logger.Log4.Error("UserId-%d: send fail", r.mRobotData.MUId)
 		return errors.New("ERR_NET_SEND_FAIL")
@@ -590,14 +609,14 @@ func (r *Robot) RequestLoginSvr() error {
 	cipherStr := md5Ctx.Sum(nil)
 	secret := hex.EncodeToString(cipherStr)
 
-	m := &msg.LoginRequestInfo{
+	m := &LoginSubCmd.LoginRequestInfo{
 		Account:      proto.String(r.mRobotData.MUserName),
 		Passwd:       proto.String(secret),
 		DeviceString: proto.String("12345612133333333422222222222343434234322"),
 		Packageflag:  proto.String("QPB_WEB_1"),
 	}
 
-	err := r.mNetClient.SenMsg(int16(msg.EnMainCmdID_LOGIN_MAIN_CMD), int16(msg.EnSubCmdID_REQUEST_LOGIN_SUB_CMD), m)
+	err := r.mNetClient.SenMsg(int16(Main.EnMainCmdID_LOGIN_MAIN_CMD), int16(LoginSubCmd.EnSubCmdID_REQUEST_LOGIN_SUB_CMD), m)
 	if err != nil {
 		logger.Log4.Error("UserId-%d: send fail", r.mRobotData.MUId)
 		return errors.New("ERR_NET_SEND_FAIL")
