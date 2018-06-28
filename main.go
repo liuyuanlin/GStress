@@ -2,22 +2,27 @@ package main
 
 import (
 	"GStress/logger"
+	"flag"
 	"runtime"
 	"strconv"
 	"sync"
 	//"time"
 )
 
+var (
+	RobotClientCfg = flag.String("cfg", "./cfg/robotClientSys1.xlsx", "The test cfg")
+)
+
 func main() {
 	runtime.GOMAXPROCS(1)
 	logger.AddFileFilter("GStree", "gstree.log")
 	defer logger.Log4.Close()
-
+	flag.Parse()
 	logger.Log4.Debug("<ENTER>")
 	defer logger.Log4.Debug("<LEAVE>")
 
 	var systemCfg ExcelCfg
-	systemCfg.Parser("./cfg/robotClientSys0.xlsx", "robotClientSys0")
+	systemCfg.Parser(*RobotClientCfg, "robotClientSys0")
 
 	robotTaskCfgFile := systemCfg.MExcelRows[0]["RobotTaskCfgFile"]
 	var taskCfg ExcelCfg
@@ -113,6 +118,14 @@ func main() {
 			return
 		}
 		robotAttr.MApointRoomId = appointRoomId
+
+		//获取微游戏ID
+		wantClubId, err := strconv.Atoi(row["ClubId"])
+		if err != nil {
+			logger.Log4.Error("err:%s", err)
+			return
+		}
+		robotAttr.MWantClubId = wantClubId
 
 		//获取任务数量
 		taskCount, err := strconv.Atoi(row["TaskCount"])

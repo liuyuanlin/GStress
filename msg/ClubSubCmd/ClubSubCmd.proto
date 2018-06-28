@@ -87,7 +87,8 @@ enum enServerSubCmdID
 message CS_CreateClub
 {
 	required string            strClubName = 1;     //创建俱乐部名称
-	required int64             iUserID = 2;         //玩家ID	
+	required int64             iUserID = 2;         //玩家ID
+	optional int32			   iWantCluId = 3; 		//玩家想要的俱乐部ID，压力测试使用
 };
 
 //CS_CLUB_LOG_LIST                    = 12;   //客户端请求日志信息

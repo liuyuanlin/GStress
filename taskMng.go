@@ -13,7 +13,7 @@ import (
 type TaskResult int
 
 const (
-	TaskResultNone      = iota
+	TaskResultNone      = 0
 	TaskResultSuccess   = 1
 	TaskResultSocketErr = 2
 
@@ -30,6 +30,15 @@ const (
 	TaskResultLogin_Lobbysvr_SendLoginRequestFail    = 11
 	TaskResultLogin_Lobbysvr_SendLoginRequestTimeOut = 12
 	TaskResultLogin_Lobbysvr_LoginResponseFail       = 13
+
+	TaskResultClub_CfgErr                           = 14
+	TaskResultClub_SendRequestCreateClubFail        = 15
+	TaskResultClub_SendRequestCreateClubTimeOut     = 16
+	TaskResultClub_SendRequestCreateClubReponseFail = 17
+
+	TaskResultClub_SendRequestJoinClubFail        = 18
+	TaskResultClub_SendRequestJoinClubTimeOut     = 19
+	TaskResultClub_SendRequestJoinClubReponseFail = 20
 )
 
 type TaskState int
@@ -57,8 +66,7 @@ const (
 	TaskStepLoginLoginSvr = 10102
 	TaskStepLoginLobbySvr = 10103
 
-	TaskStepClubCreate = 20101
-	TaskStepClubEnter  = 20102
+	TaskStepClubEnter = 20101
 
 	TaskStepXzmjCreateRoom = 30101
 	TaskStepXzmjEnterRoom  = 30102
@@ -165,11 +173,7 @@ func (t *TaskMng) LoadTaskStep(taskAttr *TaskAttr) error {
 		lTaskStepReport2.MTaskStep = TaskStepLoginLobbySvr
 		taskAttr.MTaskReport.MTaskStepReport = append(taskAttr.MTaskReport.MTaskStepReport, lTaskStepReport2)
 	case TaskTypeClub:
-		//创建俱乐部
-		var lTaskStepReport0 TaskStepReport
-		lTaskStepReport0.MTaskStep = TaskStepClubCreate
-		taskAttr.MTaskReport.MTaskStepReport = append(taskAttr.MTaskReport.MTaskStepReport, lTaskStepReport0)
-		//加入俱乐部
+		//进入俱乐部
 		var lTaskStepReport1 TaskStepReport
 		lTaskStepReport1.MTaskStep = TaskStepClubEnter
 		taskAttr.MTaskReport.MTaskStepReport = append(taskAttr.MTaskReport.MTaskStepReport, lTaskStepReport1)
