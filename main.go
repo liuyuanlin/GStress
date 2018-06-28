@@ -3,7 +3,7 @@ package main
 import (
 	"GStress/logger"
 	"flag"
-	"runtime"
+	//"runtime"
 	"strconv"
 	"sync"
 	//"time"
@@ -14,7 +14,7 @@ var (
 )
 
 func main() {
-	runtime.GOMAXPROCS(1)
+	//runtime.GOMAXPROCS(1)
 	logger.AddFileFilter("GStree", "gstree.log")
 	defer logger.Log4.Close()
 	flag.Parse()

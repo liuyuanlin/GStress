@@ -21,7 +21,7 @@ import (
 )
 
 const (
-	RequestTimeOut = time.Second * 20
+	RequestTimeOut = time.Second * 10
 )
 
 type TimerType int
@@ -186,7 +186,7 @@ func (r *Robot) DispatchEvent() {
 
 	}
 	if lEventCount == 0 {
-		time.Sleep(1000 * time.Millisecond)
+		time.Sleep(500 * time.Millisecond)
 		logger.Log4.Info("UserId-%d:wait evet", r.mRobotData.MUId)
 	}
 }
@@ -814,7 +814,7 @@ func (r *Robot) RobotStateLoginEventSocketAbnormal(e *fsm.Event) {
 	logger.Log4.Debug("<ENTER> :UserId-%d:CurState：%d", r.mRobotData.MUId, e.FSM.CurState())
 	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
 
-	if r.mCurTaskStepReuslt != TaskResultNone {
+	if r.mCurTaskStepReuslt == TaskResultNone {
 		r.mCurTaskStepReuslt = TaskResultSocketErr
 		r.FsmSendEvent(RobotEventTaskAnalysis, nil)
 	}
@@ -1238,7 +1238,7 @@ func (r *Robot) RobotStateClubEventSocketAbnormal(e *fsm.Event) {
 	logger.Log4.Debug("<ENTER> :UserId-%d:CurState：%d", r.mRobotData.MUId, e.FSM.CurState())
 	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
 
-	if r.mCurTaskStepReuslt != TaskResultNone {
+	if r.mCurTaskStepReuslt == TaskResultNone {
 		r.mCurTaskStepReuslt = TaskResultSocketErr
 		r.FsmSendEvent(RobotEventTaskAnalysis, nil)
 	}
