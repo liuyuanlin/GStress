@@ -1,0 +1,544 @@
+syntax = "proto2";
+package XueZhanMj;
+
+// 子命令码表
+//非游戏的
+
+
+enum enGameFrameID{
+	GAME_SUB_CS_USER_DISSOLVE_APPLY = 1;//申请解散桌子
+	GAME_SUB_CS_USER_ANSWER_DISSOLVE_APPLY = 2;//应答解散申请
+    GAME_SUB_SC_USER_DISSOLVE_APPLY_NOTIFY = 3;//申请解散通知
+	GAME_SUB_CS_USER_TABLE_CHAT = 4;//聊天
+    GAME_SUB_SC_USER_TABLE_CHAT_NOTIFY = 5;//聊天信息通知
+    GAME_SUB_CS_USER_READY_GAME = 6; //准备游戏
+    GAME_SUB_SC_USER_READY_GAME_NOTIFY = 7; //准备游戏通知
+	GAME_SUB_SC_USER_INFO_CHANGE_NOTIFY = 8; //通知玩家基础信息改变
+	GAME_SUB_SC_USER_TABLE_NOTIFY = 9; //桌子信息	
+	GAME_SUB_SC_TABLE_DISMISS_NOTIFY = 10; //通知桌子解散
+	GAME_SUB_SC_USER_CARD_NOTIFY = 11; //通知玩家牌信息
+	GAME_SUB_CS_USER_DISMISS_TABLE = 12;//解散桌子(强制解散)
+	GAME_SUB_SC_USER_MJ_LAST_HANDLE_NOTIFY = 13;//比赛结束时最终手牌
+	GAME_SUB_SC_TABLE_TOTAL_WIN_NOTIFY = 14;//比赛所有输赢汇总通知
+	GAME_SUB_CS_TABLE_LAST_WIN_DETAIL = 15;//桌子最上局比赛输赢记录
+	GAME_SUB_SC_TABLE_LAST_WIN_DETAIL_NOTIFY = 16;//桌子最上局比赛输赢记录通知
+	GAME_SUB_SC_USER_LAST_GAME_INFO_NOTIFY = 17; //通知上局游戏信息
+	
+	
+	GAME_SUB_CS_USER_WANT_CARDS = 50; //测试协议-用户期望牌值（发牌，和摸牌时用）
+	GAME_SUB_SC_USER_WANT_CARDS_RESULT = 51; //测试协议-用户期望牌值配置结果（发牌，和摸牌时用）
+}
+
+enum enGameSubID{
+	GAME_SUB_SC_GAME_START	= 100;//游戏开始
+	GAME_SUB_SC_ASSIGN_MJ_NOTIFY = 101; //发牌
+	GAME_SUB_SC_GET_MJ_NOTIFY = 102; //摸牌
+	GAME_SUB_SC_OPERATE_CODE_NOTIFY = 103;   //操作码通知
+	GAME_SUB_SC_HUAN_SAN_ZHANG_NOTIFY = 104;//换三张结果通知
+	GAME_SUB_CS_OPERATE = 105; //玩家操作
+    GAME_SUB_SC_OPERATE_RESULT_NOTIFY = 106; //操作结果通知
+	GAME_SUB_SC_SETTLEMENTINFO_NOTIFY  = 107;//游戏结算信息通知
+	GAME_SUB_SC_GAME_END  = 108;//游戏结束
+}
+
+
+//GAME_SUB_CS_USER_DISSOLVE_APPLY = 1;//申请解散桌子
+message CS_UserDissolveApply{
+    required uint32 mApplySeatId = 1; //申请座位号
+}
+
+//GAME_SUB_CS_USER_ANSWER_DISSOLVE_APPLY = 2;//应答解散申请
+message CS_UserAnswerDissolveApply{
+    required uint32 mAnswerApplySeatId = 1; //应答申请座位号
+    required bool mAgree = 2; //是否同意
+}
+
+enum TableFinalDecision
+{
+    Table_Decision_None = 1;
+    Table_Decision_Agree = 2;
+    Table_Decision_Disagree = 3;
+}
+
+//GAME_SUB_SC_USER_DISSOLVE_APPLY_NOTIFY = 3;//申请解散通知
+message SC_UserDissolveApplyNotify{
+    required uint32 mApplySeatId = 1; //申请座位号
+    repeated uint32 mAgreeApplySeatIds = 2; //同意申请座位号
+    repeated uint32 mDisagreeApplySeatIds = 3; //不同意申请座位号
+    required TableFinalDecision  mFinalDecision = 4; //最终裁决
+    required uint32  mApplyTimeOut = 5; //裁决剩余时间
+}
+
+
+//GAME_SUB_CS_USER_TABLE_CHAT = 4;//聊天
+message CS_UserTableChatRqst{
+    required uint32 mOperateSeatId = 1; //操作座位号
+    optional string mTextContent = 2; //文本内容
+    optional bytes  mBinaryContent = 3; //二进制内容
+    optional uint32 mContentTime = 4;//媒体时长（单位毫秒）
+    optional uint32 mImageId = 5; //图片数据id
+    optional uint32 mMediaId = 6;//媒体ID
+}
+
+//GAME_SUB_SC_USER_TABLE_CHAT_NOTIFY = 5;//聊天信息通知
+message SC_UserTableChatNotify{
+    required uint32 mOperateSeatId = 1; //操作座位号
+    optional string mTextContent = 2; //文本内容
+    optional bytes  mBinaryContent = 3; //二进制内容
+    optional uint32 mContentTime = 4;//媒体时长（单位毫秒）
+    optional uint32 mImageId = 5; //图片数据id
+    optional uint32 mMediaId = 6;//媒体ID
+}
+
+
+
+//GAME_SUB_CS_USER_READY_GAME = 6; //准备游戏
+message CS_UserReadyGameRqst{
+    required uint32 mReadySeatId = 1; //准备座位id
+	repeated uint32 mCards = 2;		//测试使用,自己设定的本局牌型
+}
+
+//GAME_SUB_SC_USER_READY_GAME_NOTIFY = 7; //准备游戏通知
+message SC_UserReadyGameNotify{
+    required uint32 mReadySeatId = 1; //准备座位id
+}
+
+
+//GAME_SUB_SC_USER_INFO_CHANGE_NOTIFY = 8; //通知玩家基础信息改变
+message SC_UseBaseInfoNotify{
+	required uint32 mSeatId = 1; //座位号（0-3)
+	required UserState mUserState = 2; //玩家状态
+    required bool mOffLineFlag = 3; //玩家离线标志
+    required PlayerBaseInfo mBaseInfo = 4; //玩家基础信息
+}
+
+
+enum TableState{
+    Table_State_Init = 1;
+	Table_State_Start = 2;
+    Table_State_Gaming = 3;
+    Table_State_Game_End = 4;//游戏结束
+    Table_State_Dissolve = 5;//桌子已解散
+    Table_State_Wait_Dissolve = 6;//等待解散投票
+}
+
+enum UserState
+{
+    Mj_User_State_Init = 1;  //初始化
+    Mj_User_State_Sit= 2;   //坐下
+    Mj_User_State_Ready= 3; //准备
+    Mj_User_State_Playing= 4; //比赛过程中
+    Mj_User_State_Hu= 5; // 胡牌
+    Mj_User_State_GiveUp= 6; //认输
+};
+
+
+message PlayerBaseInfo{
+	required int32 	mUserID = 1;									//用户 ID
+	required int32 	mAccid = 2 ;	        						//用户别名id，用于显示
+	required string mNickName = 3;	             				//昵称
+	required string mFaceID = 4;									//头像索引
+	required int32  mSex = 5;									//用户性别(0保密, 1男, 2女)
+	required int64 	mUserGold = 6;								//金币数量
+	required int32 	mUserDiamond = 7;							//用户钻石
+	required string mDescription = 8 [default = ""];            //个人说明
+	optional int32 	mVipLevel  = 9;  							//玩家VIP等级
+	required int64  mUserPoint = 10;							//用户积分	
+	
+	required string  mUserIp = 11;							//用户积分		
+	required int64  mUserLng = 12;							//用户经度		
+	required int64  mUserLat = 13;							//用户纬度						
+}
+
+
+
+message SeatInfo{
+    required uint32 mSeatId = 1; //座位号（0-3)
+    required UserState mUserState = 2; //玩家状态
+    required bool mOffLineFlag = 3; //玩家离线标志
+    optional PlayerBaseInfo mBaseInfo = 4; //玩家基础信息
+    optional int64 StartMatchCurrencyValue = 5; //每局开始的货币值
+
+ }
+
+enum HUAN_SAN_ZHANG_TYPE
+{
+	HUAN_SAN_ZHANG_TYPE_NONE = 0;//不换三张
+	HUAN_SAN_ZHANG_TYPE_1 = 1;//换同色
+	HUAN_SAN_ZHANG_TYPE_2 = 2;//随意换三张
+}
+
+ 
+message stTableAttribute
+{
+	required int32 			   GameCurrencyType = 1;		//游戏货币类型（1:钻石，2：金币，3积分）
+	required int32 			   PayRoomRateType 	= 2;			//房费支付方式 （0：房主支付，1：AA支付）
+	required int32 			   PlanGameCount	=3; 		//开房局数
+	required int64			   DiZhu			=4;		//底注
+	required int64			   EnterScore       =5;		//进入分数限制
+	required int64			   LeaveScore       =6;		//离开分数限制
+	required int64			   BeiShuLimit      =7;		//最大倍数限制
+	required int32			   ChairCount       =8;		//房间椅子数量
+	required int32			   IsAllowEnterAfterStart   =9;		//是否允许开始后加入房间
+	required int64			    TableType		  = 10;			//桌子类型（0.成员房 1.好友房）
+	required int64			   RoomRate       	=11;		//房费
+	required int64			   ServerRate       =12;		//服务费
+	
+	//高级参数部分
+	required bool 				ZiMoJiaFan = 21;
+	required bool 				ZiMoMoreThanMaxFan = 22;
+	required bool 				JinGouDiao = 23;
+	required bool 				HaiDiLaoYue = 24;
+	required bool 				DaXiaoYu = 25;
+	required bool 				DianGangHuaZiMo = 26;
+	required bool 				YaoJiu = 27;
+	required bool 				Jiang = 28;
+	required HUAN_SAN_ZHANG_TYPE 		   HuanSanZhangType = 29;
+	required int32 		        StartGameMinPlayerCount = 30;//最小开赛人数
+	//高级参数部分
+	
+	
+	required int64				mOwnerUserId = 41;//创建者id
+	
+	required string			  TableAdvanceParam =40; 			//桌子高级参数
+	
+	required string			   mTableName =43; 						//桌子名字
+	required int32 				mRoomId = 44;                         //房间ID
+	required int32 				mTableId = 45;                         //KindId
+	required int32 				mKindId = 46;                         //桌子id
+	required int32 				mClubId = 47;                         //俱乐部id
+	required int32			   mIsIpWarn =48; 			//是否相同ip警告
+	required int32			   mIsGpsWarn =49; 			//是否相同地点警告
+
+};
+
+message TableInfo{
+	required stTableAttribute mTableAttribute = 1;  //桌子属性
+    required uint32 mBankerSeatId = 2; //庄家id
+	required uint32 mFirstDice = 3; //第一个色子数值
+    required uint32 mSecondDice = 4;//第二个色子数值
+    required uint32 mCardNum = 5;//剩余卡牌数量
+    required TableState mTableState = 6;//当前桌子状态
+    repeated SeatInfo mSeatInfos = 7; //桌子座位信息
+	required uint32 mGameCount = 8;	//已完成游戏局数
+	required uint32 mRoundCount = 9; //当局轮数
+	required int64 mWaitReadyTime = 10; //准备时间
+	required int64 mWaitEndTime = 11;//结束时间
+	required int64 mAllWaitOperateTime = 12;//操作总时间
+	
+}
+
+
+//GAME_SUB_SC_USER_TABLE_NOTIFY = 9; //桌子信息
+message SC_TableInfoNotify{
+    required TableInfo mTableInfo = 3;//桌子信息
+}
+
+//GAME_SUB_SC_TABLE_DISMISS_NOTIFY = 10; //通知桌子解散
+//通知座子解散
+message SC_UserTableDIsmissNotify{
+
+}
+
+message MMjOperateRecord{
+    required uint32 mSeatId = 1; //座位id
+    required MJ_OPERATE_MASK mOperateMask = 2;//操作掩码
+    required uint32 mTagMj = 3; //目标麻将
+    optional uint32 mTagMj1 = 4; //目标麻将
+    optional uint32 mTagMj2 = 5; //目标麻将
+}
+
+message SeatCardInfo{
+    required uint32 mSeatId = 1; //座位id
+    required uint32 mTagSeatId = 2; //自己的座位id
+    required UserState mUserState = 3; //当前座位玩家状态
+    required uint32 mRejectSuit = 4; //缺色
+    repeated uint32 mDealCards =5;//出的牌
+    repeated uint32 mHandCards = 6;//手牌
+    repeated uint32 mMingCards = 7;//明杠的牌
+    repeated uint32 mAnGangCards = 8;//按杠的牌
+    repeated uint32 mBuGangCards = 9;//补杠的牌
+    repeated uint32 mPengCards = 10;//碰的牌
+    required uint32 mHuCards = 11;//胡的牌
+    optional MMjOperateRecord mLastOperateRecord = 12; //最后操作记录
+    repeated uint32 mHuanCards = 13;//换出的三张牌
+    repeated uint32 mHuanInCards = 14;//换进的三张牌
+	required MJ_SETTLEMENT_TYPE mSettlementType = 15;//结算类型
+}
+
+
+
+//GAME_SUB_SC_USER_CARD_NOTIFY = 11; //通知玩家牌信息
+message SC_UserCardNotify{
+
+	repeated SeatCardInfo mCardInfo = 1;
+}
+
+
+
+//GAME_SUB_CS_USER_DISMISS_TABLE = 12;//解散桌子(强制解散)
+//通知座子解散
+message CS_UserDismissTable{
+	
+}
+
+
+
+//GAME_SUB_SC_USER_MJ_LAST_HANDLE_NOTIFY = 13;//比赛结束时最终手牌
+message SC_UserMjLastHandNotify{
+    required uint32 mSeatId = 3; //座位id
+    repeated uint32 mMjs = 4;//麻将数组
+}
+
+
+message MMjUserWinDetail{
+
+    required uint32 mSeatId = 1; //座位id
+    required uint32 mUserId = 2; //玩家id
+    required int64 mWinScore = 3; //数值
+    required uint32 mAcciId = 4; //玩家id
+}
+
+
+//单局比赛数据（总结算详细信息）
+message MMatchWinRecord{
+	repeated MMjUserWinDetail mUserWinDetail = 1; //输赢信息
+}
+
+//GAME_SUB_SC_TABLE_TOTAL_WIN_NOTIFY = 14;//比赛所有输赢汇总通知
+message SC_TAbleTotalWinNotify{
+    repeated MMjUserWinDetail mUserAllWinDetail = 1; //总结算汇总信息
+	repeated MMatchWinRecord  mUserSignWinDetail = 2; //单局比赛信息
+}
+
+
+//GAME_SUB_SC_GAME_START = 100; //游戏开始
+message SC_GameStart{
+}
+
+
+//发牌
+//GAME_SUB_SC_ASSIGN_MJ_NOTIFY = 101; //发牌
+message SC_UserMjAssignNotify{
+    required uint32 mSeatId = 1; //座位id
+    required uint32 mBankerSeatId = 2; //庄家id
+    required uint32 mFirstDice = 3; //第一个色子数值
+    required uint32 mSecondDice = 4;//第二个色子数值
+    repeated uint32 mMjs = 5;//麻将数组，麻将使用uint32的个位和十位，十位代表花色，个位代表值
+}
+
+//摸牌
+//GAME_SUB_SC_GET_MJ_NOTIFY = 102; //摸牌
+message SC_UserMjGetNotify{
+    repeated MJ_OPERATE_MASK mOperateMask = 1;//操作掩码
+    required uint32 mRelationSeatId = 2;//操作的玩家位置
+    required uint32 mTagMj = 3; //目标麻将
+    required uint32 mOperateTimeOut = 4;//操作超时时间
+}
+
+
+//扑克操作码
+enum MJ_OPERATE_MASK{
+	MJ_OPERATE_MASK_NONE = 1; 
+    MJ_OPERATE_MASK_DEAL = 2; //出牌
+    MJ_OPERATE_MASK_GUO = 3; //不出牌
+    MJ_OPERATE_MASK_PENG = 4; //碰牌
+    MJ_OPERATE_MASK_MING_GANG = 5; //明杠
+    MJ_OPERATE_MASK_AN_GANG = 6; //暗杠
+    MJ_OPERATE_MASK_BU_GANG = 7; //补杠
+    MJ_OPERATE_MASK_REJECTSUIT = 8; //定缺
+    MJ_OPERATE_MASK_HU = 9; //胡牌
+    MJ_OPERATE_MASK_MO_PAI= 10;//摸牌,服务器使用
+    MJ_OPERATE_MASK_GIVE_UP= 11;//认输
+    MJ_OPERATE_MASK_HUAN_SAN_ZHANG= 12;//换三张
+
+}
+
+//GAME_SUB_CS_OPERATE = 105; //玩家操作
+message CS_UserOperate{
+    required uint32 mOperateSeatId = 1; //操作座位号
+    required MJ_OPERATE_MASK mOperateMask = 2;//操作掩码
+    required uint32 mTagMj = 3; //标记值
+    optional uint32 mTagMj1 = 4; //标记麻将
+    optional uint32 mTagMj2 = 5; //标记麻将
+}
+
+
+//扑克结算类型
+enum MJ_SETTLEMENT_TYPE{
+    MJ_SETTLEMENT_TYPE_NONE = 0;
+	MJ_SETTLEMENT_TYPE_HU = 1; 			//点胡
+    MJ_SETTLEMENT_TYPE_ZI_MO = 2; 		//自摸 
+    MJ_SETTLEMENT_TYPE_QIANG_GANG = 3; 	//抢杠
+    MJ_SETTLEMENT_TYPE_GANG_HUA = 4; 	//杠上花
+    MJ_SETTLEMENT_TYPE_GANG_PAO = 5; 	//杠上炮
+    MJ_SETTLEMENT_TYPE_GUA_FENG = 6; 	//刮风
+    MJ_SETTLEMENT_TYPE_XIA_YU = 7; 		//下雨
+    MJ_SETTLEMENT_TYPE_CHA_JIAO = 8; 	//查叫
+    MJ_SETTLEMENT_TYPE_TUI_SHUI = 9; 	//退税
+    MJ_SETTLEMENT_TYPE_HUA_ZHU = 10; 	//花猪
+	MJ_SETTLEMENT_TYPE_ZHUAN_YU = 11; 	//转雨
+	MJ_SETTLEMENT_TYPE_TIAN_HU = 12; 	//天胡
+	MJ_SETTLEMENT_TYPE_DI_HU = 13; 		//地胡
+}
+
+enum FINAL_CARD_TYPE
+{
+	FINAL_CARD_TYPE_NONE 			= 0x00;
+	FINAL_CARD_TYPE_HU				= 0x01;				//胡
+	FINAL_CARD_TYPE_DA_DUI 			= 0x02;				//大对子
+	FINAL_CARD_TYPE_JIANG 			= 0x04;				//将
+	FINAL_CARD_TYPE_YAO_JIU 		= 0x08;				//幺九
+	FINAL_CARD_TYPE_QING 			= 0x10;				//清一色
+	FINAL_CARD_TYPE_QI_DUI 			= 0x20;				//七对
+	FINAL_CARD_TYPE_JIN_GOU_DIAO 	= 0x40;				//金钩吊
+	FINAL_CARD_TYPE_HAI_DI_LAO 		= 0x80;				//海底捞月
+}
+
+message MjSettlementDetail{
+    required uint32 mSeatId = 1; //座位id
+    required int32 mValue = 2; //数值
+}
+
+//结算信息
+message MjSettlementInfo{
+    required MJ_SETTLEMENT_TYPE mType = 1;  //类型, 下雨，刮风，炮，胡等。
+    repeated MjSettlementDetail mDetail = 2;
+	required uint32 mHuType = 3;		//胡牌类型
+	required uint32 mMultiple = 4;			//倍数
+	required int32 mGenCount = 5;			//根
+}
+
+//GAME_SUB_SC_OPERATE_RESULT_NOTIFY = 106; //操作通知
+message SC_OperateResultNotify{
+    required MJ_OPERATE_MASK mOperateMask = 1;//操作掩码
+    required uint32 mOperateSeatId = 2;//操作的玩家位置
+	required uint32 mTagMj = 3; //标记值
+    optional uint32 mTagMj1 = 4; //标记麻将
+    optional uint32 mTagMj2 = 5; //标记麻将
+    repeated MjSettlementInfo mSettlementInfo = 6; // 操作结果明细
+}
+
+//GAME_SUB_SC_OPERATE_CODE_NOTIFY = 103;   //操作码通知
+message SC_OperateCodeNotify{
+    repeated MJ_OPERATE_MASK mOperateMask = 1;//操作掩码
+    required uint32 mWaitSeatId = 2;//等待操作的玩家位置
+    required uint32 mOperateTimeOut = 3;//操作超时时间
+}
+//换三张的类型
+enum HSZ_TYPE
+{
+	HSZ_TYPE_NONE = 0;
+	HSZ_TYPE_CLOCKWISE = 1; //顺时针
+	HSZ_TYPE_ANTI_CLOCKWISE = 2; //逆时针
+	HSZ_TYPE_FTF = 3; //对家换
+}
+
+//GAME_SUB_SC_HUAN_SAN_ZHANG_NOTIFY = 104;//换三张结果通知
+message SC_HuanSanZhangNotify
+{
+    required HSZ_TYPE mHuanType = 1;//换牌类型
+    required uint32 mSeatId = 2;//操作的玩家位置
+    repeated uint32 mHuanCards = 3; //换出的麻将
+    repeated uint32 mHuanInCards = 4; //换进的麻将
+}
+
+//GAME_SUB_SC_GAME_END  = 108;//游戏结束
+message SC_GameEnd{
+	required TableState mTableState = 1;//当前桌子状态
+}
+
+//比赛结束结果明细
+//GAME_SUB_SC_SETTLEMENTINFO_NOTIFY  = 107;//游戏计算信息
+
+message MUserMjSettlementInfo{
+    required uint32 mSeatId = 1; //座位id
+    repeated MjSettlementInfo mSettlementInfo = 2;
+}
+
+message SC_UserMjSettlementInfoNotify{
+	repeated MUserMjSettlementInfo mInfos = 1;
+}
+
+
+//录像回放桌位信息
+message MVideotapeSeatInfo{
+    required uint32 mSeatId = 1; //座位号（0-3)
+    required PlayerBaseInfo mBaseInfos = 2; //桌上玩家信息
+	repeated uint32 mCards = 3;//玩家的发牌
+    repeated uint32 mHuanCards = 4; //换出的麻将
+    repeated uint32 mHuanInCards = 5; //换进的麻将
+}
+//单局游戏录像回放数据
+message MGameVideotapeInfo{
+	required stTableAttribute mTableAttribute = 1;  //桌子高级参数
+    required uint32 mBankerSeatId = 2; //庄家id
+	required uint32 mFirstDice = 3; //第一个色子数值
+    required uint32 mSecondDice = 4;//第二个色子数值
+	required HSZ_TYPE mHuanType = 5;//换牌类型
+    repeated MVideotapeSeatInfo mVideoSeatInfo = 6; //玩家座位数据
+	repeated SC_OperateResultNotify  mOperateRecords= 7; //操作记录信息
+	repeated MjSettlementDetail mTotalSettlementDetail = 8;//所有玩家本局比赛的总输赢
+
+}
+
+
+message MWinDetailInfo{
+	required int32 	mSeatId = 1;									//桌位id
+	required int64 	mWinScore = 2 ;	        						//输赢值
+	
+	required int32 	mUserID = 3;									//用户 ID
+	required int32 	mAccid = 4 ;	        						//用户别名id，用于显示
+	required string mNickName = 5;	             				//昵称
+	required string mFaceID = 6;									//头像索引				
+}
+
+//GAME_SUB_CS_TABLE_LAST_WIN_DETAIL = 16;//桌子最上局比赛输赢记录
+message CS_TableLastWinDetail{
+
+}
+
+//GAME_SUB_SC_TABLE_LAST_WIN_DETAIL_NOTIFY = 17;//桌子最上局比赛输赢记录通知
+message SC_TableLastWinDetailNotify{
+	repeated MWinDetailInfo mLastWinDetailInfo = 1;
+}
+
+//GAME_SUB_SC_USER_LAST_GAME_INFO_NOTIFY = 17; //通知上局游戏信息
+message UserLastGameInfo
+{
+	required uint32 mSeatId = 1;
+	required int32 mTotalRecord = 2;
+	required uint32 mRejectSuit = 3;
+	required uint32 mHuCard = 4;
+	repeated uint32 mDealCards = 5;
+	repeated uint32 mHandCards = 6;
+	repeated uint32 mMingCards = 7;
+	repeated uint32 mAnGangCards = 8;
+	repeated uint32 mBuGangCards = 9;
+	repeated uint32 mPengCards = 10;
+	required MJ_SETTLEMENT_TYPE	mSettlementType = 11;
+	repeated MjSettlementInfo mSettlementInfo = 12;
+}
+
+message SC_UserLastGameInfoNotify
+{
+	required uint32 mZhuangSeatId = 1;
+	required uint32 mRemainCardNum = 2;
+	repeated UserLastGameInfo mLastGameInfo = 3;
+	required uint64 mSettlementId = 4;
+}
+
+//用户配牌期望值
+//GAME_SUB_CS_USER_WANT_CARDS = 50; //测试协议-用户期望牌值（发牌，和摸牌时用）
+message CS_UserWantCards{
+    required uint32 mSeatId = 1; //座位号（0-3)
+    required uint32 mWantCardType = 2; //0:发牌， 1：摸牌
+	repeated uint32 mCards = 3;//玩家的发牌（摸牌：1 张， 发牌非庄家：13张， 发牌庄家：14张）
+}
+
+//用户配牌结果
+//GAME_SUB_SC_USER_WANT_CARDS_RESULT = 51; //测试协议-用户期望牌值配置结果（发牌，和摸牌时用）
+message SC_UserWantCardsResult{
+    required uint32 mSeatId = 1; //座位号（0-3)
+    required string mResultStr = 2; //结果说明
+}

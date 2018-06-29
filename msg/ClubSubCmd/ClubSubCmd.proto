@@ -556,6 +556,7 @@ message stTableAttribute
 	required string			   TableName =14; 			//桌子名字
 	required int32			   IsIpWarn =15; 			//是否相同ip警告
 	required int32			   IsGpsWarn =16; 			//是否相同地点警告
+	optional int32			   TableId =17; 			//压力测试用，指定想要创建的桌子id
 
 };
 

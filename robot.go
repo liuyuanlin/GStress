@@ -4,13 +4,16 @@ import (
 	"GStress/fsm"
 	"GStress/logger"
 	"GStress/msg/ClubSubCmd"
+	//"GStress/msg/GameSubUserCmd"
 	"GStress/msg/GateSubCmd"
 	"GStress/msg/LobbySubCmd"
 	"GStress/msg/LoginSubCmd"
 	"GStress/msg/Main"
+	//"GStress/msg/XueZhanMj"
 	"GStress/net"
 	"crypto/md5"
 	"encoding/hex"
+	"encoding/json"
 	"errors"
 	"strconv"
 	"time"
@@ -31,7 +34,10 @@ const (
 	TimerLoginLoginSvr
 	TimerLoginLobbySvr
 	TimerClubCreateClub
+	TimerClubAddGold
 	TimerClubJoinClub
+	TimerClubCreateRoom
+	TimerClubEnterRoom
 )
 
 type FsmState string
@@ -42,6 +48,7 @@ const (
 	RobotStateTaskMng = "RobotStateTaskMng"
 	RobotStateLogin   = "RobotStateLogin"
 	RobotStateClub    = "RobotStateClub"
+	RobotStateXzmj    = "RobotStateXzmj"
 )
 
 type FsmStateEvent string
@@ -62,7 +69,14 @@ const (
 	RobotEventLoginLobbySvrd = "RobotEventLoginLobbySvrd"
 
 	//俱乐部
-	RobotEventClubEnter = "RobotEventClubEnter"
+	RobotEventClubEnter   = "RobotEventClubEnter"
+	RobotEventClubAddGold = "RobotEventClubAddGold"
+
+	//血战麻将
+	RobotEventXzmjCreateRoom = "RobotEventCreateRoom"
+	RobotEventXzmjEnterRoom  = "RobotEventEnterRoom"
+	RobotEventXzmjStartGame  = "RobotEventXzmjStartGame"
+	RobotEventXzmjOperate    = "RobotEventXzmjOperate"
 )
 
 type SystemConfig struct {
@@ -96,6 +110,7 @@ type Robot struct {
 	mRobotData         RobotData
 	mIsWorkEnd         bool
 	mSystemCfg         SystemConfig
+	mIsLoginOk         bool
 }
 
 func (r *Robot) Init(robotAttr RobotAttr, taskMap TaskMap, systemCfg ExcelCfg, startState string) error {
@@ -120,6 +135,7 @@ func (r *Robot) Init(robotAttr RobotAttr, taskMap TaskMap, systemCfg ExcelCfg, s
 	r.mCurTaskStep = TaskStepNone
 	r.mCurTaskStepReuslt = TaskResultNone
 	r.mIsWorkEnd = false
+	r.mIsLoginOk = false
 	r.mRobotData.Init(robotAttr)
 
 	//初始化事件队列
@@ -254,6 +270,19 @@ func (r *Robot) FsmInit(startState FsmState) error {
 	r.mFsm.AddStateEvent(RobotStateClub, RobotEventTimer, r.RobotStateClubEventTimer)
 	r.mFsm.AddStateEvent(RobotStateClub, RobotEventTaskAnalysis, r.RobotStateClubEventTaskAnalysis)
 	r.mFsm.AddStateEvent(RobotStateClub, RobotEventClubEnter, r.RobotStateClubEventClubEnter)
+	r.mFsm.AddStateEvent(RobotStateClub, RobotEventClubAddGold, r.RobotStateClubEventAddGold)
+
+	//血战麻将
+	r.mFsm.AddStateEvent(RobotStateXzmj, RobotEventInit, r.RobotStateXzmjEventInit)
+	r.mFsm.AddStateEvent(RobotStateXzmj, RobotEventQuit, r.RobotStateXzmjEventQuit)
+	r.mFsm.AddStateEvent(RobotStateXzmj, RobotEventRemoteMsg, r.RobotStateXzmjEventRemoteMsg)
+	r.mFsm.AddStateEvent(RobotStateXzmj, RobotEventSocketAbnormal, r.RobotStateXzmjEventSocketAbnormal)
+	r.mFsm.AddStateEvent(RobotStateXzmj, RobotEventTimer, r.RobotStateXzmjEventTimer)
+	r.mFsm.AddStateEvent(RobotStateXzmj, RobotEventTaskAnalysis, r.RobotStateXzmjEventTaskAnalysis)
+	r.mFsm.AddStateEvent(RobotStateXzmj, RobotEventXzmjCreateRoom, r.RobotStateXzmjEventCreateRoom)
+	r.mFsm.AddStateEvent(RobotStateXzmj, RobotEventXzmjEnterRoom, r.RobotStateXzmjEventEnterRoom)
+	r.mFsm.AddStateEvent(RobotStateXzmj, RobotEventXzmjStartGame, r.RobotStateXzmjEventStartRoom)
+	r.mFsm.AddStateEvent(RobotStateXzmj, RobotEventXzmjOperate, r.RobotStateXzmjEventOperate)
 	//......
 	return nil
 }
@@ -308,6 +337,9 @@ func (r *Robot) RobotStateTaskMngEventDispatch(e *fsm.Event) {
 	case TaskTypeClub:
 		r.FsmTransferState(RobotStateClub)
 		break
+	case TaskTypeXzmj:
+		r.FsmTransferState(RobotStateXzmj)
+		break
 	default:
 		r.FsmSendEvent(RobotEventDispatch, nil)
 		break
@@ -326,6 +358,14 @@ func (r *Robot) RobotStateLoginEventInit(e *fsm.Event) {
 func (r *Robot) RobotStateLoginEventQuit(e *fsm.Event) {
 	logger.Log4.Debug("<ENTER> :UserId-%d:CurState：%s", r.mRobotData.MUId, e.FSM.CurState())
 	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
+
+	if r.mIsLoginOk == false {
+		//处理资源,如：关闭socket
+		if r.mNetClient != nil {
+			r.mNetClient.Close()
+			r.mNetClient = nil
+		}
+	}
 
 }
 
@@ -378,6 +418,40 @@ func (r *Robot) HandelClubMainMsg(msgHead *net.MsgHead) {
 	case int16(ClubSubCmd.EnServerSubCmdID_SC_JOIN_CLUB):
 		r.HandelClubJoinClubResult(msgHead)
 		break
+	case int16(ClubSubCmd.EnServerSubCmdID_SC_CLUB_CREATE_TABLE):
+		r.HandelClubCreateTableResult(msgHead)
+		break
+	case int16(ClubSubCmd.EnServerSubCmdID_SC_CLUB_ENTER_ROOM):
+		r.HandelClubEnterTableResult(msgHead)
+		break
+	default:
+		break
+	}
+
+	return
+}
+func (r *Robot) HandelGameMainUserMsg(msgHead *net.MsgHead) {
+	logger.Log4.Debug("<ENTER> :UserId-%d:", r.mRobotData.MUId)
+	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
+
+	if msgHead == nil {
+		return
+	}
+	switch msgHead.MSubCmd {
+	default:
+		break
+	}
+
+	return
+}
+func (r *Robot) HandelGameMainMsg(msgHead *net.MsgHead) {
+	logger.Log4.Debug("<ENTER> :UserId-%d:", r.mRobotData.MUId)
+	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
+
+	if msgHead == nil {
+		return
+	}
+	switch msgHead.MSubCmd {
 	default:
 		break
 	}
@@ -426,6 +500,7 @@ func (r *Robot) HandelClubBaseInfo(msgHead *net.MsgHead) {
 		//登陆状态：微游戏基础信息收到后，则整个登陆完成，取消定时器
 		r.CancelTimer(TimerLoginLobbySvr)
 		r.mCurTaskStepReuslt = TaskResultSuccess
+		r.mIsLoginOk = true
 		r.FsmSendEvent(RobotEventTaskAnalysis, nil)
 	}
 
@@ -561,6 +636,76 @@ func (r *Robot) HandelClubJoinClubResult(msgHead *net.MsgHead) {
 	return
 }
 
+//创建桌子结果返回
+func (r *Robot) HandelClubCreateTableResult(msgHead *net.MsgHead) {
+	logger.Log4.Debug("<ENTER> :UserId-%d:", r.mRobotData.MUId)
+	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
+
+	if msgHead == nil {
+		return
+	}
+
+	//取消定时器
+	r.CancelTimer(TimerClubCreateRoom)
+
+	createTableReslut := &ClubSubCmd.SC_ClubCreateTable{}
+	err := proto.Unmarshal(msgHead.MData, createTableReslut)
+	if err != nil {
+		logger.Log4.Debug("unmarshal SC_ClubCreateTable error: %s", err)
+	}
+	logger.Log4.Debug("createTableReslut: %+v", createTableReslut)
+
+	lresult := createTableReslut.GetResult()
+	if lresult != 0 {
+
+		r.mCurTaskStepReuslt = TaskResultClub_SendRequestCreateRoomReponseFail
+		r.FsmSendEvent(RobotEventTaskAnalysis, nil)
+		logger.Log4.Debug("UserId-%d::create table Fail: %s", r.mRobotData.MUId, createTableReslut.GetResultStr())
+		return
+	}
+
+	r.mCurTaskStepReuslt = TaskResultSuccess
+	r.FsmSendEvent(RobotEventTaskAnalysis, nil)
+	logger.Log4.Debug("UserId-%d::create table Success: %s", r.mRobotData.MUId, createTableReslut.GetResultStr())
+
+	return
+}
+
+//创建桌子结果返回
+func (r *Robot) HandelClubEnterTableResult(msgHead *net.MsgHead) {
+	logger.Log4.Debug("<ENTER> :UserId-%d:", r.mRobotData.MUId)
+	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
+
+	if msgHead == nil {
+		return
+	}
+
+	//取消定时器
+	r.CancelTimer(TimerClubEnterRoom)
+
+	enterTableReslut := &ClubSubCmd.SC_ClubEnterRoom{}
+	err := proto.Unmarshal(msgHead.MData, enterTableReslut)
+	if err != nil {
+		logger.Log4.Debug("unmarshal SC_ClubEnterRoom error: %s", err)
+	}
+	logger.Log4.Debug("enterTableReslut: %+v", enterTableReslut)
+
+	lresult := enterTableReslut.GetResult()
+	if lresult != 0 {
+
+		r.mCurTaskStepReuslt = TaskResultClub_SendRequestEnterRoomReponseFail
+		r.FsmSendEvent(RobotEventTaskAnalysis, nil)
+		logger.Log4.Debug("UserId-%d::enter table Fail: %s", r.mRobotData.MUId, enterTableReslut.GetResultStr())
+		return
+	}
+
+	r.mCurTaskStepReuslt = TaskResultSuccess
+	r.FsmSendEvent(RobotEventTaskAnalysis, nil)
+	logger.Log4.Debug("UserId-%d::enter table Success: %s", r.mRobotData.MUId, enterTableReslut.GetResultStr())
+
+	return
+}
+
 func (r *Robot) HandelLobbyMainMsg(msgHead *net.MsgHead) {
 	logger.Log4.Debug("<ENTER> :UserId-%d:", r.mRobotData.MUId)
 	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
@@ -571,6 +716,12 @@ func (r *Robot) HandelLobbyMainMsg(msgHead *net.MsgHead) {
 	switch msgHead.MSubCmd {
 	case int16(LobbySubCmd.EnSubCmdID_USER_MAIN_INFO_SUB_CMD):
 		r.HandelUserMainInfo(msgHead)
+		break
+	case int16(LobbySubCmd.EnSubCmdID_RETURN_DIAMOND_TO_GOLD_SUB_CMD):
+		r.HandelUserDiamondToGoldReturn(msgHead)
+		break
+	case int16(LobbySubCmd.EnSubCmdID_UPDATE_USER_ATT_SUB_CMD):
+		r.HandelUserUpdateAtt(msgHead)
 		break
 	default:
 		break
@@ -637,6 +788,57 @@ func (r *Robot) HandelUserMainInfo(msgHead *net.MsgHead) {
 
 	r.mRobotData.MUserGold = int(logonSuccessInfo.GetIGold())
 	r.mRobotData.MUserDiamond = int(logonSuccessInfo.GetIDiamond())
+
+	return
+
+}
+func (r *Robot) HandelUserDiamondToGoldReturn(msgHead *net.MsgHead) {
+	logger.Log4.Debug("<ENTER> :UserId-%d:", r.mRobotData.MUId)
+	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
+
+	if msgHead == nil {
+		return
+	}
+
+	returnDiamondToGold := &LobbySubCmd.SC_ReturnDiamondToGold{}
+	err := proto.Unmarshal(msgHead.MData, returnDiamondToGold)
+	if err != nil {
+		logger.Log4.Debug("unmarshal SC_ReturnDiamondToGold error: %s", err)
+	}
+	logger.Log4.Debug("SC_ReturnDiamondToGold: %+v", returnDiamondToGold)
+
+	if returnDiamondToGold.GetResult() == 0 {
+		r.mCurTaskStepReuslt = TaskResultSuccess
+		r.FsmSendEvent(RobotEventTaskAnalysis, nil)
+	} else {
+		r.mCurTaskStepReuslt = TaskResultClub_SendRequestAddGoldReponseFail
+		r.FsmSendEvent(RobotEventTaskAnalysis, nil)
+	}
+	logger.Log4.Debug("UserId-%d: add gold result:%d, retsultStr:%s",
+		r.mRobotData.MUId, returnDiamondToGold.GetResult(), returnDiamondToGold.GetResultStr())
+
+	return
+
+}
+func (r *Robot) HandelUserUpdateAtt(msgHead *net.MsgHead) {
+	logger.Log4.Debug("<ENTER> :UserId-%d:", r.mRobotData.MUId)
+	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
+
+	if msgHead == nil {
+		return
+	}
+
+	userAtt := &LobbySubCmd.SC_Update_User_Att{}
+	err := proto.Unmarshal(msgHead.MData, userAtt)
+	if err != nil {
+		logger.Log4.Debug("unmarshal SC_Update_User_Att error: %s", err)
+	}
+	logger.Log4.Debug("userAtt: %+v", userAtt)
+
+	r.mRobotData.MUserGold = int(userAtt.GetIGold())
+	r.mRobotData.MUserDiamond = int(userAtt.GetIDiamond())
+	logger.Log4.Debug("UserId-%d: Gold:%d, Diamond:%d",
+		r.mRobotData.MUId, r.mRobotData.MUserGold, r.mRobotData.MUserDiamond)
 
 	return
 
@@ -1194,6 +1396,9 @@ func (r *Robot) CancelTimer(timerType TimerType) error {
 func (r *Robot) RobotStateClubEventInit(e *fsm.Event) {
 	logger.Log4.Debug("<ENTER> :UserId-%d:CurState：%s", r.mRobotData.MUId, e.FSM.CurState())
 	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
+	if r.mIsLoginOk == false {
+		r.mCurTaskStepReuslt = TaskResultNotLogin
+	}
 	r.FsmSendEvent(RobotEventTaskAnalysis, nil)
 }
 
@@ -1267,6 +1472,10 @@ func (r *Robot) RobotStateClubEventTimer(e *fsm.Event) {
 		r.mCurTaskStepReuslt = TaskResultClub_SendRequestJoinClubTimeOut
 		r.FsmSendEvent(RobotEventTaskAnalysis, nil)
 		break
+	case TimerClubAddGold:
+		r.mCurTaskStepReuslt = TaskResultClub_SendRequestAddGoldTimeOut
+		r.FsmSendEvent(RobotEventTaskAnalysis, nil)
+		break
 
 	default:
 		break
@@ -1294,6 +1503,10 @@ func (r *Robot) RobotStateClubEventTaskAnalysis(e *fsm.Event) {
 	case TaskStepClubEnter:
 		r.FsmSendEvent(RobotEventClubEnter, nil)
 		break
+	case TaskStepClubAddGold:
+		r.FsmSendEvent(RobotEventClubAddGold, nil)
+		break
+
 	default:
 		break
 	}
@@ -1307,6 +1520,8 @@ func (r *Robot) RobotStateClubEventClubEnter(e *fsm.Event) {
 
 	prarmNum := r.mTaskMng.GetTaskPrarmNum()
 	if prarmNum != 1 {
+		r.mCurTaskStepReuslt = TaskResultParamErr
+		r.FsmSendEvent(RobotEventTaskAnalysis, nil)
 		logger.Log4.Error("<ENTER> :UserId-%d:CurState：%s pram error", r.mRobotData.MUId, e.FSM.CurState())
 		return
 	}
@@ -1403,4 +1618,448 @@ func (r *Robot) RequestJoinClub() error {
 		return errors.New("ERR_NET_SEND_FAIL")
 	}
 	return nil
+}
+
+//微游戏状态： 请求加金币
+func (r *Robot) RobotStateClubEventAddGold(e *fsm.Event) {
+	logger.Log4.Debug("<ENTER> :UserId-%d:CurState：%s", r.mRobotData.MUId, e.FSM.CurState())
+	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
+
+	if r.mRobotData.MUserGold >= 100 {
+		r.mCurTaskStepReuslt = TaskResultSuccess
+		r.FsmSendEvent(RobotEventTaskAnalysis, nil)
+		logger.Log4.Debug("UserId-%d: gold:%d", r.mRobotData.MUId, r.mRobotData.MUserGold)
+		return
+	}
+	if r.mRobotData.MUserDiamond < 5 {
+		r.mCurTaskStepReuslt = TaskResultClub_SendRequestAddDiamondNotEnough
+		r.FsmSendEvent(RobotEventTaskAnalysis, nil)
+		logger.Log4.Debug("UserId-%d: gold:%d, But  can not add ,because:MUserDiamond:%d",
+			r.mRobotData.MUId, r.mRobotData.MUserGold, r.mRobotData.MUserDiamond)
+		return
+	}
+	//
+	err := r.RequestDiamondToGold()
+	if err != nil {
+		//网络连接失败，结束当前任务
+		r.mCurTaskStepReuslt = TaskResultClub_SendRequestAddGoldFail
+		r.FsmSendEvent(RobotEventTaskAnalysis, nil)
+		return
+	} else {
+		//设置请求定时器
+		r.SetTimer(TimerClubAddGold, RequestTimeOut)
+
+	}
+
+	return
+
+}
+
+func (r *Robot) RequestDiamondToGold() error {
+	logger.Log4.Debug("<ENTER> :UserId-%d", r.mRobotData.MUId)
+	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
+
+	if r.mNetClient == nil {
+		logger.Log4.Error("UserId-%d: no connect", r.mRobotData.MUId)
+		return errors.New("ERR_NO_NET_CONNECT")
+	}
+	m := &LobbySubCmd.CS_RequestDiamondToGold{
+		Id: proto.Int32(2),
+	}
+
+	err := r.mNetClient.SenMsg(int16(Main.EnMainCmdID_LOBBY_MAIN_CMD), int16(LobbySubCmd.EnSubCmdID_REQUEST_DIAMOND_TO_GOLD_SUB_CMD), m)
+	if err != nil {
+		logger.Log4.Error("UserId-%d: send fail", r.mRobotData.MUId)
+		return errors.New("ERR_NET_SEND_FAIL")
+	}
+	return nil
+}
+
+/*
+	//血战麻将
+	r.mFsm.AddStateEvent(RobotStateXzmj, RobotEventInit, r.RobotStateXzmjEventInit)
+	r.mFsm.AddStateEvent(RobotStateXzmj, RobotEventQuit, r.RobotStateXzmjEventQuit)
+	r.mFsm.AddStateEvent(RobotStateXzmj, RobotEventRemoteMsg, r.RobotStateXzmjEventRemoteMsg)
+	r.mFsm.AddStateEvent(RobotStateXzmj, RobotEventSocketAbnormal, r.RobotStateXzmjEventSocketAbnormal)
+	r.mFsm.AddStateEvent(RobotStateXzmj, RobotEventTimer, r.RobotStateXzmjEventTimer)
+	r.mFsm.AddStateEvent(RobotStateXzmj, RobotEventTaskAnalysis, r.RobotStateXzmjEventTaskAnalysis)
+	r.mFsm.AddStateEvent(RobotStateXzmj, RobotEventXzmjCreateRoom, r.RobotStateXzmjEventCreateRoom)
+	r.mFsm.AddStateEvent(RobotStateXzmj, RobotEventXzmjEnterRoom, r.RobotStateXzmjEventEnterRoom)
+	r.mFsm.AddStateEvent(RobotStateXzmj, RobotEventXzmjStartGame, r.RobotStateXzmjEventStartRoom)
+	r.mFsm.AddStateEvent(RobotStateXzmj, RobotEventXzmjOperate, r.RobotStateXzmjEventOperate)
+*/
+
+//血战麻将状态
+func (r *Robot) RobotStateXzmjEventInit(e *fsm.Event) {
+	logger.Log4.Debug("<ENTER> :UserId-%d:CurState：%s", r.mRobotData.MUId, e.FSM.CurState())
+	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
+	r.FsmSendEvent(RobotEventTaskAnalysis, nil)
+}
+
+func (r *Robot) RobotStateXzmjEventQuit(e *fsm.Event) {
+	logger.Log4.Debug("<ENTER> :UserId-%d:CurState：%s", r.mRobotData.MUId, e.FSM.CurState())
+	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
+	if r.mIsLoginOk == false {
+		r.mCurTaskStepReuslt = TaskResultNotLogin
+	}
+
+}
+
+//血战麻将状态：处理远程消息
+func (r *Robot) RobotStateXzmjEventRemoteMsg(e *fsm.Event) {
+	logger.Log4.Debug("<ENTER> :UserId-%d:CurState：%s", r.mRobotData.MUId, e.FSM.CurState())
+	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
+
+	if len(e.Args) == 0 {
+		logger.Log4.Error("UserId-%d: no Remote Msg", r.mRobotData.MUId)
+		return
+	}
+	msgHead := e.Args[0].(*net.MsgHead)
+	switch msgHead.MMainCmd {
+	case int16(Main.EnMainCmdID_LOGIN_MAIN_CMD):
+		r.HandelLoginMainMsg(msgHead)
+		break
+	case int16(Main.EnMainCmdID_GATE_MAIN_CMD):
+		r.HandelGateMainMsg(msgHead)
+		break
+	case int16(Main.EnMainCmdID_LOBBY_MAIN_CMD):
+		r.HandelLobbyMainMsg(msgHead)
+		break
+	case int16(Main.EnMainCmdID_CLUB_MAIN_CMD):
+		r.HandelClubMainMsg(msgHead)
+		break
+	case int16(Main.EnMainCmdID_GAME_MAIN_USER):
+		r.HandelGameMainUserMsg(msgHead)
+		break
+	case int16(Main.EnMainCmdID_GAME_MAIN_GAME):
+		r.HandelGameMainMsg(msgHead)
+		break
+	default:
+		logger.Log4.Error("UserId-%d: not process Cmd:%d, SubCmd:%d", r.mRobotData.MUId, msgHead.MMainCmd, msgHead.MSubCmd)
+		break
+	}
+
+}
+
+//血战麻将状态：处理网络异常
+func (r *Robot) RobotStateXzmjEventSocketAbnormal(e *fsm.Event) {
+	logger.Log4.Debug("<ENTER> :UserId-%d:CurState：%d", r.mRobotData.MUId, e.FSM.CurState())
+	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
+
+	if r.mCurTaskStepReuslt == TaskResultNone {
+		r.mCurTaskStepReuslt = TaskResultSocketErr
+		r.FsmSendEvent(RobotEventTaskAnalysis, nil)
+	}
+	if r.mNetClient != nil {
+		r.mNetClient.Close()
+		r.mNetClient = nil
+	}
+
+}
+
+//血战麻将状态：处理定时事件
+func (r *Robot) RobotStateXzmjEventTimer(e *fsm.Event) {
+	logger.Log4.Debug("<ENTER> :UserId-%d:CurState：%d", r.mRobotData.MUId, e.FSM.CurState())
+	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
+	if len(e.Args) == 0 {
+		logger.Log4.Error("UserId-%d: no Remote Msg", r.mRobotData.MUId)
+		return
+	}
+	timerData := e.Args[0].(*TimertData)
+	switch timerData.MTimerType {
+	case TimerClubCreateRoom:
+		r.mCurTaskStepReuslt = TaskResultClub_SendRequestCreateRoomTimeOut
+		r.FsmSendEvent(RobotEventTaskAnalysis, nil)
+		break
+	case TimerClubEnterRoom:
+		r.mCurTaskStepReuslt = TaskResultClub_SendRequestEnterRoomTimeOut
+		r.FsmSendEvent(RobotEventTaskAnalysis, nil)
+		break
+
+	default:
+		break
+	}
+}
+
+//血战麻将状态：处理任务解析
+func (r *Robot) RobotStateXzmjEventTaskAnalysis(e *fsm.Event) {
+	logger.Log4.Debug("<ENTER> :UserId-%d:CurState：%d", r.mRobotData.MUId, e.FSM.CurState())
+	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
+	if r.mCurTaskStep != TaskStepNone {
+		r.mTaskMng.ReportTaskStepCompleteResult(r.mCurTaskId, r.mCurTaskType, r.mCurTaskStep, r.mCurTaskStepReuslt)
+	}
+	var taskStep TaskStep = TaskStepNone
+	taskStep, _ = r.mTaskMng.DispatchTaskStep()
+	if taskStep == TaskStepNone {
+		//当前任务步骤已作完，跳到任务管理状态继续分配任务
+		r.FsmTransferState(RobotStateTaskMng)
+		return
+	}
+	r.mCurTaskStep = taskStep
+	r.mCurTaskStepReuslt = TaskResultNone
+
+	switch r.mCurTaskStep {
+	case TaskStepXzmjCreateRoom:
+		r.FsmSendEvent(RobotEventXzmjCreateRoom, nil)
+		break
+	case TaskStepXzmjEnterRoom:
+		r.FsmSendEvent(RobotEventXzmjEnterRoom, nil)
+		break
+	case TaskStepXzmjStartGame:
+		r.FsmSendEvent(RobotEventXzmjStartGame, nil)
+		break
+	default:
+		break
+	}
+	return
+}
+
+//血战麻将状态： 创建房间
+func (r *Robot) RobotStateXzmjEventCreateRoom(e *fsm.Event) {
+	logger.Log4.Debug("<ENTER> :UserId-%d:CurState：%s", r.mRobotData.MUId, e.FSM.CurState())
+	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
+
+	prarmNum := r.mTaskMng.GetTaskPrarmNum()
+	if prarmNum != 2 {
+		r.mCurTaskStepReuslt = TaskResultParamErr
+		r.FsmSendEvent(RobotEventTaskAnalysis, nil)
+		logger.Log4.Error("<ENTER> :UserId-%d:CurState：%s pram error", r.mRobotData.MUId, e.FSM.CurState())
+
+		return
+	}
+	var isNeedCreateRoom bool = false
+	prarmValue := r.mTaskMng.GetTaskPrarm(0)
+	if prarmValue == "1" {
+		isNeedCreateRoom = true
+	}
+
+	if isNeedCreateRoom == false {
+		//不需要创建房间
+		r.mCurTaskStepReuslt = TaskResultSuccess
+		r.FsmSendEvent(RobotEventTaskAnalysis, nil)
+		logger.Log4.Error("<ENTER> :UserId-%d:CurState：%s 不需要创建房间",
+			r.mRobotData.MUId, e.FSM.CurState())
+	}
+
+	//创建微游戏
+	err := r.RequestCreateXzmjRoom()
+	if err != nil {
+		//网络连接失败，结束当前任务
+		r.mCurTaskStepReuslt = TaskResultClub_SendRequestCreateRoomFail
+		r.FsmSendEvent(RobotEventTaskAnalysis, nil)
+		return
+	} else {
+		//设置请求定时器
+		r.SetTimer(TimerClubCreateRoom, RequestTimeOut)
+
+	}
+
+	return
+
+}
+
+/*
+//CS_CLUB_CREATE_TABLE		 =302;	 //创建桌子
+message CS_ClubCreateTable
+{
+	required int64             ClubID         = 1;         //俱乐部ID
+	required int64 			   RoomId		  = 2;		   //房间id
+
+	required int32 			   TableType 	  =  3;			//0：成员房, 1 好友房
+	required stTableAttribute	TableAttribute = 4; //桌子高级参数
+};
+message stTableAttribute
+{
+	required int32 			   GameCurrencyType = 1;		//游戏货币类型（1:钻石，2：金币，3积分）
+	required int32 			   PayRoomRateType 	= 2;			//房费支付方式 （0：房主支付，1：AA支付）
+	required int32 			   PlanGameCount	=3; 		//开房局数
+	required int32			   DiZhu			=4;		//底注
+	required int64			   EnterScore       =5;		//进入分数限制
+	required int64			   LeaveScore       =6;		//离开分数限制
+	required int64			   BeiShuLimit      =7;		//最大倍数限制
+	required int32			   ChairCount       =8;		//房间椅子数量
+	required int32			   IsAllowEnterAfterStart   =9;		//是否允许开始后加入房间
+	required int64			   TableType		  = 10;			//桌子类型（0.成员房 1.好友房）
+	required int64			   RoomRate       =11;		//房费
+	required int64			   ServerRate       =12;		//服务费
+	required string			   TableAdvanceParam =13; 			//桌子高级参数
+	required string			   TableName =14; 			//桌子名字
+	required int32			   IsIpWarn =15; 			//是否相同ip警告
+	required int32			   IsGpsWarn =16; 			//是否相同地点警告
+	optional int32			   TableId =17; 			//压力测试用，指定想要创建的桌子id
+
+};
+*/
+
+type XzmjTableAdvanceParam struct {
+	StartGameMinPlayerCount int32
+	ZiMoJiaFan              int32
+	DianGangHuaZiMo         int32
+	HuanSanZhangType        int32
+	JinGouDiao              int32
+	HaiDiLaoYue             int32
+	DaXiaoYu                int32
+	YaoJiu                  int32
+	Jiang                   int32
+}
+
+func (r *Robot) RequestCreateXzmjRoom() error {
+	logger.Log4.Debug("<ENTER> :UserId-%d", r.mRobotData.MUId)
+	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
+
+	if r.mNetClient == nil {
+		logger.Log4.Error("UserId-%d: no connect", r.mRobotData.MUId)
+		return errors.New("ERR_NO_NET_CONNECT")
+	}
+
+	var advanceParam XzmjTableAdvanceParam
+	advanceParam.StartGameMinPlayerCount = 2
+	advanceParam.ZiMoJiaFan = 1
+	advanceParam.DianGangHuaZiMo = 1
+	advanceParam.HuanSanZhangType = 1
+	advanceParam.JinGouDiao = 1
+	advanceParam.HaiDiLaoYue = 1
+	advanceParam.DaXiaoYu = 1
+	advanceParam.YaoJiu = 1
+	advanceParam.Jiang = 1
+	var advanceParamData []byte
+	var err error
+	if advanceParamData, err = json.Marshal(advanceParam); err != nil {
+		logger.Log4.Error("UserId-%d: XzmjTableAdvanceParam Marshal err:%s", r.mRobotData.MUId, err)
+		return errors.New("ERR_PARAM_MARSHAL")
+	}
+	logger.Log4.Error("UserId-%d: XzmjTableAdvanceParam %s", r.mRobotData.MUId, advanceParamData)
+
+	tableName := "TableName" + strconv.Itoa(r.mRobotData.MXzmjTableId)
+	m := &ClubSubCmd.CS_ClubCreateTable{
+		ClubID:    proto.Int64(int64(r.mRobotData.MClubData.MClubId)),
+		RoomId:    proto.Int64(int64(r.mRobotData.MXzmjRoomId)),
+		TableType: proto.Int32(int32(1)),
+		TableAttribute: &ClubSubCmd.StTableAttribute{
+			GameCurrencyType:       proto.Int32(2),
+			PayRoomRateType:        proto.Int32(3),
+			PlanGameCount:          proto.Int32(0),
+			DiZhu:                  proto.Int32(1),
+			EnterScore:             proto.Int64(10),
+			LeaveScore:             proto.Int64(2),
+			BeiShuLimit:            proto.Int64(32),
+			ChairCount:             proto.Int32(4),
+			IsAllowEnterAfterStart: proto.Int32(1),
+			TableType:              proto.Int64(0),
+			RoomRate:               proto.Int64(0),
+			ServerRate:             proto.Int64(100),
+			IsGpsWarn:              proto.Int32(1),
+			IsIpWarn:               proto.Int32(1),
+			TableName:              proto.String(tableName),
+			TableAdvanceParam:      proto.String(string(advanceParamData)),
+			TableId:                proto.Int32(int32(r.mRobotData.MXzmjTableId)),
+		},
+	}
+
+	err = r.mNetClient.SenMsg(int16(Main.EnMainCmdID_CLUB_MAIN_CMD), int16(ClubSubCmd.EnClientSubCmdID_CS_CLUB_CREATE_TABLE), m)
+	if err != nil {
+		logger.Log4.Error("UserId-%d: send fail", r.mRobotData.MUId)
+		return errors.New("ERR_NET_SEND_FAIL")
+	}
+	return nil
+}
+
+//血战状态： 进入房间
+func (r *Robot) RobotStateXzmjEventEnterRoom(e *fsm.Event) {
+	logger.Log4.Debug("<ENTER> :UserId-%d:CurState：%s", r.mRobotData.MUId, e.FSM.CurState())
+	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
+
+	prarmNum := r.mTaskMng.GetTaskPrarmNum()
+	if prarmNum != 2 {
+		r.mCurTaskStepReuslt = TaskResultParamErr
+		r.FsmSendEvent(RobotEventTaskAnalysis, nil)
+		logger.Log4.Error("<ENTER> :UserId-%d:CurState：%s pram error", r.mRobotData.MUId, e.FSM.CurState())
+
+		return
+	}
+	var isNeedEnterRoom bool = false
+	prarmValue := r.mTaskMng.GetTaskPrarm(1)
+	if prarmValue == "1" {
+		isNeedEnterRoom = true
+	}
+
+	if isNeedEnterRoom == false {
+		//不需要进入
+		r.mCurTaskStepReuslt = TaskResultSuccess
+		r.FsmSendEvent(RobotEventTaskAnalysis, nil)
+		logger.Log4.Error("<ENTER> :UserId-%d:CurState：%s 不需要进入房间",
+			r.mRobotData.MUId, e.FSM.CurState())
+	}
+
+	//创建微游戏
+	err := r.RequestEnterXzmjRoom()
+	if err != nil {
+		//网络连接失败，结束当前任务
+		r.mCurTaskStepReuslt = TaskResultClub_SendRequestEnterRoomFail
+		r.FsmSendEvent(RobotEventTaskAnalysis, nil)
+		return
+	} else {
+		//设置请求定时器
+		r.SetTimer(TimerClubEnterRoom, RequestTimeOut)
+
+	}
+
+}
+
+/*
+//CS_CLUB_ENTER_ROOM		 =304;	 //进入房间
+message CS_ClubEnterRoom
+{
+	required int64             ClubID         = 1;         //俱乐部ID
+	required int64 			   RoomId		  = 2;		   //房间id
+	required int64 			   TableId		  = 3;		   //Tableid
+	required int64 			   UserLng		  = 4;		   //经度
+	required int64 			   UserLat		  = 5;		   //纬度
+};
+
+*/
+func (r *Robot) RequestEnterXzmjRoom() error {
+	logger.Log4.Debug("<ENTER> :UserId-%d", r.mRobotData.MUId)
+	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
+
+	if r.mNetClient == nil {
+		logger.Log4.Error("UserId-%d: no connect", r.mRobotData.MUId)
+		return errors.New("ERR_NO_NET_CONNECT")
+	}
+
+	m := &ClubSubCmd.CS_ClubEnterRoom{
+		ClubID:  proto.Int64(int64(r.mRobotData.MClubData.MClubId)),
+		RoomId:  proto.Int64(int64(r.mRobotData.MXzmjRoomId)),
+		TableId: proto.Int64(int64(r.mRobotData.MXzmjTableId)),
+		UserLng: proto.Int64(int64(0)),
+		UserLat: proto.Int64(int64(0)),
+	}
+
+	err := r.mNetClient.SenMsg(int16(Main.EnMainCmdID_CLUB_MAIN_CMD), int16(ClubSubCmd.EnClientSubCmdID_CS_CLUB_ENTER_ROOM), m)
+	if err != nil {
+		logger.Log4.Error("UserId-%d: send fail", r.mRobotData.MUId)
+		return errors.New("ERR_NET_SEND_FAIL")
+	}
+	return nil
+}
+
+//血战状态： 开始游戏
+func (r *Robot) RobotStateXzmjEventStartRoom(e *fsm.Event) {
+	logger.Log4.Debug("<ENTER> :UserId-%d:CurState：%s", r.mRobotData.MUId, e.FSM.CurState())
+	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
+
+	//r.mCurTaskStepReuslt = TaskResultSuccess
+	//r.FsmSendEvent(RobotEventTaskAnalysis, nil)
+
+	return
+
+}
+
+//血战状态： 游戏操作
+func (r *Robot) RobotStateXzmjEventOperate(e *fsm.Event) {
+	logger.Log4.Debug("<ENTER> :UserId-%d:CurState：%s", r.mRobotData.MUId, e.FSM.CurState())
+	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
+
+	return
+
 }

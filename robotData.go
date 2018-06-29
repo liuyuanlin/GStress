@@ -21,7 +21,8 @@ type RobotData struct {
 	MTencentCodeId   string
 	MTencentToken    string
 	MIsNeedAutoLogin bool
-	MApointRoomId    int
+	MXzmjRoomId      int
+	MXzmjTableId     int
 	MWantClubId      int
 	MToken           string
 	MUserGold        int
@@ -40,7 +41,8 @@ type RobotAttr struct {
 	MTencentCodeId   string
 	MTencentToken    string
 	MIsNeedAutoLogin bool
-	MApointRoomId    int
+	MXzmjRoomId      int
+	MXzmjTableId     int
 	MWantClubId      int
 	MTaskId          []int
 }
@@ -59,7 +61,8 @@ func (RD *RobotData) Init(robotAttr RobotAttr) error {
 	RD.MTencentCodeId = robotAttr.MTencentCodeId
 	RD.MTencentToken = robotAttr.MTencentToken
 	RD.MIsNeedAutoLogin = robotAttr.MIsNeedAutoLogin
-	RD.MApointRoomId = robotAttr.MApointRoomId
+	RD.MXzmjRoomId = robotAttr.MXzmjRoomId
+	RD.MXzmjTableId = robotAttr.MXzmjTableId
 	RD.MWantClubId = robotAttr.MWantClubId
 
 	return nil

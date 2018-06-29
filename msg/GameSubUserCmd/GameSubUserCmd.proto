@@ -1,0 +1,186 @@
+package GameSubUserCmd;
+
+//import "MainCmd.proto";
+
+//进入房间协议在lobby中，桌子上的功能交给SO做。
+// 子命令码表
+enum enSubCmdID
+{
+	GAME_SUB_CS_USER_LEAVE_ROOM_RQST		= 1;	//离开房间请求
+	GAME_SUB_SC_USER_LEAVE_ROOM_RSP			= 2;	//离开房间响应
+	
+	GAME_SUB_CS_USER_SIT_DOWN_RQST			= 3;	//请求坐下请求
+	GAME_SUB_SC_USER_SIT_DOWN_RSP			= 4;	//请求坐下响应
+	
+	GAME_SUB_CS_USER_SIT_UP_RQST			= 5;	//请求起立请求
+	GAME_SUB_SC_USER_SIT_UP_RSP				= 6;	//请求起立响应
+	
+
+	GAME_SUB_CS_USER_CHANGE_TABLE_RQST		= 7;	//用户换桌请求
+	GAME_SUB_SC_USER_CHANGE_TABLE_RSP		= 8;	//用户换桌响应
+	
+	
+	GAME_SUB_SC_USER_ROOM_INFO_NOTIFY		= 9;	//房间信息通知
+	GAME_SUB_SC_USER_ROOM_CFG_NOTIFY		= 10;	//房间配置通知
+	
+
+	
+	GAME_SUB_SC_USER_FRAME_ENTER		= 11;	//客户端资源加载完成，通知客户端桌子上下文信息。
+		
+	GAME_SUB_SC_USER_LEAVE_ROOM_NOTIFY			= 12;	//离开房间通知
+	
+}
+
+
+//GAME_SUB_CS_USER_LEAVE_ROOM_RQST				= 1;	//离开房间请求
+message CSUserLeaveRoomRqst
+{
+	required int32 RoomId = 1;                         //房间ID
+}
+
+//GAME_SUB_SC_USER_LEAVE_ROOM_RSP			= 2;	//离开房间响应
+message SCUserLeaveRoomRsp
+{
+	required int32 ResultCode = 1;                     //操作结果码(0:成功，1:失败)
+	required int32 RoomId = 2;                         //房间ID
+}
+
+
+//GAME_SUB_CS_USER_SIT_DOWN_RQST			= 3;	//请求坐下请求
+message CSUserSitDownRqst
+{
+	required int32 RoomId = 1;                         //房间ID
+	required int32 TableId = 2;							//桌子id（普通金币场，改字段填0）
+}
+
+//GAME_SUB_SC_USER_SIT_DOWN_RSP			= 4;	//请求坐下响应
+message CSUserSitDownRsp
+{
+	required int32 ResultCode = 1;                     //操作结果码(0:成功，1:失败)
+	required int32 RoomId = 2; 
+	required int32 KindId = 3;  						//kindID
+	optional int32 TalbeId = 4;  
+}
+
+
+//GAME_SUB_CS_USER_SIT_UP_RQST			= 5;	//请求起立请求
+message CSUserSitUpRqst
+{
+	required int32 RoomId = 1;                         //房间ID
+	required int32 TableId = 2;							//桌子id（普通金币场，改字段填0）
+}
+
+//GAME_SUB_SC_USER_SIT_UP_RSP				= 6;	//请求起立响应
+message CSUserSitUpRsp
+{
+	required int32 ResultCode = 1;                     //操作结果码(0:成功，1:失败)
+	required int32 RoomId = 2;    
+	optional int32 TalbeId = 3;  
+}
+
+
+//GAME_SUB_CS_USER_CHANGE_TABLE_RQST			= 7;	//用户换桌请求
+message CSUserChangeTableRqst
+{
+	required int32 RoomId = 1;                         //房间ID
+}
+
+//GAME_SUB_SC_USER_CHANGE_TABLE_RSP		= 8;	//用户换桌响应
+message CSUserChangeTableRsp
+{
+	required int32 ResultCode = 1;                     //操作结果码(0:成功，1:失败)
+	required int32 RoomId = 2;
+}
+
+
+	
+//GAME_SUB_SC_USER_ROOM_INFO_NOTIFY		= 9;	//房间信息通知
+message CSUserRoomInfoNotify
+{
+	required int32 RoomId = 1;                         //房间ID
+	required int32 KindId = 2;  					   //kindID
+	optional int32 TalbeId = 3;  						//
+}
+
+
+
+//GAME_SUB_SC_USER_ROOM_CFG_NOTIFY		= 10;	//房间配置通知
+message CSUserRoomCfgNotify
+{
+	required int32 RoomId = 1;                         //房间ID
+}
+
+//GAME_SUB_SC_USER_FRAME_ENTER		= 11;	//客户端资源加载完成，通知客户端桌子上下文信息。
+message CSUserFrameEnter
+{
+	required int32 RoomId = 1;                         //房间ID
+}
+
+//GAME_SUB_SC_USER_LEAVE_ROOM_NOTIFY			= 12;	//离开房间通知
+message SCUserLeaveRoomNotify
+{
+	required int32 RoomId = 1;                         //房间ID
+	required int32 TableId = 2;                         //桌子id
+	required bool IsKick = 3;                         //是否是被强制提出房间
+	optional string KickReason = 4;					  //提出原因
+}
+
+
+message MPlayerInfo{
+	required int32 	mUserID = 1;									//用户 ID
+	required int32 	mAccid = 2 ;	        						//用户别名id，用于显示
+	required string mNickName = 3;	             				//昵称
+	required string mFaceID = 4;									//头像索引				
+}
+message MWinInfo{
+	required int32 	mUserID = 1;									//用户 ID
+	required int64 	mWinScore = 2 ;	        						//用户别名id，用于显示			
+}
+
+message MGameInfo{
+	repeated MWinInfo	mWinInfos = 1;	//玩家输赢记录
+	optional string 	mGameVideotapeKey = 2; //游戏录像标记 
+}
+	
+// 游戏记录
+message MUserGameRecord
+{
+	required int32 mRoomId = 1;                         //房间ID
+	required int32 mTableId = 2;                         //KindId
+	required int32 mKindId = 3;                         //桌子id
+	required int32 mClubId = 4;                         //俱乐部id
+	required int32 mGameCurrencyType = 5;				//游戏货币类型（1:钻石，2：金币，3积分）
+	required int64 mTableType = 6;						//桌子类型（0.成员房 1.好友房）
+	repeated MPlayerInfo mUsers = 7;					//桌子上玩家基础信息
+	repeated MGameInfo mGameInfos = 8;					//每局的游戏详情
+	repeated MWinInfo mTotalWinInfos = 9;				//每个玩家的总输赢
+	required int64 mRecordTime = 10;					//纪录时间
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+	
+	
+	
+	
+	
+	
+	

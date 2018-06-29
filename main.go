@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	RobotClientCfg = flag.String("cfg", "./cfg/robotClientSys1.xlsx", "The test cfg")
+	RobotClientCfg = flag.String("cfg", "./cfg/robotClientSys0.xlsx", "The test cfg")
 )
 
 func main() {
@@ -111,13 +111,21 @@ func main() {
 		robotAttr.MTencentToken = row["TencentToken"]
 		robotAttr.MTencentCodeId = row["TencentCodeId"]
 
-		//获取积分房间id
-		appointRoomId, err := strconv.Atoi(row["AppointRoomId"])
+		//获取血战麻将桌子id
+		xzmjTableId, err := strconv.Atoi(row["XzmjTableId"])
 		if err != nil {
 			logger.Log4.Error("err:%s", err)
 			return
 		}
-		robotAttr.MApointRoomId = appointRoomId
+		robotAttr.MXzmjTableId = xzmjTableId
+
+		//获取血战麻将房间id
+		xzmjRoomId, err := strconv.Atoi(row["XzmjRoomId"])
+		if err != nil {
+			logger.Log4.Error("err:%s", err)
+			return
+		}
+		robotAttr.MXzmjRoomId = xzmjRoomId
 
 		//获取微游戏ID
 		wantClubId, err := strconv.Atoi(row["ClubId"])

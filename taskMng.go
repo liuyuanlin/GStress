@@ -39,6 +39,22 @@ const (
 	TaskResultClub_SendRequestJoinClubFail        = 18
 	TaskResultClub_SendRequestJoinClubTimeOut     = 19
 	TaskResultClub_SendRequestJoinClubReponseFail = 20
+
+	TaskResultParamErr = 21
+	TaskResultNotLogin = 22
+
+	TaskResultClub_SendRequestCreateRoomFail        = 23
+	TaskResultClub_SendRequestCreateRoomTimeOut     = 24
+	TaskResultClub_SendRequestCreateRoomReponseFail = 25
+
+	TaskResultClub_SendRequestEnterRoomFail        = 26
+	TaskResultClub_SendRequestEnterRoomTimeOut     = 27
+	TaskResultClub_SendRequestEnterRoomReponseFail = 28
+
+	TaskResultClub_SendRequestAddGoldFail         = 29
+	TaskResultClub_SendRequestAddGoldTimeOut      = 30
+	TaskResultClub_SendRequestAddGoldReponseFail  = 31
+	TaskResultClub_SendRequestAddDiamondNotEnough = 32
 )
 
 type TaskState int
@@ -66,7 +82,8 @@ const (
 	TaskStepLoginLoginSvr = 10102
 	TaskStepLoginLobbySvr = 10103
 
-	TaskStepClubEnter = 20101
+	TaskStepClubEnter   = 20101
+	TaskStepClubAddGold = 20102
 
 	TaskStepXzmjCreateRoom = 30101
 	TaskStepXzmjEnterRoom  = 30102
@@ -177,6 +194,11 @@ func (t *TaskMng) LoadTaskStep(taskAttr *TaskAttr) error {
 		var lTaskStepReport1 TaskStepReport
 		lTaskStepReport1.MTaskStep = TaskStepClubEnter
 		taskAttr.MTaskReport.MTaskStepReport = append(taskAttr.MTaskReport.MTaskStepReport, lTaskStepReport1)
+
+		var lTaskStepReport2 TaskStepReport
+		lTaskStepReport2.MTaskStep = TaskStepClubAddGold
+		taskAttr.MTaskReport.MTaskStepReport = append(taskAttr.MTaskReport.MTaskStepReport, lTaskStepReport2)
+
 	case TaskTypeXzmj:
 		//创建创建房间
 		var lTaskStepReport0 TaskStepReport
