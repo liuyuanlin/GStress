@@ -118,6 +118,53 @@ func (n *NetClient) SenMsg(mainCmd int16, paraCmd int16, pb proto.Message) error
 	return nil
 }
 
+func (n *NetClient) SenGameMsg(mainCmd int16, paraCmd int16, roomId int16, pb proto.Message) error {
+
+	if n.mConn == nil {
+
+		return errors.New("no conn")
+	}
+	//消息体封装
+	data, err := proto.Marshal(pb)
+	if err != nil {
+		logger.Log4.Error("marshaling error: ", err)
+		return err
+	}
+
+	//消息头封装
+	var lProtoCmd ProtoCmd
+	lProtoCmd.size = int32(len(data))
+	lProtoCmd.cmd = mainCmd
+	lProtoCmd.para = paraCmd
+	lProtoCmd.roomID = roomId
+
+	buf := new(bytes.Buffer)
+	binary.Write(buf, binary.LittleEndian, lProtoCmd)
+	b1 := buf.Bytes()
+
+	var buffer bytes.Buffer //Buffer是一个实现了读写方法的可变大小的字节缓冲
+
+	//整个消息长度封装
+	var lAllLen int32 = 0
+	lAllLen = int32(len(b1) + len(data))
+	b0 := Int32ToBytes(lAllLen)
+
+	//发送内容拼接
+	buffer.Write(b0)
+	buffer.Write(b1)
+	buffer.Write(data)
+	b3 := buffer.Bytes()
+
+	//发送数据
+	err = n.mConn.WriteMessage(websocket.BinaryMessage, b3)
+	if err != nil {
+		logger.Log4.Error("write:", err)
+		return err
+	}
+
+	return nil
+}
+
 //TODO-liuyuanlin:
 func (n *NetClient) ReadMsg() (*MsgHead, error) {
 	logger.Log4.Debug("<ENTER>")

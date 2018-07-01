@@ -4,7 +4,7 @@ import (
 	"GStress/fsm"
 	"GStress/logger"
 	"GStress/msg/ClubSubCmd"
-	//"GStress/msg/GameSubUserCmd"
+	"GStress/msg/GameSubUserCmd"
 	"GStress/msg/GateSubCmd"
 	"GStress/msg/LobbySubCmd"
 	"GStress/msg/LoginSubCmd"
@@ -111,6 +111,8 @@ type Robot struct {
 	mIsWorkEnd         bool
 	mSystemCfg         SystemConfig
 	mIsLoginOk         bool
+	mXzmjTable         XzmjTable
+	mIsEnterRoom       bool
 }
 
 func (r *Robot) Init(robotAttr RobotAttr, taskMap TaskMap, systemCfg ExcelCfg, startState string) error {
@@ -136,6 +138,7 @@ func (r *Robot) Init(robotAttr RobotAttr, taskMap TaskMap, systemCfg ExcelCfg, s
 	r.mCurTaskStepReuslt = TaskResultNone
 	r.mIsWorkEnd = false
 	r.mIsLoginOk = false
+	r.mIsEnterRoom = false
 	r.mRobotData.Init(robotAttr)
 
 	//初始化事件队列
@@ -153,6 +156,9 @@ func (r *Robot) Init(robotAttr RobotAttr, taskMap TaskMap, systemCfg ExcelCfg, s
 		logger.Log4.Error("lRetErr:%s", lRetErr)
 		return lRetErr
 	}
+
+	//初始化血战麻将
+	r.mXzmjTable.Init(r)
 
 	//初始化定时器组
 	r.mTimers = make(map[TimerType]*time.Timer)
@@ -398,6 +404,48 @@ func (r *Robot) RobotStateLoginEventRemoteMsg(e *fsm.Event) {
 
 }
 
+func (r *Robot) HandelGameMainUserMsg(msgHead *net.MsgHead) {
+	logger.Log4.Debug("<ENTER> :UserId-%d:", r.mRobotData.MUId)
+	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
+
+	if msgHead == nil {
+		return
+	}
+	switch msgHead.MSubCmd {
+	case int16(GameSubUserCmd.EnSubCmdID_GAME_SUB_SC_USER_LEAVE_ROOM_NOTIFY):
+		r.HandelUserLeaveRoomNotify(msgHead)
+		break
+	default:
+		break
+	}
+
+	return
+}
+
+func (r *Robot) HandelUserLeaveRoomNotify(msgHead *net.MsgHead) {
+	logger.Log4.Debug("<ENTER> :UserId-%d:", r.mRobotData.MUId)
+	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
+
+	if msgHead == nil {
+		return
+	}
+
+	leaveRoomNotify := &GameSubUserCmd.SCUserLeaveRoomNotify{}
+	err := proto.Unmarshal(msgHead.MData, leaveRoomNotify)
+	if err != nil {
+		logger.Log4.Debug("unmarshal SCUserLeaveRoomNotify error: %s", err)
+	}
+	logger.Log4.Debug("leaveRoomNotify: %+v", leaveRoomNotify)
+
+	if r.mCurTaskType == TaskTypeXzmj {
+
+		r.mCurTaskStepReuslt = TaskResultSuccess
+		r.FsmSendEvent(RobotEventTaskAnalysis, nil)
+	}
+
+	return
+}
+
 func (r *Robot) HandelClubMainMsg(msgHead *net.MsgHead) {
 	logger.Log4.Debug("<ENTER> :UserId-%d:", r.mRobotData.MUId)
 	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
@@ -424,34 +472,6 @@ func (r *Robot) HandelClubMainMsg(msgHead *net.MsgHead) {
 	case int16(ClubSubCmd.EnServerSubCmdID_SC_CLUB_ENTER_ROOM):
 		r.HandelClubEnterTableResult(msgHead)
 		break
-	default:
-		break
-	}
-
-	return
-}
-func (r *Robot) HandelGameMainUserMsg(msgHead *net.MsgHead) {
-	logger.Log4.Debug("<ENTER> :UserId-%d:", r.mRobotData.MUId)
-	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
-
-	if msgHead == nil {
-		return
-	}
-	switch msgHead.MSubCmd {
-	default:
-		break
-	}
-
-	return
-}
-func (r *Robot) HandelGameMainMsg(msgHead *net.MsgHead) {
-	logger.Log4.Debug("<ENTER> :UserId-%d:", r.mRobotData.MUId)
-	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
-
-	if msgHead == nil {
-		return
-	}
-	switch msgHead.MSubCmd {
 	default:
 		break
 	}
@@ -680,6 +700,13 @@ func (r *Robot) HandelClubEnterTableResult(msgHead *net.MsgHead) {
 		return
 	}
 
+	if r.mCurTaskStep != TaskStepXzmjEnterRoom {
+		return
+	}
+	if r.mIsEnterRoom == true {
+		return
+	}
+
 	//取消定时器
 	r.CancelTimer(TimerClubEnterRoom)
 
@@ -690,6 +717,7 @@ func (r *Robot) HandelClubEnterTableResult(msgHead *net.MsgHead) {
 	}
 	logger.Log4.Debug("enterTableReslut: %+v", enterTableReslut)
 
+	r.mIsEnterRoom = true
 	lresult := enterTableReslut.GetResult()
 	if lresult != 0 {
 
@@ -1144,6 +1172,30 @@ func (r *Robot) RequestRegister() error {
 	return nil
 }
 
+func (r *Robot) RequestLeaveRoom() error {
+	logger.Log4.Debug("<ENTER> :UserId-%d", r.mRobotData.MUId)
+	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
+
+	if r.mNetClient == nil {
+		logger.Log4.Error("UserId-%d: no connect", r.mRobotData.MUId)
+		return errors.New("ERR_NO_NET_CONNECT")
+	}
+
+	m := &GameSubUserCmd.CSUserLeaveRoomRqst{
+		RoomId: proto.Int32(int32(r.mRobotData.MXzmjRoomId)),
+	}
+
+	logger.Log4.Debug("CSUserLeaveRoomRqst: %+v", m)
+
+	err := r.mNetClient.SenGameMsg(int16(Main.EnMainCmdID_GAME_MAIN_USER),
+		int16(GameSubUserCmd.EnSubCmdID_GAME_SUB_CS_USER_LEAVE_ROOM_RQST), int16(r.mRobotData.MXzmjRoomId), m)
+	if err != nil {
+		logger.Log4.Error("UserId-%d: send fail", r.mRobotData.MUId)
+		return errors.New("ERR_NET_SEND_FAIL")
+	}
+	return nil
+}
+
 //登陆状态：处理登陆loginsvr
 func (r *Robot) RobotStateLoginEventLoginLoginSvrd(e *fsm.Event) {
 	logger.Log4.Debug("<ENTER> :UserId-%d:CurState：%d", r.mRobotData.MUId, e.FSM.CurState())
@@ -1252,6 +1304,30 @@ func (r *Robot) ConnectGateSvr() error {
 				logger.Log4.Error("UserId-%d: Gate msgHead :%v", r.mRobotData.MUId, msgHead)
 				r.FsmSendEvent(RobotEventRemoteMsg, msgHead)
 			}
+		}
+
+	}()
+
+	go func() {
+
+		for {
+			time.Sleep(time.Duration(2) * time.Second)
+			if r.mNetClient == nil {
+				logger.Log4.Error("UserId-%d: no connect", r.mRobotData.MUId)
+				return
+			}
+			cur := time.Now()
+			timestamp := cur.UnixNano() / 1000000
+			m := &GateSubCmd.UserTimeSendServer{
+				GameTime: proto.Int64(timestamp),
+			}
+
+			err := r.mNetClient.SenMsg(int16(Main.EnMainCmdID_GATE_MAIN_CMD), int16(GateSubCmd.EnSubCmdID_USER_TIME_TOSERVER_SUB_CMD), m)
+			if err != nil {
+				logger.Log4.Error("UserId-%d: send fail", r.mRobotData.MUId)
+				return
+			}
+
 		}
 
 	}()
@@ -1732,7 +1808,7 @@ func (r *Robot) RobotStateXzmjEventRemoteMsg(e *fsm.Event) {
 		r.HandelGameMainUserMsg(msgHead)
 		break
 	case int16(Main.EnMainCmdID_GAME_MAIN_GAME):
-		r.HandelGameMainMsg(msgHead)
+		r.mXzmjTable.HandelGameMainMsg(msgHead)
 		break
 	default:
 		logger.Log4.Error("UserId-%d: not process Cmd:%d, SubCmd:%d", r.mRobotData.MUId, msgHead.MMainCmd, msgHead.MSubCmd)
@@ -2061,5 +2137,15 @@ func (r *Robot) RobotStateXzmjEventOperate(e *fsm.Event) {
 	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
 
 	return
+
+}
+
+func (r *Robot) ReportXzmjGameEnd() {
+	logger.Log4.Debug("<ENTER> :UserId-%d", r.mRobotData.MUId)
+	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
+
+	if r.mCurTaskType == TaskTypeXzmj && r.mCurTaskStep == TaskStepXzmjStartGame {
+		r.RequestLeaveRoom()
+	}
 
 }
