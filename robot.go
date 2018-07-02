@@ -369,6 +369,9 @@ func (r *Robot) RobotStateTaskMngEventDispatch(e *fsm.Event) {
 	case TaskTypeXzmj:
 		r.FsmTransferState(RobotStateXzmj)
 		break
+	case TaskTypeDdz:
+		r.FsmTransferState(RobotStateDdz)
+		break
 	default:
 		r.FsmSendEvent(RobotEventDispatch, nil)
 		break
@@ -2424,8 +2427,10 @@ message stTableAttribute
 */
 
 type DdzTableAdvanceParam struct {
-	GameType         int32
-	confirmLandowner int32
+	GameType         uint32
+	ConfirmLandowner uint32 `json:"confirmLandowner"`
+	Needcardholder   bool   `json:"needcardholder"`
+	Shuffletype      uint32 `json:"shuffletype"`
 }
 
 func (r *Robot) RequestCreateDdzRoom() error {
@@ -2439,7 +2444,9 @@ func (r *Robot) RequestCreateDdzRoom() error {
 
 	var advanceParam DdzTableAdvanceParam
 	advanceParam.GameType = 1
-	advanceParam.confirmLandowner = 0
+	advanceParam.ConfirmLandowner = 0
+	advanceParam.Needcardholder = false
+	advanceParam.Shuffletype = 1
 
 	var advanceParamData []byte
 	var err error
@@ -2462,8 +2469,8 @@ func (r *Robot) RequestCreateDdzRoom() error {
 			EnterScore:             proto.Int64(10),
 			LeaveScore:             proto.Int64(2),
 			BeiShuLimit:            proto.Int64(32),
-			ChairCount:             proto.Int32(4),
-			IsAllowEnterAfterStart: proto.Int32(1),
+			ChairCount:             proto.Int32(3),
+			IsAllowEnterAfterStart: proto.Int32(0),
 			TableType:              proto.Int64(0),
 			RoomRate:               proto.Int64(0),
 			ServerRate:             proto.Int64(100),
