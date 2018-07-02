@@ -2,7 +2,7 @@ package main
 
 import (
 	"GStress/logger"
-	"GStress/msg/XueZhanMj"
+	"GStress/msg/DouDiZhu"
 	"GStress/net"
 	"errors"
 
@@ -11,75 +11,61 @@ import (
 
 //桌子状态
 const (
-	Xzmj_Table_State_Init          = 1
-	Xzmj_Table_State_Start         = 2
-	Xzmj_Table_State_Gaming        = 3
-	Xzmj_Table_State_Game_End      = 4 //游戏结束
-	Xzmj_Table_State_Dissolve      = 5 //桌子已解散
-	Xzmj_Table_State_Wait_Dissolve = 6 //等待解散投票
+	Ddz_Table_State_Init            = 1
+	Ddz_Table_State_SendCard        = 2 //发牌
+	Ddz_Table_State_EnsureLandOwner = 3 //确定地主
+	Ddz_Table_State_OutCard         = 4 //出牌
+	Ddz_Table_State_Game_End        = 5 //游戏结束
+	Ddz_Table_State_Dissolve        = 6
+	Ddz_Table_State_Wait_Dissolve   = 7 //等待解散投票
 )
 
 //玩家状态
 const (
-	Xzmj_Mj_User_State_Init    = 1 //初始化
-	Xzmj_Mj_User_State_Sit     = 2 //坐下
-	Xzmj_Mj_User_State_Ready   = 3 //准备
-	Xzmj_Mj_User_State_Playing = 4 //比赛过程中
-	Xzmj_Mj_User_State_Hu      = 5 // 胡牌
-	Xzmj_Mj_User_State_GiveUp  = 6 //认输
+	Ddz_Mj_User_State_Init           = 1 //初始化
+	Ddz_Mj_User_State_Sit            = 2 //坐下
+	Ddz_Mj_User_State_Ready          = 3 //准备
+	Ddz_Mj_User_State_ShowCard       = 4 //玩家在发牌中
+	Ddz_Mj_User_State_QiangLandOwner = 5 //玩家在抢地主中
+	Ddz_Mj_User_State_OutCard        = 6 //玩家在出牌中
+	Ddz_Mj_User_State_End            = 7 // 结束
 )
 
 //扑克操作码
 const (
-	Xzmj_MJ_OPERATE_MASK_NONE           = 1
-	Xzmj_MJ_OPERATE_MASK_DEAL           = 2  //出牌
-	Xzmj_MJ_OPERATE_MASK_GUO            = 3  //不出牌
-	Xzmj_MJ_OPERATE_MASK_PENG           = 4  //碰牌
-	Xzmj_MJ_OPERATE_MASK_MING_GANG      = 5  //明杠
-	Xzmj_MJ_OPERATE_MASK_AN_GANG        = 6  //暗杠
-	Xzmj_MJ_OPERATE_MASK_BU_GANG        = 7  //补杠
-	Xzmj_MJ_OPERATE_MASK_REJECTSUIT     = 8  //定缺
-	Xzmj_MJ_OPERATE_MASK_HU             = 9  //胡牌
-	Xzmj_MJ_OPERATE_MASK_MO_PAI         = 10 //摸牌,服务器使用
-	Xzmj_MJ_OPERATE_MASK_GIVE_UP        = 11 //认输
-	Xzmj_MJ_OPERATE_MASK_HUAN_SAN_ZHANG = 12 //换三张
+	Ddz_enSeat_Operate_NONE            = 0 //不操作
+	Ddz_enSeat_Operate_Ask_LandOwner   = 1 //叫地主
+	Ddz_enSeat_Operate_Qiang_LandOwner = 2 //抢地主
+	Ddz_enSeat_Operate_Discard         = 3 //出牌
+	Ddz_enSeate_Operate_ASK_Score      = 4 //叫分
 
 )
 
-//扑克结算类型
+//牌类型
 const (
-	Xzmj_MJ_SETTLEMENT_TYPE_NONE       = 0
-	Xzmj_MJ_SETTLEMENT_TYPE_HU         = 1  //点胡
-	Xzmj_MJ_SETTLEMENT_TYPE_ZI_MO      = 2  //自摸
-	Xzmj_MJ_SETTLEMENT_TYPE_QIANG_GANG = 3  //抢杠
-	Xzmj_MJ_SETTLEMENT_TYPE_GANG_HUA   = 4  //杠上花
-	Xzmj_MJ_SETTLEMENT_TYPE_GANG_PAO   = 5  //杠上炮
-	Xzmj_MJ_SETTLEMENT_TYPE_GUA_FENG   = 6  //刮风
-	Xzmj_MJ_SETTLEMENT_TYPE_XIA_YU     = 7  //下雨
-	Xzmj_MJ_SETTLEMENT_TYPE_CHA_JIAO   = 8  //查叫
-	Xzmj_MJ_SETTLEMENT_TYPE_TUI_SHUI   = 9  //退税
-	Xzmj_MJ_SETTLEMENT_TYPE_HUA_ZHU    = 10 //花猪
-	Xzmj_MJ_SETTLEMENT_TYPE_ZHUAN_YU   = 11 //转雨
-	Xzmj_MJ_SETTLEMENT_TYPE_TIAN_HU    = 12 //天胡
-	Xzmj_MJ_SETTLEMENT_TYPE_DI_HU      = 13 //地胡
+	Ddz_enCardType_CT_ERROR               = 0  //错误类型
+	Ddz_enCardType_CT_SINGLE              = 1  //单牌类型
+	Ddz_enCardType_CT_DOUBLE              = 2  //对牌类型
+	Ddz_enCardType_CT_THREE               = 3  //三条类型
+	Ddz_enCardType_CT_SINGLE_LINE         = 4  //单连类型
+	Ddz_enCardType_CT_DOUBLE_LINE         = 5  //对连类型
+	Ddz_enCardType_CT_THREE_LINE          = 6  //三连类型
+	Ddz_enCardType_CT_THREE_TAKE_ONE      = 7  //三带一单
+	Ddz_enCardType_CT_THREE_TAKE_ONE_LINE = 8  //三带一连牌
+	Ddz_enCardType_CT_THREE_TAKE_TWO      = 9  //三带一对
+	Ddz_enCardType_CT_THREE_TAKE_TWO_LINE = 10 //三带一对连牌
+	Ddz_enCardType_CT_FOUR_TAKE_ONE       = 11 //四带两单
+	Ddz_enCardType_CT_FOUR_TAKE_ONE_LINE  = 12 //四带两张连牌
+	Ddz_enCardType_CT_FOUR_TAKE_TWO       = 13 //四带两对
+	Ddz_enCardType_CT_FOUR_TAKE_TWO_LINE  = 14 //四带两对连牌
+	Ddz_enCardType_CT_RUAN_BOMB           = 15 //软炸弹
+	Ddz_enCardType_CT_BOMB_CARD           = 16 //炸弹类型
+	Ddz_enCardType_CT_LAIZI_BOMB          = 17 //赖子炸弹
+	Ddz_enCardType_CT_MISSILE_CARD        = 18 //火箭类型
 
 )
 
-//最终胡牌类型
-const (
-	Xzmj_FINAL_CARD_TYPE_NONE         = 0x00
-	Xzmj_FINAL_CARD_TYPE_HU           = 0x01 //胡
-	Xzmj_FINAL_CARD_TYPE_DA_DUI       = 0x02 //大对子
-	Xzmj_FINAL_CARD_TYPE_JIANG        = 0x04 //将
-	Xzmj_FINAL_CARD_TYPE_YAO_JIU      = 0x08 //幺九
-	Xzmj_FINAL_CARD_TYPE_QING         = 0x10 //清一色
-	Xzmj_FINAL_CARD_TYPE_QI_DUI       = 0x20 //七对
-	Xzmj_FINAL_CARD_TYPE_JIN_GOU_DIAO = 0x40 //金钩吊
-	Xzmj_FINAL_CARD_TYPE_HAI_DI_LAO   = 0x80 //海底捞月
-
-)
-
-type XzmjTableAttribute struct {
+type DdzTableAttribute struct {
 	MGameCurrencyType       int
 	MPayRoomRateType        int
 	MPlanGameCount          int
@@ -93,59 +79,34 @@ type XzmjTableAttribute struct {
 	MRoomRate               int
 	MServerRate             int
 	// 高级参数部分
-	MZiMoJiaFan              bool
-	MZiMoMoreThanMaxFan      bool
-	MJinGouDiao              bool
-	MHaiDiLaoYue             bool
-	MDaXiaoYu                bool
-	MDianGangHuaZiMo         bool
-	MYaoJiu                  bool
-	MJiang                   bool
-	MHuanSanZhangType        int
-	MStartGameMinPlayerCount int
-	MOwnerUserId             int
-	MTableAdvanceParam       string
-	MTableName               string
-	MRoomId                  int
-	MTableId                 int
-	MKindId                  int
-	MClubId                  int
-	MIsIpWarn                int
-	MIsGpsWarn               int
+	MGameType             int
+	IConfirmLandownerType int
+
+	MOwnerUserId       int
+	MTableAdvanceParam string
+	MTableName         string
+	MRoomId            int
+	MTableId           int
+	MKindId            int
+	MClubId            int
+	MIsIpWarn          int
+	MIsGpsWarn         int
 }
 
-/*
-	required stTableAttribute mTableAttribute = 1;  //桌子属性
-    required uint32 mBankerSeatId = 2; //庄家id
-	required uint32 mFirstDice = 3; //第一个色子数值
-    required uint32 mSecondDice = 4;//第二个色子数值
-    required uint32 mCardNum = 5;//剩余卡牌数量
-    required TableState mTableState = 6;//当前桌子状态
-    repeated SeatInfo mSeatInfos = 7; //桌子座位信息
-	required uint32 mGameCount = 8;	//已完成游戏局数
-	required uint32 mRoundCount = 9; //当局轮数
-	required int64 mWaitReadyTime = 10; //准备时间
-	required int64 mWaitEndTime = 11;//结束时间
-	required int64 mAllWaitOperateTime = 12;//操作总时间
-*/
-
-type XzmjTable struct {
+type DdzTable struct {
 	MRobot              *Robot
-	MBankerSeatId       int
-	MFirstDice          int
-	MSecondDice         int
-	MCardNum            int
+	MDiZhuSeatId        int
 	MTableState         int
 	MGameCount          int
 	MWaitReadyTime      int
 	MWaitEndTime        int
 	MAllWaitOperateTime int
 	MSelfSeatId         int
-	MTableAttribute     XzmjTableAttribute
-	MTableUser          [4]XzmjTableUser
+	MTableAttribute     DdzTableAttribute
+	MTableUser          [3]DdzTableUser
 }
 
-func (t *XzmjTable) Init(robot *Robot) error {
+func (t *DdzTable) Init(robot *Robot) error {
 	if robot == nil {
 		logger.Log4.Error("robot param error")
 		return errors.New("ERR_PARAM")
@@ -163,7 +124,7 @@ func (t *XzmjTable) Init(robot *Robot) error {
 	return nil
 }
 
-func (t *XzmjTable) HandelGameMainMsg(msgHead *net.MsgHead) {
+func (t *DdzTable) HandelGameMainMsg(msgHead *net.MsgHead) {
 	logger.Log4.Debug("<ENTER> :UserId-%d:", t.MRobot.mRobotData.MUId)
 	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", t.MRobot.mRobotData.MUId)
 
@@ -171,7 +132,7 @@ func (t *XzmjTable) HandelGameMainMsg(msgHead *net.MsgHead) {
 		return
 	}
 	switch msgHead.MSubCmd {
-	case int16(XueZhanMj.EnGameFrameID_GAME_SUB_SC_USER_TABLE_NOTIFY):
+	case int16(DouDiZhu.EnGameFrameID_GAME_SUB_SC_USER_TABLE_NOTIFY):
 		t.HandleTableInfoNotify(msgHead)
 		break
 	default:
@@ -181,7 +142,7 @@ func (t *XzmjTable) HandelGameMainMsg(msgHead *net.MsgHead) {
 	return
 }
 
-func (t *XzmjTable) HandleTableInfoNotify(msgHead *net.MsgHead) {
+func (t *DdzTable) HandleTableInfoNotify(msgHead *net.MsgHead) {
 	logger.Log4.Debug("<ENTER> :UserId-%d:", t.MRobot.mRobotData.MUId)
 	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", t.MRobot.mRobotData.MUId)
 
@@ -189,7 +150,7 @@ func (t *XzmjTable) HandleTableInfoNotify(msgHead *net.MsgHead) {
 		return
 	}
 
-	tableInfoNotify := &XueZhanMj.SC_TableInfoNotify{}
+	tableInfoNotify := &DouDiZhu.SC_TableInfoNotify{}
 	err := proto.Unmarshal(msgHead.MData, tableInfoNotify)
 	if err != nil {
 		logger.Log4.Debug("unmarshal SC_TableInfoNotify error: %s", err)
@@ -203,10 +164,7 @@ func (t *XzmjTable) HandleTableInfoNotify(msgHead *net.MsgHead) {
 	tableAttr := tableInfo.GetMTableAttribute()
 	//更新桌子属性
 	t.UpdateTableAttribute(tableAttr)
-	t.MBankerSeatId = int(tableInfo.GetMBankerSeatId())
-	t.MFirstDice = int(tableInfo.GetMFirstDice())
-	t.MSecondDice = int(tableInfo.GetMSecondDice())
-	t.MCardNum = int(tableInfo.GetMCardNum())
+	t.MDiZhuSeatId = int(tableInfo.GetMLandOwnerSeatId())
 	t.MGameCount = int(tableInfo.GetMGameCount())
 	t.MAllWaitOperateTime = int(tableInfo.GetMAllWaitOperateTime())
 	t.MTableState = int(tableInfo.GetMTableState())
@@ -214,16 +172,16 @@ func (t *XzmjTable) HandleTableInfoNotify(msgHead *net.MsgHead) {
 	t.MWaitReadyTime = int(tableInfo.GetMWaitReadyTime())
 
 	//更新桌子用户信息
-	t.UpdateTableUserInfo(tableInfo.GetMSeatInfos())
+	t.UpdateTableUserInfo(tableInfo.GetSzSeatInfos())
 
 	//处理相关逻辑
-	if t.MTableState == Xzmj_Table_State_Game_End {
-		t.MRobot.ReportXzmjGameEnd()
+	if t.MTableState == Ddz_Table_State_Game_End {
+		t.MRobot.ReportDdzGameEnd()
 	}
 
 }
 
-func (t *XzmjTable) UpdateTableUserInfo(seatInfo []*XueZhanMj.SeatInfo) {
+func (t *DdzTable) UpdateTableUserInfo(seatInfo []*DouDiZhu.SeatInfo) {
 	logger.Log4.Debug("<ENTER> :UserId-%d:", t.MRobot.mRobotData.MUId)
 	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", t.MRobot.mRobotData.MUId)
 	if seatInfo == nil {
@@ -231,7 +189,7 @@ func (t *XzmjTable) UpdateTableUserInfo(seatInfo []*XueZhanMj.SeatInfo) {
 	}
 	for _, user := range seatInfo {
 		lSeatId := user.GetMSeatId()
-		if lSeatId < 0 || lSeatId >= 4 {
+		if lSeatId < 0 || lSeatId >= 3 {
 			logger.Log4.Error("<LEAVE>:UserId-%d: seatd id %d is error", t.MRobot.mRobotData.MUId, lSeatId)
 			continue
 		}
@@ -261,7 +219,7 @@ func (t *XzmjTable) UpdateTableUserInfo(seatInfo []*XueZhanMj.SeatInfo) {
 	}
 }
 
-func (t *XzmjTable) UpdateTableAttribute(tableAttr *XueZhanMj.StTableAttribute) {
+func (t *DdzTable) UpdateTableAttribute(tableAttr *DouDiZhu.StTableAttribute) {
 	logger.Log4.Debug("<ENTER> :UserId-%d:", t.MRobot.mRobotData.MUId)
 	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", t.MRobot.mRobotData.MUId)
 
@@ -281,16 +239,9 @@ func (t *XzmjTable) UpdateTableAttribute(tableAttr *XueZhanMj.StTableAttribute) 
 	t.MTableAttribute.MRoomRate = int(tableAttr.GetRoomRate())
 	t.MTableAttribute.MServerRate = int(tableAttr.GetServerRate())
 	// 高级参数部分
-	t.MTableAttribute.MZiMoJiaFan = tableAttr.GetZiMoJiaFan()
-	t.MTableAttribute.MZiMoMoreThanMaxFan = tableAttr.GetZiMoMoreThanMaxFan()
-	t.MTableAttribute.MJinGouDiao = tableAttr.GetJinGouDiao()
-	t.MTableAttribute.MHaiDiLaoYue = tableAttr.GetHaiDiLaoYue()
-	t.MTableAttribute.MDaXiaoYu = tableAttr.GetDaXiaoYu()
-	t.MTableAttribute.MDianGangHuaZiMo = tableAttr.GetDianGangHuaZiMo()
-	t.MTableAttribute.MYaoJiu = tableAttr.GetYaoJiu()
-	t.MTableAttribute.MJiang = tableAttr.GetJiang()
-	t.MTableAttribute.MHuanSanZhangType = int(tableAttr.GetHuanSanZhangType())
-	t.MTableAttribute.MStartGameMinPlayerCount = int(tableAttr.GetStartGameMinPlayerCount())
+	t.MTableAttribute.MGameType = int(tableAttr.GetMGameType())
+	t.MTableAttribute.IConfirmLandownerType = int(tableAttr.GetIconfirmLandownerType())
+
 	t.MTableAttribute.MOwnerUserId = int(tableAttr.GetMOwnerUserId())
 	t.MTableAttribute.MTableAdvanceParam = tableAttr.GetTableAdvanceParam()
 	t.MTableAttribute.MTableName = tableAttr.GetMTableName()

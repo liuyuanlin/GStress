@@ -1,6 +1,6 @@
 package main
 
-type XzmjPlayerBaseInfo struct {
+type DdzPlayerBaseInfo struct {
 	MUserID      int
 	MAccid       int
 	MNickName    string
@@ -37,11 +37,11 @@ message SeatCardInfo{
 
 */
 
-type XzmjTableUser struct {
+type DdzTableUser struct {
 	MSeatId      int
 	MUserState   int
 	MoffLineFlag bool
-	MBaseInfo    XzmjPlayerBaseInfo
+	MBaseInfo    DdzPlayerBaseInfo
 	mRejectSuit  int
 	mDealCards   []int
 	mHandCards   []int

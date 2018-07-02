@@ -127,6 +127,22 @@ func main() {
 		}
 		robotAttr.MXzmjRoomId = xzmjRoomId
 
+		//获取斗地主桌子id
+		ddzTableId, err := strconv.Atoi(row["DdzTableId"])
+		if err != nil {
+			logger.Log4.Error("err:%s", err)
+			return
+		}
+		robotAttr.MDdzTableId = ddzTableId
+
+		//获取斗地主房间id
+		ddzRoomId, err := strconv.Atoi(row["DdzRoomId"])
+		if err != nil {
+			logger.Log4.Error("err:%s", err)
+			return
+		}
+		robotAttr.MDdzRoomId = ddzRoomId
+
 		//获取微游戏ID
 		wantClubId, err := strconv.Atoi(row["ClubId"])
 		if err != nil {
