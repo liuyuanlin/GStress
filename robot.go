@@ -1915,6 +1915,7 @@ func (r *Robot) RobotStateXzmjEventCreateRoom(e *fsm.Event) {
 		r.FsmSendEvent(RobotEventTaskAnalysis, nil)
 		logger.Log4.Error("<ENTER> :UserId-%d:CurState：%s 不需要创建房间",
 			r.mRobotData.MUId, e.FSM.CurState())
+		return
 	}
 
 	//创建微游戏
@@ -2145,7 +2146,11 @@ func (r *Robot) ReportXzmjGameEnd() {
 	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
 
 	if r.mCurTaskType == TaskTypeXzmj && r.mCurTaskStep == TaskStepXzmjStartGame {
-		r.RequestLeaveRoom()
+		r.mRobotData.MXzmjGameCount += 1
+		if r.mRobotData.MXzmjGameCount >= 4 {
+			r.RequestLeaveRoom()
+		}
+
 	}
 
 }

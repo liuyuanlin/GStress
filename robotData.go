@@ -23,6 +23,7 @@ type RobotData struct {
 	MIsNeedAutoLogin bool
 	MXzmjRoomId      int
 	MXzmjTableId     int
+	MXzmjGameCount   int
 	MWantClubId      int
 	MToken           string
 	MUserGold        int
