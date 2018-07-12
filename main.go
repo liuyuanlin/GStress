@@ -4,20 +4,40 @@ import (
 	"GStress/logger"
 	"flag"
 	//"runtime"
+	"math/rand"
 	"strconv"
 	"sync"
-	//"time"
+	"time"
 )
 
 var (
 	RobotClientCfg = flag.String("cfg", "./cfg/robotClientSys0.xlsx", "The test cfg")
+	LogLevel       = flag.String("log", "debug", "The log level: debug,info,warn,error")
+	FileLogLevel   = flag.String("fileLog", "debug", "The File log level:debug,info,warn,error")
+	WaitTime       = flag.Int("wt", 2, "the robot start wait time")
 )
 
 func main() {
 	//runtime.GOMAXPROCS(1)
-	logger.AddFileFilter("GStree", "gstree.log")
+	logger.AddFileFilter("GStree", "./log/gstree.log")
 	defer logger.Log4.Close()
 	flag.Parse()
+	if *LogLevel == "error" {
+		logger.AddConsoleFilterError()
+	} else if *LogLevel == "warn" {
+		logger.AddConsoleFilterWarn()
+	} else if *LogLevel == "info" {
+		logger.AddConsoleFilterInfo()
+	}
+
+	if *FileLogLevel == "error" {
+		logger.AddFileFilterError("GStree", "./log/gstree.log")
+	} else if *FileLogLevel == "warn" {
+		logger.AddFileFilterWarn("GStree", "./log/gstree.log")
+	} else if *FileLogLevel == "info" {
+		logger.AddFileFilterInfo("GStree", "./log/gstree.log")
+	}
+
 	logger.Log4.Debug("<ENTER>")
 	defer logger.Log4.Debug("<LEAVE>")
 
@@ -183,6 +203,8 @@ func main() {
 	for _, robot := range gRobots {
 		wg.Add(1)
 		robotTmp := robot
+		lWaittime := time.Duration(rand.Int31n(int32(*WaitTime*1000)) + 200)
+		time.Sleep(lWaittime * time.Millisecond)
 		go func() {
 			robotTmp.Work()
 

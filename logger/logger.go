@@ -14,7 +14,33 @@ func init() {
 
 var Log4 l4g.Logger
 
+func AddConsoleFilterError() error {
+	Log4.AddFilter("stdout", l4g.ERROR, l4g.NewConsoleLogWriter())
+	return nil
+}
+func AddConsoleFilterWarn() error {
+	Log4.AddFilter("stdout", l4g.WARNING, l4g.NewConsoleLogWriter())
+	return nil
+}
+func AddConsoleFilterInfo() error {
+	Log4.AddFilter("stdout", l4g.INFO, l4g.NewConsoleLogWriter())
+	return nil
+}
+
 func AddFileFilter(name string, filename string) error {
 	Log4.AddFilter(name, l4g.FINE, l4g.NewFileLogWriter(filename, false))
+	return nil
+}
+
+func AddFileFilterError(name string, filename string) error {
+	Log4.AddFilter(name, l4g.ERROR, l4g.NewFileLogWriter(filename, false))
+	return nil
+}
+func AddFileFilterWarn(name string, filename string) error {
+	Log4.AddFilter(name, l4g.WARNING, l4g.NewFileLogWriter(filename, false))
+	return nil
+}
+func AddFileFilterInfo(name string, filename string) error {
+	Log4.AddFilter(name, l4g.INFO, l4g.NewFileLogWriter(filename, false))
 	return nil
 }

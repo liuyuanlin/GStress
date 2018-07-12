@@ -134,8 +134,8 @@ func (t *TaskMng) Init(taskMap TaskMap, robotAttr RobotAttr) error {
 	defer logger.Log4.Debug("UserId-%d:<LEAVE>", robotAttr.MUId)
 	var lRetErr error
 	//1.初始化相关
-	t.MUnCompletedTask = sq.NewQueue(1024 * 1024)
-	t.MCompletedTask = sq.NewQueue(1024 * 1024)
+	t.MUnCompletedTask = sq.NewQueue(512)
+	t.MCompletedTask = sq.NewQueue(512)
 	t.MTaskInfo = make(TaskMap)
 	t.MUId = robotAttr.MUId
 	t.MCurTask = nil

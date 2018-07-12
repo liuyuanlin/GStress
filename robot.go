@@ -16,6 +16,7 @@ import (
 	"encoding/json"
 	"errors"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/golang/protobuf/proto"
@@ -121,6 +122,7 @@ type Robot struct {
 	mXzmjTable         XzmjTable
 	mDdzTable          DdzTable
 	mIsEnterRoom       bool
+	mWg                sync.WaitGroup
 }
 
 func (r *Robot) Init(robotAttr RobotAttr, taskMap TaskMap, systemCfg ExcelCfg, startState string) error {
@@ -150,7 +152,7 @@ func (r *Robot) Init(robotAttr RobotAttr, taskMap TaskMap, systemCfg ExcelCfg, s
 	r.mRobotData.Init(robotAttr)
 
 	//初始化事件队列
-	r.mEventQueue = sq.NewQueue(1024 * 1024)
+	r.mEventQueue = sq.NewQueue(512)
 
 	//初始任务管理器
 	lRetErr = r.mTaskMng.Init(taskMap, robotAttr)
@@ -196,6 +198,7 @@ func (r *Robot) Work() {
 			break
 		}
 	}
+	r.mWg.Wait()
 
 	return
 }
@@ -220,7 +223,7 @@ func (r *Robot) DispatchEvent() {
 	}
 	if lEventCount == 0 {
 		time.Sleep(500 * time.Millisecond)
-		logger.Log4.Info("UserId-%d:wait evet", r.mRobotData.MUId)
+		logger.Log4.Debug("UserId-%d:wait evet", r.mRobotData.MUId)
 	}
 }
 func (r *Robot) FsmSendEvent(event FsmStateEvent, data interface{}) error {
@@ -691,6 +694,10 @@ func (r *Robot) HandelClubCreateTableResult(msgHead *net.MsgHead) {
 		return
 	}
 
+	if r.mCurTaskType != TaskTypeXzmj && r.mCurTaskType != TaskTypeDdz {
+		return
+	}
+
 	//取消定时器
 	r.CancelTimer(TimerClubCreateRoom)
 
@@ -701,6 +708,10 @@ func (r *Robot) HandelClubCreateTableResult(msgHead *net.MsgHead) {
 	}
 	logger.Log4.Debug("createTableReslut: %+v", createTableReslut)
 
+	if createTableReslut.GetTableId() < 1000000 {
+		logger.Log4.Debug("UserId-%d: not myself create table", r.mRobotData.MUId)
+		return
+	}
 	lresult := createTableReslut.GetResult()
 	if lresult != 0 {
 
@@ -939,7 +950,7 @@ func (r *Robot) HandelLoginGateResult(msgHead *net.MsgHead) {
 
 		//确认登陆网关失败后，则关闭定时器，
 		r.CancelTimer(TimerLoginLobbySvr)
-		r.mCurTaskStepReuslt = TaskResultLogin_Loginsvr_RegisterResponseFail
+		r.mCurTaskStepReuslt = TaskResultLogin_Lobbysvr_LoginResponseFail
 		r.FsmSendEvent(RobotEventTaskAnalysis, nil)
 		logger.Log4.Debug("UserId-%d: login gate fail, the record:%d", r.mRobotData.MUId, lRet)
 	}
@@ -1320,7 +1331,7 @@ func (r *Robot) ConnectLoginSvr() error {
 			r.FsmSendEvent(RobotEventSocketAbnormal, nil)
 			return
 		} else {
-			logger.Log4.Error("UserId-%d: msgHead :%v", r.mRobotData.MUId, msgHead)
+			logger.Log4.Debug("UserId-%d: msgHead :%v", r.mRobotData.MUId, msgHead)
 			r.FsmSendEvent(RobotEventRemoteMsg, msgHead)
 		}
 
@@ -1344,27 +1355,36 @@ func (r *Robot) ConnectGateSvr() error {
 	}
 	r.mNetClient = lnetClient
 	go func() {
+		r.mWg.Add(1)
 		for {
+			if r.mNetClient == nil {
+				break
+			}
 			msgHead, err := r.mNetClient.ReadMsg()
 			if err != nil {
 				logger.Log4.Error("UserId-%d: Gate ReadMsg err:%s", r.mRobotData.MUId, err)
 				r.FsmSendEvent(RobotEventSocketAbnormal, nil)
-				return
+				break
 			} else {
-				logger.Log4.Error("UserId-%d: Gate msgHead :%v", r.mRobotData.MUId, msgHead)
+				logger.Log4.Debug("UserId-%d: Gate msgHead :%v", r.mRobotData.MUId, msgHead)
 				r.FsmSendEvent(RobotEventRemoteMsg, msgHead)
 			}
 		}
+		r.mWg.Done()
 
 	}()
 
 	go func() {
 
 		for {
+			r.mWg.Add(1)
+			if r.mNetClient == nil {
+				break
+			}
 			time.Sleep(time.Duration(2) * time.Second)
 			if r.mNetClient == nil {
 				logger.Log4.Error("UserId-%d: no connect", r.mRobotData.MUId)
-				return
+				break
 			}
 			cur := time.Now()
 			timestamp := cur.UnixNano() / 1000000
@@ -1375,10 +1395,11 @@ func (r *Robot) ConnectGateSvr() error {
 			err := r.mNetClient.SenMsg(int16(Main.EnMainCmdID_GATE_MAIN_CMD), int16(GateSubCmd.EnSubCmdID_USER_TIME_TOSERVER_SUB_CMD), m)
 			if err != nil {
 				logger.Log4.Error("UserId-%d: send fail", r.mRobotData.MUId)
-				return
+				break
 			}
 
 		}
+		r.mWg.Done()
 
 	}()
 	return nil
@@ -1558,7 +1579,7 @@ func (r *Robot) RobotStateClubEventRemoteMsg(e *fsm.Event) {
 		r.HandelClubMainMsg(msgHead)
 		break
 	default:
-		logger.Log4.Error("UserId-%d: not process Cmd:%d, SubCmd:%d", r.mRobotData.MUId, msgHead.MMainCmd, msgHead.MSubCmd)
+		logger.Log4.Debug("UserId-%d: not process Cmd:%d, SubCmd:%d", r.mRobotData.MUId, msgHead.MMainCmd, msgHead.MSubCmd)
 		break
 	}
 
@@ -1655,7 +1676,7 @@ func (r *Robot) RobotStateClubEventClubEnter(e *fsm.Event) {
 		//已经在俱乐部中了，改任务直接置为成功
 		r.mCurTaskStepReuslt = TaskResultSuccess
 		r.FsmSendEvent(RobotEventTaskAnalysis, nil)
-		logger.Log4.Error("<ENTER> :UserId-%d:CurState：%s 已经在俱乐部-%d中了",
+		logger.Log4.Info("<ENTER> :UserId-%d:CurState：%s 已经在俱乐部-%d中了",
 			r.mRobotData.MUId, e.FSM.CurState(), r.mRobotData.MWantClubId)
 		return
 	}
@@ -1863,7 +1884,7 @@ func (r *Robot) RobotStateXzmjEventRemoteMsg(e *fsm.Event) {
 		r.mXzmjTable.HandelGameMainMsg(msgHead)
 		break
 	default:
-		logger.Log4.Error("UserId-%d: not process Cmd:%d, SubCmd:%d", r.mRobotData.MUId, msgHead.MMainCmd, msgHead.MSubCmd)
+		logger.Log4.Debug("UserId-%d: not process Cmd:%d, SubCmd:%d", r.mRobotData.MUId, msgHead.MMainCmd, msgHead.MSubCmd)
 		break
 	}
 
@@ -1965,7 +1986,7 @@ func (r *Robot) RobotStateXzmjEventCreateRoom(e *fsm.Event) {
 		//不需要创建房间
 		r.mCurTaskStepReuslt = TaskResultSuccess
 		r.FsmSendEvent(RobotEventTaskAnalysis, nil)
-		logger.Log4.Error("<ENTER> :UserId-%d:CurState：%s 不需要创建房间",
+		logger.Log4.Info("<ENTER> :UserId-%d:CurState：%s 不需要创建房间",
 			r.mRobotData.MUId, e.FSM.CurState())
 		return
 	}
@@ -2057,7 +2078,7 @@ func (r *Robot) RequestCreateXzmjRoom() error {
 		logger.Log4.Error("UserId-%d: XzmjTableAdvanceParam Marshal err:%s", r.mRobotData.MUId, err)
 		return errors.New("ERR_PARAM_MARSHAL")
 	}
-	logger.Log4.Error("UserId-%d: XzmjTableAdvanceParam %s", r.mRobotData.MUId, advanceParamData)
+	logger.Log4.Debug("UserId-%d: XzmjTableAdvanceParam %s", r.mRobotData.MUId, advanceParamData)
 
 	tableName := "TableName" + strconv.Itoa(r.mRobotData.MXzmjTableId)
 	m := &ClubSubCmd.CS_ClubCreateTable{
@@ -2199,7 +2220,7 @@ func (r *Robot) ReportXzmjGameEnd() {
 
 	if r.mCurTaskType == TaskTypeXzmj && r.mCurTaskStep == TaskStepXzmjStartGame {
 		r.mRobotData.MXzmjGameCount += 1
-		if r.mRobotData.MXzmjGameCount >= 4 {
+		if r.mRobotData.MXzmjGameCount >= 400 {
 			r.RequestXzmjLeaveRoom()
 		}
 
@@ -2269,7 +2290,7 @@ func (r *Robot) RobotStateDdzEventRemoteMsg(e *fsm.Event) {
 		r.mDdzTable.HandelGameMainMsg(msgHead)
 		break
 	default:
-		logger.Log4.Error("UserId-%d: not process Cmd:%d, SubCmd:%d", r.mRobotData.MUId, msgHead.MMainCmd, msgHead.MSubCmd)
+		logger.Log4.Debug("UserId-%d: not process Cmd:%d, SubCmd:%d", r.mRobotData.MUId, msgHead.MMainCmd, msgHead.MSubCmd)
 		break
 	}
 
@@ -2443,7 +2464,7 @@ func (r *Robot) RequestCreateDdzRoom() error {
 	}
 
 	var advanceParam DdzTableAdvanceParam
-	advanceParam.GameType = 1
+	advanceParam.GameType = 0
 	advanceParam.ConfirmLandowner = 0
 	advanceParam.Needcardholder = false
 	advanceParam.Shuffletype = 1
@@ -2454,7 +2475,7 @@ func (r *Robot) RequestCreateDdzRoom() error {
 		logger.Log4.Error("UserId-%d: DdzTableAdvanceParam Marshal err:%s", r.mRobotData.MUId, err)
 		return errors.New("ERR_PARAM_MARSHAL")
 	}
-	logger.Log4.Error("UserId-%d: DdzTableAdvanceParam %s", r.mRobotData.MUId, advanceParamData)
+	logger.Log4.Debug("UserId-%d: DdzTableAdvanceParam %s", r.mRobotData.MUId, advanceParamData)
 
 	tableName := "TableName" + strconv.Itoa(r.mRobotData.MXzmjTableId)
 	m := &ClubSubCmd.CS_ClubCreateTable{
@@ -2595,7 +2616,7 @@ func (r *Robot) ReportDdzGameEnd() {
 
 	if r.mCurTaskType == TaskTypeDdz && r.mCurTaskStep == TaskStepDdzStartGame {
 		r.mRobotData.MDdzGameCount += 1
-		if r.mRobotData.MDdzGameCount >= 4 {
+		if r.mRobotData.MDdzGameCount >= 400 {
 			r.RequestDdzLeaveRoom()
 		}
 
