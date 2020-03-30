@@ -9,6 +9,7 @@ import (
 	"GStress/msg/LobbySubCmd"
 	"GStress/msg/LoginSubCmd"
 	"GStress/msg/Main"
+
 	//"GStress/msg/XueZhanMj"
 	"GStress/net"
 	"crypto/md5"
@@ -25,7 +26,7 @@ import (
 )
 
 const (
-	RequestTimeOut = time.Second * 10
+	RequestTimeOut = time.Second * 60
 )
 
 type TimerType int
@@ -51,6 +52,7 @@ const (
 	RobotStateClub    = "RobotStateClub"
 	RobotStateXzmj    = "RobotStateXzmj"
 	RobotStateDdz     = "RobotStateDdz"
+	RobotStateNewDdz  = "RobotStateNewDdz"
 )
 
 type FsmStateEvent string
@@ -85,6 +87,11 @@ const (
 	RobotEventDdzEnterRoom  = "RobotEventDdzEnterRoom"
 	RobotEventDdzStartGame  = "RobotEventDdzStartGame"
 	RobotEventDdzOperate    = "RobotEventDdzOperate"
+
+	//斗地主-新
+	RobotEventDDZEnterRoomNew = "RobotEventDDZEnterRoomNew"
+	RobotEventDdzStartGameNew = "RobotEventDdzStartGameNew"
+	RobotEventDdzOperateNew   = "RobotEventDdzOperateNew"
 )
 
 type SystemConfig struct {
@@ -190,6 +197,8 @@ func (r *Robot) Work() {
 		if r.mIsWorkEnd == true {
 			//任务结束
 			logger.Log4.Debug("UserId-%d:work end", r.mRobotData.MUId)
+			//test
+			break
 			//处理资源,如：关闭socket
 			if r.mNetClient != nil {
 				r.mNetClient.Close()
@@ -316,6 +325,18 @@ func (r *Robot) FsmInit(startState FsmState) error {
 	r.mFsm.AddStateEvent(RobotStateDdz, RobotEventDdzStartGame, r.RobotStateDdzEventStartRoom)
 	r.mFsm.AddStateEvent(RobotStateDdz, RobotEventDdzOperate, r.RobotStateDdzEventOperate)
 	//......
+
+	//新版斗地主
+	r.mFsm.AddStateEvent(RobotStateNewDdz, RobotEventInit, r.RobotStateDdzEventInitNew)
+	r.mFsm.AddStateEvent(RobotStateNewDdz, RobotEventQuit, r.RobotStateDdzEventQuitNew)
+	r.mFsm.AddStateEvent(RobotStateNewDdz, RobotEventRemoteMsg, r.RobotStateDdzEventRemoteMsgNew)
+	r.mFsm.AddStateEvent(RobotStateNewDdz, RobotEventSocketAbnormal, r.RobotStateDdzEventSocketAbnormalNew)
+	r.mFsm.AddStateEvent(RobotStateNewDdz, RobotEventTimer, r.RobotStateDdzEventTimerNew)
+	r.mFsm.AddStateEvent(RobotStateNewDdz, RobotEventTaskAnalysis, r.RobotStateDdzEventTaskAnalysisNew)
+	r.mFsm.AddStateEvent(RobotStateNewDdz, RobotEventDDZEnterRoomNew, r.RobotStateDdzEventEnterRoomNew)
+	r.mFsm.AddStateEvent(RobotStateNewDdz, RobotEventDdzStartGameNew, r.RobotStateDdzEventStartGameNew)
+	r.mFsm.AddStateEvent(RobotStateNewDdz, RobotEventDdzOperateNew, r.RobotStateDdzEventOperateNew)
+
 	return nil
 }
 
@@ -374,6 +395,9 @@ func (r *Robot) RobotStateTaskMngEventDispatch(e *fsm.Event) {
 		break
 	case TaskTypeDdz:
 		r.FsmTransferState(RobotStateDdz)
+		break
+	case TaskTypeDdznNew:
+		r.FsmTransferState(RobotStateNewDdz)
 		break
 	default:
 		r.FsmSendEvent(RobotEventDispatch, nil)
@@ -443,6 +467,9 @@ func (r *Robot) HandelGameMainUserMsg(msgHead *net.MsgHead) {
 	switch msgHead.MSubCmd {
 	case int16(GameSubUserCmd.EnSubCmdID_GAME_SUB_SC_USER_LEAVE_ROOM_NOTIFY):
 		r.HandelUserLeaveRoomNotify(msgHead)
+		break
+	case int16(GameSubUserCmd.EnSubCmdID_GAME_SUB_SC_USER_ROOM_INFO_NOTIFY):
+		r.HandelUserLeaveRoom(msgHead)
 		break
 	default:
 		break
@@ -2369,7 +2396,7 @@ func (r *Robot) RobotStateDdzEventTaskAnalysis(e *fsm.Event) {
 	return
 }
 
-//斗地主状态： 创建房间
+//斗地主状态： 创建房间 --修改为进入金币场
 func (r *Robot) RobotStateDdzEventCreateRoom(e *fsm.Event) {
 	logger.Log4.Debug("<ENTER> :UserId-%d:CurState：%s", r.mRobotData.MUId, e.FSM.CurState())
 	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)

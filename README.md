@@ -1,22 +1,6 @@
 游戏压力测试系统
-	fsm::stack fsm;
-	CSocket mSocket;
-	deque<RobotEventData> mFsmEventQueue;
-	TaskMng mTaskMng;
-	TimerMap mTimers;
-	unsigned int mCurTaskId;
-	TaskType mCurTaskType;
-	TaskStep mCurTaskStep;
-	TaskResult mCurTaskStepReuslt;
-	SystemConfig mSystemConfig;
-	RobotData mRobotData;
-    RobotMjTable mRobotTable;
-    bool mIsWorkEnd;
-	
-	
-	struct RobotEventData
-{
-	RobotState state = RobotStateNone;
-	RobotEvent event = RobotEventNone;
-	const void * data = NULL;
-};
+设计修观点：
+1.excel 里面的id作为普通,不作userid，这样就可以统一使用id捕捉信息了。
+2.玩家登陆， 第一步：注册，注册成功，或在玩家账号已存在则进行第二步，第二步：登陆login， 第三步：登陆lobby
+3.主动关闭socket，看哈websocket的错误码是不死normalClose
+4.记得加心跳报，否则可能被服务器主动断开。

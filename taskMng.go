@@ -68,11 +68,12 @@ const (
 type TaskType int
 
 const (
-	TaskTypeNone  = 0
-	TaskTypeLogin = 101
-	TaskTypeClub  = 201
-	TaskTypeXzmj  = 301
-	TaskTypeDdz   = 401
+	TaskTypeNone    = 0
+	TaskTypeLogin   = 101
+	TaskTypeClub    = 201
+	TaskTypeXzmj    = 301
+	TaskTypeDdz     = 401
+	TaskTypeDdznNew = 501
 )
 
 type TaskStep int
@@ -93,6 +94,9 @@ const (
 	TaskStepDdzCreateRoom = 40101
 	TaskStepDdzEnterRoom  = 40102
 	TaskStepDdzStartGame  = 40103
+
+	TaskStepDdzEnterRoomNew = 50101
+	TaskStepDdzStartGameNew = 50102
 )
 
 type TaskInfo struct {
@@ -230,6 +234,16 @@ func (t *TaskMng) LoadTaskStep(taskAttr *TaskAttr) error {
 		//开始游戏
 		var lTaskStepReport2 TaskStepReport
 		lTaskStepReport2.MTaskStep = TaskStepDdzStartGame
+		taskAttr.MTaskReport.MTaskStepReport = append(taskAttr.MTaskReport.MTaskStepReport, lTaskStepReport2)
+
+	case TaskTypeDdznNew:
+		//进入房间
+		var lTaskStepReport1 TaskStepReport
+		lTaskStepReport1.MTaskStep = TaskStepDdzEnterRoomNew
+		taskAttr.MTaskReport.MTaskStepReport = append(taskAttr.MTaskReport.MTaskStepReport, lTaskStepReport1)
+		//开始游戏
+		var lTaskStepReport2 TaskStepReport
+		lTaskStepReport2.MTaskStep = TaskStepDdzStartGameNew
 		taskAttr.MTaskReport.MTaskStepReport = append(taskAttr.MTaskReport.MTaskStepReport, lTaskStepReport2)
 
 	default:

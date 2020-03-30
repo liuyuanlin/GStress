@@ -3,9 +3,11 @@
 
 package GateSubCmd
 
-import proto "github.com/golang/protobuf/proto"
-import fmt "fmt"
-import math "math"
+import (
+	fmt "fmt"
+	proto "github.com/golang/protobuf/proto"
+	math "math"
+)
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
@@ -40,6 +42,9 @@ const (
 	EnSubCmdID_REQUEST_WXSERVER_SIGNATURE        EnSubCmdID = 17
 	EnSubCmdID_RETURN_WXSERVER_SIGNATURE_RESULT  EnSubCmdID = 18
 	EnSubCmdID_RETURN_LEAVE_GAME                 EnSubCmdID = 19
+	EnSubCmdID_REQUEST_HEART_BEAT_SUB_CMD        EnSubCmdID = 20
+	EnSubCmdID_RETURN_HEART_BEAT_SUB_CMD         EnSubCmdID = 21
+	EnSubCmdID_REQUEST_SYNC_TIME_SUB_CMD         EnSubCmdID = 22
 )
 
 var EnSubCmdID_name = map[int32]string{
@@ -62,7 +67,11 @@ var EnSubCmdID_name = map[int32]string{
 	17: "REQUEST_WXSERVER_SIGNATURE",
 	18: "RETURN_WXSERVER_SIGNATURE_RESULT",
 	19: "RETURN_LEAVE_GAME",
+	20: "REQUEST_HEART_BEAT_SUB_CMD",
+	21: "RETURN_HEART_BEAT_SUB_CMD",
+	22: "REQUEST_SYNC_TIME_SUB_CMD",
 }
+
 var EnSubCmdID_value = map[string]int32{
 	"LOGIN_GATE_SUB_CMD":                1,
 	"LOGIN_GATE_RESULT_SUB_CMD":         2,
@@ -83,6 +92,9 @@ var EnSubCmdID_value = map[string]int32{
 	"REQUEST_WXSERVER_SIGNATURE":        17,
 	"RETURN_WXSERVER_SIGNATURE_RESULT":  18,
 	"RETURN_LEAVE_GAME":                 19,
+	"REQUEST_HEART_BEAT_SUB_CMD":        20,
+	"RETURN_HEART_BEAT_SUB_CMD":         21,
+	"REQUEST_SYNC_TIME_SUB_CMD":         22,
 }
 
 func (x EnSubCmdID) Enum() *EnSubCmdID {
@@ -90,9 +102,11 @@ func (x EnSubCmdID) Enum() *EnSubCmdID {
 	*p = x
 	return p
 }
+
 func (x EnSubCmdID) String() string {
 	return proto.EnumName(EnSubCmdID_name, int32(x))
 }
+
 func (x *EnSubCmdID) UnmarshalJSON(data []byte) error {
 	value, err := proto.UnmarshalJSONEnum(EnSubCmdID_value, data, "EnSubCmdID")
 	if err != nil {
@@ -101,18 +115,20 @@ func (x *EnSubCmdID) UnmarshalJSON(data []byte) error {
 	*x = EnSubCmdID(value)
 	return nil
 }
+
 func (EnSubCmdID) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_GateSubCmd_5c61652e2d8213e6, []int{0}
+	return fileDescriptor_c9ae379302872f37, []int{0}
 }
 
 // 登录错误代码枚举
 type EnLoginGameCode int32
 
 const (
-	EnLoginGameCode_LG_Code_ok        EnLoginGameCode = 0
-	EnLoginGameCode_LG_Code_Token     EnLoginGameCode = 1
-	EnLoginGameCode_LG_Code_InGame    EnLoginGameCode = 2
-	EnLoginGameCode_LG_Code_NoService EnLoginGameCode = 3
+	EnLoginGameCode_LG_Code_ok         EnLoginGameCode = 0
+	EnLoginGameCode_LG_Code_Token      EnLoginGameCode = 1
+	EnLoginGameCode_LG_Code_InGame     EnLoginGameCode = 2
+	EnLoginGameCode_LG_Code_NoService  EnLoginGameCode = 3
+	EnLoginGameCode_LG_Code_ClubForbid EnLoginGameCode = 4
 )
 
 var EnLoginGameCode_name = map[int32]string{
@@ -120,12 +136,15 @@ var EnLoginGameCode_name = map[int32]string{
 	1: "LG_Code_Token",
 	2: "LG_Code_InGame",
 	3: "LG_Code_NoService",
+	4: "LG_Code_ClubForbid",
 }
+
 var EnLoginGameCode_value = map[string]int32{
-	"LG_Code_ok":        0,
-	"LG_Code_Token":     1,
-	"LG_Code_InGame":    2,
-	"LG_Code_NoService": 3,
+	"LG_Code_ok":         0,
+	"LG_Code_Token":      1,
+	"LG_Code_InGame":     2,
+	"LG_Code_NoService":  3,
+	"LG_Code_ClubForbid": 4,
 }
 
 func (x EnLoginGameCode) Enum() *EnLoginGameCode {
@@ -133,9 +152,11 @@ func (x EnLoginGameCode) Enum() *EnLoginGameCode {
 	*p = x
 	return p
 }
+
 func (x EnLoginGameCode) String() string {
 	return proto.EnumName(EnLoginGameCode_name, int32(x))
 }
+
 func (x *EnLoginGameCode) UnmarshalJSON(data []byte) error {
 	value, err := proto.UnmarshalJSONEnum(EnLoginGameCode_value, data, "EnLoginGameCode")
 	if err != nil {
@@ -144,8 +165,9 @@ func (x *EnLoginGameCode) UnmarshalJSON(data []byte) error {
 	*x = EnLoginGameCode(value)
 	return nil
 }
+
 func (EnLoginGameCode) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_GateSubCmd_5c61652e2d8213e6, []int{1}
+	return fileDescriptor_c9ae379302872f37, []int{1}
 }
 
 // LOGIN_GATE_SUB_CMD
@@ -160,7 +182,9 @@ type LoginGateInfo struct {
 	Devicestring         *string  `protobuf:"bytes,8,opt,name=devicestring" json:"devicestring,omitempty"`
 	UserName             *string  `protobuf:"bytes,9,opt,name=userName" json:"userName,omitempty"`
 	Packmark             *string  `protobuf:"bytes,10,opt,name=packmark" json:"packmark,omitempty"`
-	IpAddress            *string  `protobuf:"bytes,11,opt,name=ip_address" json:"ip_address,omitempty"`
+	IpAddress            *string  `protobuf:"bytes,11,opt,name=ip_address,json=ipAddress" json:"ip_address,omitempty"`
+	IDevicePlatForm      *int32   `protobuf:"varint,12,opt,name=iDevicePlatForm,def=0" json:"iDevicePlatForm,omitempty"`
+	StrChannelName       *string  `protobuf:"bytes,13,opt,name=strChannelName,def=" json:"strChannelName,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -170,16 +194,17 @@ func (m *LoginGateInfo) Reset()         { *m = LoginGateInfo{} }
 func (m *LoginGateInfo) String() string { return proto.CompactTextString(m) }
 func (*LoginGateInfo) ProtoMessage()    {}
 func (*LoginGateInfo) Descriptor() ([]byte, []int) {
-	return fileDescriptor_GateSubCmd_5c61652e2d8213e6, []int{0}
+	return fileDescriptor_c9ae379302872f37, []int{0}
 }
+
 func (m *LoginGateInfo) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_LoginGateInfo.Unmarshal(m, b)
 }
 func (m *LoginGateInfo) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_LoginGateInfo.Marshal(b, m, deterministic)
 }
-func (dst *LoginGateInfo) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_LoginGateInfo.Merge(dst, src)
+func (m *LoginGateInfo) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_LoginGateInfo.Merge(m, src)
 }
 func (m *LoginGateInfo) XXX_Size() int {
 	return xxx_messageInfo_LoginGateInfo.Size(m)
@@ -193,6 +218,7 @@ var xxx_messageInfo_LoginGateInfo proto.InternalMessageInfo
 const Default_LoginGateInfo_IDevice int32 = 1
 const Default_LoginGateInfo_IPlatform int32 = 1
 const Default_LoginGateInfo_IVersion string = "1.0.0.0"
+const Default_LoginGateInfo_IDevicePlatForm int32 = 0
 
 func (m *LoginGateInfo) GetUserid() uint32 {
 	if m != nil && m.Userid != nil {
@@ -271,6 +297,20 @@ func (m *LoginGateInfo) GetIpAddress() string {
 	return ""
 }
 
+func (m *LoginGateInfo) GetIDevicePlatForm() int32 {
+	if m != nil && m.IDevicePlatForm != nil {
+		return *m.IDevicePlatForm
+	}
+	return Default_LoginGateInfo_IDevicePlatForm
+}
+
+func (m *LoginGateInfo) GetStrChannelName() string {
+	if m != nil && m.StrChannelName != nil {
+		return *m.StrChannelName
+	}
+	return ""
+}
+
 // LOGIN_GATE_RESULT_SUB_CMD
 type LoginGateResultInfo struct {
 	Retcode              *int32   `protobuf:"varint,1,req,name=retcode,def=0" json:"retcode,omitempty"`
@@ -283,16 +323,17 @@ func (m *LoginGateResultInfo) Reset()         { *m = LoginGateResultInfo{} }
 func (m *LoginGateResultInfo) String() string { return proto.CompactTextString(m) }
 func (*LoginGateResultInfo) ProtoMessage()    {}
 func (*LoginGateResultInfo) Descriptor() ([]byte, []int) {
-	return fileDescriptor_GateSubCmd_5c61652e2d8213e6, []int{1}
+	return fileDescriptor_c9ae379302872f37, []int{1}
 }
+
 func (m *LoginGateResultInfo) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_LoginGateResultInfo.Unmarshal(m, b)
 }
 func (m *LoginGateResultInfo) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_LoginGateResultInfo.Marshal(b, m, deterministic)
 }
-func (dst *LoginGateResultInfo) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_LoginGateResultInfo.Merge(dst, src)
+func (m *LoginGateResultInfo) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_LoginGateResultInfo.Merge(m, src)
 }
 func (m *LoginGateResultInfo) XXX_Size() int {
 	return xxx_messageInfo_LoginGateResultInfo.Size(m)
@@ -324,16 +365,17 @@ func (m *ServerTimeSendClient) Reset()         { *m = ServerTimeSendClient{} }
 func (m *ServerTimeSendClient) String() string { return proto.CompactTextString(m) }
 func (*ServerTimeSendClient) ProtoMessage()    {}
 func (*ServerTimeSendClient) Descriptor() ([]byte, []int) {
-	return fileDescriptor_GateSubCmd_5c61652e2d8213e6, []int{2}
+	return fileDescriptor_c9ae379302872f37, []int{2}
 }
+
 func (m *ServerTimeSendClient) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ServerTimeSendClient.Unmarshal(m, b)
 }
 func (m *ServerTimeSendClient) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_ServerTimeSendClient.Marshal(b, m, deterministic)
 }
-func (dst *ServerTimeSendClient) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_ServerTimeSendClient.Merge(dst, src)
+func (m *ServerTimeSendClient) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ServerTimeSendClient.Merge(m, src)
 }
 func (m *ServerTimeSendClient) XXX_Size() int {
 	return xxx_messageInfo_ServerTimeSendClient.Size(m)
@@ -363,16 +405,17 @@ func (m *UserTimeSendServer) Reset()         { *m = UserTimeSendServer{} }
 func (m *UserTimeSendServer) String() string { return proto.CompactTextString(m) }
 func (*UserTimeSendServer) ProtoMessage()    {}
 func (*UserTimeSendServer) Descriptor() ([]byte, []int) {
-	return fileDescriptor_GateSubCmd_5c61652e2d8213e6, []int{3}
+	return fileDescriptor_c9ae379302872f37, []int{3}
 }
+
 func (m *UserTimeSendServer) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_UserTimeSendServer.Unmarshal(m, b)
 }
 func (m *UserTimeSendServer) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_UserTimeSendServer.Marshal(b, m, deterministic)
 }
-func (dst *UserTimeSendServer) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_UserTimeSendServer.Merge(dst, src)
+func (m *UserTimeSendServer) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_UserTimeSendServer.Merge(m, src)
 }
 func (m *UserTimeSendServer) XXX_Size() int {
 	return xxx_messageInfo_UserTimeSendServer.Size(m)
@@ -390,7 +433,7 @@ func (m *UserTimeSendServer) GetGameTime() int64 {
 	return 0
 }
 
-// REQUEST_BIND_MOBILE_TOKEN                            = 6;       //请求绑定手机时候的验证码
+//REQUEST_BIND_MOBILE_TOKEN                            = 6;       //请求绑定手机时候的验证码
 type CS_Request_Mobile_Token struct {
 	Account              *string  `protobuf:"bytes,1,req,name=account" json:"account,omitempty"`
 	PhoneNumber          *string  `protobuf:"bytes,2,req,name=phoneNumber" json:"phoneNumber,omitempty"`
@@ -404,16 +447,17 @@ func (m *CS_Request_Mobile_Token) Reset()         { *m = CS_Request_Mobile_Token
 func (m *CS_Request_Mobile_Token) String() string { return proto.CompactTextString(m) }
 func (*CS_Request_Mobile_Token) ProtoMessage()    {}
 func (*CS_Request_Mobile_Token) Descriptor() ([]byte, []int) {
-	return fileDescriptor_GateSubCmd_5c61652e2d8213e6, []int{4}
+	return fileDescriptor_c9ae379302872f37, []int{4}
 }
+
 func (m *CS_Request_Mobile_Token) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CS_Request_Mobile_Token.Unmarshal(m, b)
 }
 func (m *CS_Request_Mobile_Token) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_CS_Request_Mobile_Token.Marshal(b, m, deterministic)
 }
-func (dst *CS_Request_Mobile_Token) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_CS_Request_Mobile_Token.Merge(dst, src)
+func (m *CS_Request_Mobile_Token) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CS_Request_Mobile_Token.Merge(m, src)
 }
 func (m *CS_Request_Mobile_Token) XXX_Size() int {
 	return xxx_messageInfo_CS_Request_Mobile_Token.Size(m)
@@ -445,7 +489,7 @@ func (m *CS_Request_Mobile_Token) GetPackageflag() string {
 	return ""
 }
 
-// REQUEST_BIND_MOBILE                                  = 7;       //请求绑定手机
+//REQUEST_BIND_MOBILE                                  = 7;       //请求绑定手机
 type CS_Request_Bind_Mobile struct {
 	Account              *string  `protobuf:"bytes,1,req,name=account" json:"account,omitempty"`
 	Phonenumber          *string  `protobuf:"bytes,2,req,name=phonenumber" json:"phonenumber,omitempty"`
@@ -459,16 +503,17 @@ func (m *CS_Request_Bind_Mobile) Reset()         { *m = CS_Request_Bind_Mobile{}
 func (m *CS_Request_Bind_Mobile) String() string { return proto.CompactTextString(m) }
 func (*CS_Request_Bind_Mobile) ProtoMessage()    {}
 func (*CS_Request_Bind_Mobile) Descriptor() ([]byte, []int) {
-	return fileDescriptor_GateSubCmd_5c61652e2d8213e6, []int{5}
+	return fileDescriptor_c9ae379302872f37, []int{5}
 }
+
 func (m *CS_Request_Bind_Mobile) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CS_Request_Bind_Mobile.Unmarshal(m, b)
 }
 func (m *CS_Request_Bind_Mobile) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_CS_Request_Bind_Mobile.Marshal(b, m, deterministic)
 }
-func (dst *CS_Request_Bind_Mobile) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_CS_Request_Bind_Mobile.Merge(dst, src)
+func (m *CS_Request_Bind_Mobile) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CS_Request_Bind_Mobile.Merge(m, src)
 }
 func (m *CS_Request_Bind_Mobile) XXX_Size() int {
 	return xxx_messageInfo_CS_Request_Bind_Mobile.Size(m)
@@ -500,7 +545,7 @@ func (m *CS_Request_Bind_Mobile) GetToken() string {
 	return ""
 }
 
-// 	RETURN_BIND_MOBILE_TOKEN_RESULT                      = 8;       //请求绑定手机验证码结果
+//	RETURN_BIND_MOBILE_TOKEN_RESULT                      = 8;       //请求绑定手机验证码结果
 type SC_Return_Bind_Mobile_Token_Result struct {
 	RetCode              *int32   `protobuf:"varint,1,req,name=retCode" json:"retCode,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
@@ -512,16 +557,17 @@ func (m *SC_Return_Bind_Mobile_Token_Result) Reset()         { *m = SC_Return_Bi
 func (m *SC_Return_Bind_Mobile_Token_Result) String() string { return proto.CompactTextString(m) }
 func (*SC_Return_Bind_Mobile_Token_Result) ProtoMessage()    {}
 func (*SC_Return_Bind_Mobile_Token_Result) Descriptor() ([]byte, []int) {
-	return fileDescriptor_GateSubCmd_5c61652e2d8213e6, []int{6}
+	return fileDescriptor_c9ae379302872f37, []int{6}
 }
+
 func (m *SC_Return_Bind_Mobile_Token_Result) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_SC_Return_Bind_Mobile_Token_Result.Unmarshal(m, b)
 }
 func (m *SC_Return_Bind_Mobile_Token_Result) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_SC_Return_Bind_Mobile_Token_Result.Marshal(b, m, deterministic)
 }
-func (dst *SC_Return_Bind_Mobile_Token_Result) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_SC_Return_Bind_Mobile_Token_Result.Merge(dst, src)
+func (m *SC_Return_Bind_Mobile_Token_Result) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SC_Return_Bind_Mobile_Token_Result.Merge(m, src)
 }
 func (m *SC_Return_Bind_Mobile_Token_Result) XXX_Size() int {
 	return xxx_messageInfo_SC_Return_Bind_Mobile_Token_Result.Size(m)
@@ -539,7 +585,7 @@ func (m *SC_Return_Bind_Mobile_Token_Result) GetRetCode() int32 {
 	return 0
 }
 
-// 	RETURN_BIND_MOBILE_RESULT                            = 9;       //绑定结果
+//	RETURN_BIND_MOBILE_RESULT                            = 9;       //绑定结果
 type SC_Return_Bind_Mobile_Result struct {
 	RetCode              *int32   `protobuf:"varint,1,req,name=retCode" json:"retCode,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
@@ -551,16 +597,17 @@ func (m *SC_Return_Bind_Mobile_Result) Reset()         { *m = SC_Return_Bind_Mob
 func (m *SC_Return_Bind_Mobile_Result) String() string { return proto.CompactTextString(m) }
 func (*SC_Return_Bind_Mobile_Result) ProtoMessage()    {}
 func (*SC_Return_Bind_Mobile_Result) Descriptor() ([]byte, []int) {
-	return fileDescriptor_GateSubCmd_5c61652e2d8213e6, []int{7}
+	return fileDescriptor_c9ae379302872f37, []int{7}
 }
+
 func (m *SC_Return_Bind_Mobile_Result) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_SC_Return_Bind_Mobile_Result.Unmarshal(m, b)
 }
 func (m *SC_Return_Bind_Mobile_Result) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_SC_Return_Bind_Mobile_Result.Marshal(b, m, deterministic)
 }
-func (dst *SC_Return_Bind_Mobile_Result) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_SC_Return_Bind_Mobile_Result.Merge(dst, src)
+func (m *SC_Return_Bind_Mobile_Result) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SC_Return_Bind_Mobile_Result.Merge(m, src)
 }
 func (m *SC_Return_Bind_Mobile_Result) XXX_Size() int {
 	return xxx_messageInfo_SC_Return_Bind_Mobile_Result.Size(m)
@@ -578,7 +625,7 @@ func (m *SC_Return_Bind_Mobile_Result) GetRetCode() int32 {
 	return 0
 }
 
-// REQUEST_UPGRADE_ACCOUNT                              = 10;       //客户端请求账号升级
+//REQUEST_UPGRADE_ACCOUNT                              = 10;       //客户端请求账号升级
 type CS_Request_Upgrade_Account struct {
 	Oldaccount           *string  `protobuf:"bytes,1,req,name=oldaccount" json:"oldaccount,omitempty"`
 	Newaccount           *string  `protobuf:"bytes,2,req,name=newaccount" json:"newaccount,omitempty"`
@@ -592,16 +639,17 @@ func (m *CS_Request_Upgrade_Account) Reset()         { *m = CS_Request_Upgrade_A
 func (m *CS_Request_Upgrade_Account) String() string { return proto.CompactTextString(m) }
 func (*CS_Request_Upgrade_Account) ProtoMessage()    {}
 func (*CS_Request_Upgrade_Account) Descriptor() ([]byte, []int) {
-	return fileDescriptor_GateSubCmd_5c61652e2d8213e6, []int{8}
+	return fileDescriptor_c9ae379302872f37, []int{8}
 }
+
 func (m *CS_Request_Upgrade_Account) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CS_Request_Upgrade_Account.Unmarshal(m, b)
 }
 func (m *CS_Request_Upgrade_Account) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_CS_Request_Upgrade_Account.Marshal(b, m, deterministic)
 }
-func (dst *CS_Request_Upgrade_Account) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_CS_Request_Upgrade_Account.Merge(dst, src)
+func (m *CS_Request_Upgrade_Account) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CS_Request_Upgrade_Account.Merge(m, src)
 }
 func (m *CS_Request_Upgrade_Account) XXX_Size() int {
 	return xxx_messageInfo_CS_Request_Upgrade_Account.Size(m)
@@ -633,7 +681,7 @@ func (m *CS_Request_Upgrade_Account) GetPasswd() string {
 	return ""
 }
 
-// 	RETURN_UPGRADE_RESULT                                = 11;       //客户端请求账号升级结果
+//	RETURN_UPGRADE_RESULT                                = 11;       //客户端请求账号升级结果
 type SC_Return_Upgrade_Account_Result struct {
 	RetCode              *int32   `protobuf:"varint,1,req,name=retCode" json:"retCode,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
@@ -645,16 +693,17 @@ func (m *SC_Return_Upgrade_Account_Result) Reset()         { *m = SC_Return_Upgr
 func (m *SC_Return_Upgrade_Account_Result) String() string { return proto.CompactTextString(m) }
 func (*SC_Return_Upgrade_Account_Result) ProtoMessage()    {}
 func (*SC_Return_Upgrade_Account_Result) Descriptor() ([]byte, []int) {
-	return fileDescriptor_GateSubCmd_5c61652e2d8213e6, []int{9}
+	return fileDescriptor_c9ae379302872f37, []int{9}
 }
+
 func (m *SC_Return_Upgrade_Account_Result) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_SC_Return_Upgrade_Account_Result.Unmarshal(m, b)
 }
 func (m *SC_Return_Upgrade_Account_Result) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_SC_Return_Upgrade_Account_Result.Marshal(b, m, deterministic)
 }
-func (dst *SC_Return_Upgrade_Account_Result) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_SC_Return_Upgrade_Account_Result.Merge(dst, src)
+func (m *SC_Return_Upgrade_Account_Result) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SC_Return_Upgrade_Account_Result.Merge(m, src)
 }
 func (m *SC_Return_Upgrade_Account_Result) XXX_Size() int {
 	return xxx_messageInfo_SC_Return_Upgrade_Account_Result.Size(m)
@@ -672,7 +721,7 @@ func (m *SC_Return_Upgrade_Account_Result) GetRetCode() int32 {
 	return 0
 }
 
-// REQUEST_UNBIND_MOBILE_TOKEN                          = 12;       //请求解绑定手机时候的验证码
+//REQUEST_UNBIND_MOBILE_TOKEN                          = 12;       //请求解绑定手机时候的验证码
 type CS_Request_UnBind_Mobile_Token struct {
 	Account              *string  `protobuf:"bytes,1,req,name=account" json:"account,omitempty"`
 	PhoneNumber          *string  `protobuf:"bytes,2,req,name=phoneNumber" json:"phoneNumber,omitempty"`
@@ -686,16 +735,17 @@ func (m *CS_Request_UnBind_Mobile_Token) Reset()         { *m = CS_Request_UnBin
 func (m *CS_Request_UnBind_Mobile_Token) String() string { return proto.CompactTextString(m) }
 func (*CS_Request_UnBind_Mobile_Token) ProtoMessage()    {}
 func (*CS_Request_UnBind_Mobile_Token) Descriptor() ([]byte, []int) {
-	return fileDescriptor_GateSubCmd_5c61652e2d8213e6, []int{10}
+	return fileDescriptor_c9ae379302872f37, []int{10}
 }
+
 func (m *CS_Request_UnBind_Mobile_Token) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CS_Request_UnBind_Mobile_Token.Unmarshal(m, b)
 }
 func (m *CS_Request_UnBind_Mobile_Token) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_CS_Request_UnBind_Mobile_Token.Marshal(b, m, deterministic)
 }
-func (dst *CS_Request_UnBind_Mobile_Token) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_CS_Request_UnBind_Mobile_Token.Merge(dst, src)
+func (m *CS_Request_UnBind_Mobile_Token) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CS_Request_UnBind_Mobile_Token.Merge(m, src)
 }
 func (m *CS_Request_UnBind_Mobile_Token) XXX_Size() int {
 	return xxx_messageInfo_CS_Request_UnBind_Mobile_Token.Size(m)
@@ -727,7 +777,7 @@ func (m *CS_Request_UnBind_Mobile_Token) GetPackageflag() string {
 	return ""
 }
 
-// RETURN_UNBIND_MOBILE_TOKEN_RESULT                    = 13;       //请求解绑手机验证码结果
+//RETURN_UNBIND_MOBILE_TOKEN_RESULT                    = 13;       //请求解绑手机验证码结果
 type SC_Return_UnBind_Mobile_Token_Result struct {
 	RetCode              *int32   `protobuf:"varint,1,req,name=retCode" json:"retCode,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
@@ -739,16 +789,17 @@ func (m *SC_Return_UnBind_Mobile_Token_Result) Reset()         { *m = SC_Return_
 func (m *SC_Return_UnBind_Mobile_Token_Result) String() string { return proto.CompactTextString(m) }
 func (*SC_Return_UnBind_Mobile_Token_Result) ProtoMessage()    {}
 func (*SC_Return_UnBind_Mobile_Token_Result) Descriptor() ([]byte, []int) {
-	return fileDescriptor_GateSubCmd_5c61652e2d8213e6, []int{11}
+	return fileDescriptor_c9ae379302872f37, []int{11}
 }
+
 func (m *SC_Return_UnBind_Mobile_Token_Result) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_SC_Return_UnBind_Mobile_Token_Result.Unmarshal(m, b)
 }
 func (m *SC_Return_UnBind_Mobile_Token_Result) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_SC_Return_UnBind_Mobile_Token_Result.Marshal(b, m, deterministic)
 }
-func (dst *SC_Return_UnBind_Mobile_Token_Result) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_SC_Return_UnBind_Mobile_Token_Result.Merge(dst, src)
+func (m *SC_Return_UnBind_Mobile_Token_Result) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SC_Return_UnBind_Mobile_Token_Result.Merge(m, src)
 }
 func (m *SC_Return_UnBind_Mobile_Token_Result) XXX_Size() int {
 	return xxx_messageInfo_SC_Return_UnBind_Mobile_Token_Result.Size(m)
@@ -766,7 +817,7 @@ func (m *SC_Return_UnBind_Mobile_Token_Result) GetRetCode() int32 {
 	return 0
 }
 
-// REQUEST_UNBIND_MOBILE                                = 14;       //请求解绑定手机
+//REQUEST_UNBIND_MOBILE                                = 14;       //请求解绑定手机
 type CS_Request_UnBind_Mobile struct {
 	Account              *string  `protobuf:"bytes,1,req,name=account" json:"account,omitempty"`
 	Phonenumber          *string  `protobuf:"bytes,2,req,name=phonenumber" json:"phonenumber,omitempty"`
@@ -780,16 +831,17 @@ func (m *CS_Request_UnBind_Mobile) Reset()         { *m = CS_Request_UnBind_Mobi
 func (m *CS_Request_UnBind_Mobile) String() string { return proto.CompactTextString(m) }
 func (*CS_Request_UnBind_Mobile) ProtoMessage()    {}
 func (*CS_Request_UnBind_Mobile) Descriptor() ([]byte, []int) {
-	return fileDescriptor_GateSubCmd_5c61652e2d8213e6, []int{12}
+	return fileDescriptor_c9ae379302872f37, []int{12}
 }
+
 func (m *CS_Request_UnBind_Mobile) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CS_Request_UnBind_Mobile.Unmarshal(m, b)
 }
 func (m *CS_Request_UnBind_Mobile) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_CS_Request_UnBind_Mobile.Marshal(b, m, deterministic)
 }
-func (dst *CS_Request_UnBind_Mobile) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_CS_Request_UnBind_Mobile.Merge(dst, src)
+func (m *CS_Request_UnBind_Mobile) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CS_Request_UnBind_Mobile.Merge(m, src)
 }
 func (m *CS_Request_UnBind_Mobile) XXX_Size() int {
 	return xxx_messageInfo_CS_Request_UnBind_Mobile.Size(m)
@@ -821,7 +873,7 @@ func (m *CS_Request_UnBind_Mobile) GetToken() string {
 	return ""
 }
 
-// RETURN_UNBIND_MOBILE_RESULT
+//RETURN_UNBIND_MOBILE_RESULT
 type SC_Return_UnBind_Mobile_Result struct {
 	RetCode              *int32   `protobuf:"varint,1,req,name=retCode" json:"retCode,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
@@ -833,16 +885,17 @@ func (m *SC_Return_UnBind_Mobile_Result) Reset()         { *m = SC_Return_UnBind
 func (m *SC_Return_UnBind_Mobile_Result) String() string { return proto.CompactTextString(m) }
 func (*SC_Return_UnBind_Mobile_Result) ProtoMessage()    {}
 func (*SC_Return_UnBind_Mobile_Result) Descriptor() ([]byte, []int) {
-	return fileDescriptor_GateSubCmd_5c61652e2d8213e6, []int{13}
+	return fileDescriptor_c9ae379302872f37, []int{13}
 }
+
 func (m *SC_Return_UnBind_Mobile_Result) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_SC_Return_UnBind_Mobile_Result.Unmarshal(m, b)
 }
 func (m *SC_Return_UnBind_Mobile_Result) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_SC_Return_UnBind_Mobile_Result.Marshal(b, m, deterministic)
 }
-func (dst *SC_Return_UnBind_Mobile_Result) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_SC_Return_UnBind_Mobile_Result.Merge(dst, src)
+func (m *SC_Return_UnBind_Mobile_Result) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SC_Return_UnBind_Mobile_Result.Merge(m, src)
 }
 func (m *SC_Return_UnBind_Mobile_Result) XXX_Size() int {
 	return xxx_messageInfo_SC_Return_UnBind_Mobile_Result.Size(m)
@@ -860,7 +913,7 @@ func (m *SC_Return_UnBind_Mobile_Result) GetRetCode() int32 {
 	return 0
 }
 
-// VERIFY_ANDROIDANDPC                                  = 16;      //安卓和PC验证
+//VERIFY_ANDROIDANDPC                                  = 16;      //安卓和PC验证
 type Verify_AndroidAndPC struct {
 	Platform             *string  `protobuf:"bytes,1,req,name=platform" json:"platform,omitempty"`
 	Verifycode           *string  `protobuf:"bytes,2,req,name=verifycode" json:"verifycode,omitempty"`
@@ -873,16 +926,17 @@ func (m *Verify_AndroidAndPC) Reset()         { *m = Verify_AndroidAndPC{} }
 func (m *Verify_AndroidAndPC) String() string { return proto.CompactTextString(m) }
 func (*Verify_AndroidAndPC) ProtoMessage()    {}
 func (*Verify_AndroidAndPC) Descriptor() ([]byte, []int) {
-	return fileDescriptor_GateSubCmd_5c61652e2d8213e6, []int{14}
+	return fileDescriptor_c9ae379302872f37, []int{14}
 }
+
 func (m *Verify_AndroidAndPC) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Verify_AndroidAndPC.Unmarshal(m, b)
 }
 func (m *Verify_AndroidAndPC) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_Verify_AndroidAndPC.Marshal(b, m, deterministic)
 }
-func (dst *Verify_AndroidAndPC) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Verify_AndroidAndPC.Merge(dst, src)
+func (m *Verify_AndroidAndPC) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Verify_AndroidAndPC.Merge(m, src)
 }
 func (m *Verify_AndroidAndPC) XXX_Size() int {
 	return xxx_messageInfo_Verify_AndroidAndPC.Size(m)
@@ -907,7 +961,7 @@ func (m *Verify_AndroidAndPC) GetVerifycode() string {
 	return ""
 }
 
-// REQUEST_WXSERVER_SIGNATURE                           = 17;       //请求威信服务签名
+//REQUEST_WXSERVER_SIGNATURE                           = 17;       //请求威信服务签名
 type RequestWxServerSignature struct {
 	Uri                  *string  `protobuf:"bytes,1,req,name=uri" json:"uri,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
@@ -919,16 +973,17 @@ func (m *RequestWxServerSignature) Reset()         { *m = RequestWxServerSignatu
 func (m *RequestWxServerSignature) String() string { return proto.CompactTextString(m) }
 func (*RequestWxServerSignature) ProtoMessage()    {}
 func (*RequestWxServerSignature) Descriptor() ([]byte, []int) {
-	return fileDescriptor_GateSubCmd_5c61652e2d8213e6, []int{15}
+	return fileDescriptor_c9ae379302872f37, []int{15}
 }
+
 func (m *RequestWxServerSignature) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_RequestWxServerSignature.Unmarshal(m, b)
 }
 func (m *RequestWxServerSignature) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_RequestWxServerSignature.Marshal(b, m, deterministic)
 }
-func (dst *RequestWxServerSignature) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_RequestWxServerSignature.Merge(dst, src)
+func (m *RequestWxServerSignature) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RequestWxServerSignature.Merge(m, src)
 }
 func (m *RequestWxServerSignature) XXX_Size() int {
 	return xxx_messageInfo_RequestWxServerSignature.Size(m)
@@ -946,7 +1001,7 @@ func (m *RequestWxServerSignature) GetUri() string {
 	return ""
 }
 
-// RETURN_WXSERVER_SIGNATURE_RESULT                     = 18;       //请求威信服务签名
+//RETURN_WXSERVER_SIGNATURE_RESULT                     = 18;       //请求威信服务签名
 type ReturnWxServerSignatureResult struct {
 	RetCode              *int32   `protobuf:"varint,1,req,name=retCode" json:"retCode,omitempty"`
 	Noncestr             *string  `protobuf:"bytes,2,opt,name=noncestr" json:"noncestr,omitempty"`
@@ -961,16 +1016,17 @@ func (m *ReturnWxServerSignatureResult) Reset()         { *m = ReturnWxServerSig
 func (m *ReturnWxServerSignatureResult) String() string { return proto.CompactTextString(m) }
 func (*ReturnWxServerSignatureResult) ProtoMessage()    {}
 func (*ReturnWxServerSignatureResult) Descriptor() ([]byte, []int) {
-	return fileDescriptor_GateSubCmd_5c61652e2d8213e6, []int{16}
+	return fileDescriptor_c9ae379302872f37, []int{16}
 }
+
 func (m *ReturnWxServerSignatureResult) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ReturnWxServerSignatureResult.Unmarshal(m, b)
 }
 func (m *ReturnWxServerSignatureResult) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_ReturnWxServerSignatureResult.Marshal(b, m, deterministic)
 }
-func (dst *ReturnWxServerSignatureResult) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_ReturnWxServerSignatureResult.Merge(dst, src)
+func (m *ReturnWxServerSignatureResult) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ReturnWxServerSignatureResult.Merge(m, src)
 }
 func (m *ReturnWxServerSignatureResult) XXX_Size() int {
 	return xxx_messageInfo_ReturnWxServerSignatureResult.Size(m)
@@ -1021,16 +1077,17 @@ func (m *ReturnLeaveGame) Reset()         { *m = ReturnLeaveGame{} }
 func (m *ReturnLeaveGame) String() string { return proto.CompactTextString(m) }
 func (*ReturnLeaveGame) ProtoMessage()    {}
 func (*ReturnLeaveGame) Descriptor() ([]byte, []int) {
-	return fileDescriptor_GateSubCmd_5c61652e2d8213e6, []int{17}
+	return fileDescriptor_c9ae379302872f37, []int{17}
 }
+
 func (m *ReturnLeaveGame) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ReturnLeaveGame.Unmarshal(m, b)
 }
 func (m *ReturnLeaveGame) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_ReturnLeaveGame.Marshal(b, m, deterministic)
 }
-func (dst *ReturnLeaveGame) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_ReturnLeaveGame.Merge(dst, src)
+func (m *ReturnLeaveGame) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ReturnLeaveGame.Merge(m, src)
 }
 func (m *ReturnLeaveGame) XXX_Size() int {
 	return xxx_messageInfo_ReturnLeaveGame.Size(m)
@@ -1048,7 +1105,41 @@ func (m *ReturnLeaveGame) GetRetcode() int32 {
 	return 0
 }
 
+// REQUEST_SYNC_TIME_SUB_CMD 	// 客户端请求同步时间
+type RequestSyncTime struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *RequestSyncTime) Reset()         { *m = RequestSyncTime{} }
+func (m *RequestSyncTime) String() string { return proto.CompactTextString(m) }
+func (*RequestSyncTime) ProtoMessage()    {}
+func (*RequestSyncTime) Descriptor() ([]byte, []int) {
+	return fileDescriptor_c9ae379302872f37, []int{18}
+}
+
+func (m *RequestSyncTime) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_RequestSyncTime.Unmarshal(m, b)
+}
+func (m *RequestSyncTime) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_RequestSyncTime.Marshal(b, m, deterministic)
+}
+func (m *RequestSyncTime) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RequestSyncTime.Merge(m, src)
+}
+func (m *RequestSyncTime) XXX_Size() int {
+	return xxx_messageInfo_RequestSyncTime.Size(m)
+}
+func (m *RequestSyncTime) XXX_DiscardUnknown() {
+	xxx_messageInfo_RequestSyncTime.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RequestSyncTime proto.InternalMessageInfo
+
 func init() {
+	proto.RegisterEnum("GateSubCmd.EnSubCmdID", EnSubCmdID_name, EnSubCmdID_value)
+	proto.RegisterEnum("GateSubCmd.EnLoginGameCode", EnLoginGameCode_name, EnLoginGameCode_value)
 	proto.RegisterType((*LoginGateInfo)(nil), "GateSubCmd.LoginGateInfo")
 	proto.RegisterType((*LoginGateResultInfo)(nil), "GateSubCmd.LoginGateResultInfo")
 	proto.RegisterType((*ServerTimeSendClient)(nil), "GateSubCmd.ServerTimeSendClient")
@@ -1067,69 +1158,78 @@ func init() {
 	proto.RegisterType((*RequestWxServerSignature)(nil), "GateSubCmd.RequestWxServerSignature")
 	proto.RegisterType((*ReturnWxServerSignatureResult)(nil), "GateSubCmd.ReturnWxServerSignatureResult")
 	proto.RegisterType((*ReturnLeaveGame)(nil), "GateSubCmd.ReturnLeaveGame")
-	proto.RegisterEnum("GateSubCmd.EnSubCmdID", EnSubCmdID_name, EnSubCmdID_value)
-	proto.RegisterEnum("GateSubCmd.EnLoginGameCode", EnLoginGameCode_name, EnLoginGameCode_value)
+	proto.RegisterType((*RequestSyncTime)(nil), "GateSubCmd.RequestSyncTime")
 }
 
-func init() { proto.RegisterFile("GateSubCmd.proto", fileDescriptor_GateSubCmd_5c61652e2d8213e6) }
+func init() { proto.RegisterFile("GateSubCmd.proto", fileDescriptor_c9ae379302872f37) }
 
-var fileDescriptor_GateSubCmd_5c61652e2d8213e6 = []byte{
-	// 907 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xa4, 0x55, 0x5f, 0x6f, 0xe2, 0xd6,
-	0x13, 0xfd, 0x01, 0x49, 0x08, 0x93, 0x85, 0x38, 0x97, 0xec, 0xc6, 0xd9, 0x3f, 0x59, 0x7e, 0xee,
-	0xb6, 0xa5, 0xfb, 0xb0, 0xdd, 0xa8, 0xaa, 0x2a, 0xa5, 0x4f, 0x8e, 0x71, 0x91, 0x55, 0x30, 0xa9,
-	0x6d, 0xd8, 0x56, 0x7d, 0xb8, 0x72, 0xf0, 0x84, 0xbd, 0x0a, 0xbe, 0xa6, 0xd7, 0x76, 0xb6, 0xfd,
-	0x92, 0xfd, 0x1c, 0xfd, 0x18, 0xd5, 0xf5, 0x1f, 0x60, 0x17, 0x90, 0xaa, 0x56, 0x79, 0x09, 0x67,
-	0xe6, 0x9c, 0x39, 0x33, 0xc3, 0x5c, 0x40, 0xe9, 0xfb, 0x09, 0xba, 0xe9, 0xad, 0x11, 0x06, 0x6f,
-	0x16, 0x22, 0x4a, 0x22, 0x02, 0x2b, 0x44, 0xfb, 0xab, 0x02, 0xcd, 0x41, 0x34, 0x63, 0x5c, 0x62,
-	0x16, 0xbf, 0x8b, 0x48, 0x0b, 0x0e, 0xd2, 0x18, 0x05, 0x0b, 0xd4, 0x4a, 0xa7, 0xda, 0x6d, 0x92,
-	0x26, 0xec, 0x27, 0xd1, 0x3d, 0x72, 0xb5, 0xda, 0xa9, 0x76, 0x1b, 0x84, 0x40, 0x9d, 0xf5, 0xf0,
-	0x81, 0x4d, 0x51, 0xad, 0x75, 0xaa, 0xdd, 0xfd, 0xab, 0xca, 0x25, 0x39, 0x85, 0x06, 0xbb, 0x99,
-	0xfb, 0xc9, 0x5d, 0x24, 0x42, 0x75, 0xaf, 0x44, 0xcf, 0xe1, 0x90, 0x4d, 0x50, 0xc4, 0x2c, 0xe2,
-	0xea, 0xbe, 0xe4, 0x5e, 0xd5, 0x2f, 0xdf, 0xbc, 0x95, 0x7f, 0x44, 0x81, 0xc3, 0x94, 0xb9, 0x0b,
-	0x81, 0x7e, 0xa0, 0x1e, 0x74, 0x2a, 0xdd, 0x26, 0x69, 0xc3, 0xd1, 0xc2, 0x9f, 0xde, 0xfb, 0x33,
-	0xbc, 0x9b, 0xfb, 0x33, 0xb5, 0xde, 0xa9, 0x74, 0x1b, 0xe4, 0x14, 0x1e, 0x05, 0x59, 0xa9, 0x38,
-	0x11, 0x8c, 0xcf, 0xd4, 0xc3, 0x0c, 0x95, 0xe4, 0x18, 0x85, 0xed, 0x87, 0xa8, 0x36, 0x4a, 0x44,
-	0x92, 0x43, 0x5f, 0xdc, 0xab, 0x90, 0x21, 0x04, 0x80, 0x2d, 0xa8, 0x1f, 0x04, 0x02, 0xe3, 0x58,
-	0x3d, 0x92, 0x98, 0xf6, 0x15, 0xb4, 0x97, 0x9d, 0x3a, 0x18, 0xa7, 0xf3, 0x24, 0xeb, 0x97, 0x40,
-	0x5d, 0x60, 0x32, 0x8d, 0x02, 0xcc, 0x1a, 0xde, 0xbf, 0xaa, 0xbc, 0xd5, 0xba, 0x70, 0xea, 0xa2,
-	0x78, 0x40, 0xe1, 0xb1, 0x10, 0x5d, 0xe4, 0x81, 0x31, 0x67, 0xc8, 0x13, 0x59, 0x68, 0xe6, 0x87,
-	0x28, 0xd1, 0x2c, 0xb9, 0xa6, 0x7d, 0x01, 0x64, 0x1c, 0xaf, 0xf2, 0x72, 0xd6, 0x96, 0x3c, 0x0f,
-	0xce, 0x0c, 0x97, 0x3a, 0xf8, 0x5b, 0x8a, 0x71, 0x42, 0x87, 0xd1, 0x2d, 0x9b, 0x23, 0xf5, 0xe4,
-	0x5c, 0xc9, 0x31, 0xd4, 0xfd, 0xe9, 0x34, 0x4a, 0x79, 0x92, 0xe5, 0x36, 0xb2, 0x59, 0xbc, 0x8f,
-	0x38, 0xda, 0x69, 0x78, 0x8b, 0xa2, 0x98, 0xfb, 0x27, 0x03, 0xaa, 0x65, 0x2d, 0x0d, 0xe1, 0xc9,
-	0x9a, 0xea, 0x35, 0xe3, 0x41, 0x21, 0xbd, 0x5b, 0x94, 0xaf, 0x8b, 0x2e, 0x77, 0x2b, 0x57, 0xd9,
-	0xd0, 0xbe, 0x05, 0xcd, 0x35, 0xa8, 0x83, 0x49, 0x2a, 0xf8, 0xba, 0x5a, 0x6e, 0x94, 0xe6, 0x43,
-	0x93, 0xd2, 0x02, 0x13, 0x63, 0x39, 0x30, 0xed, 0x6b, 0x78, 0xbe, 0x9d, 0xb6, 0x8b, 0xe0, 0xc1,
-	0xd3, 0x35, 0xdb, 0xe3, 0xc5, 0x4c, 0xf8, 0x01, 0x52, 0x3d, 0xf7, 0x2b, 0x77, 0x17, 0xcd, 0x83,
-	0x8f, 0xdd, 0x13, 0x00, 0x8e, 0x1f, 0x4a, 0x2c, 0x37, 0xdf, 0x82, 0x83, 0x85, 0x1f, 0xc7, 0x1f,
-	0x82, 0xc2, 0xfd, 0x37, 0xd0, 0x59, 0xd9, 0xf8, 0x44, 0x74, 0xa7, 0x95, 0x5f, 0xe1, 0x62, 0xdd,
-	0x0a, 0xdf, 0xe8, 0xfa, 0xbf, 0xac, 0xe7, 0x3b, 0x78, 0xb5, 0xe6, 0x88, 0xff, 0xf3, 0x89, 0x8e,
-	0x40, 0xdd, 0xe5, 0xea, 0xdf, 0x6d, 0xf6, 0x12, 0x2e, 0x76, 0x39, 0xd9, 0xe5, 0xe1, 0x7b, 0x68,
-	0x4f, 0x50, 0xb0, 0xbb, 0x3f, 0xa8, 0xce, 0x03, 0x11, 0xb1, 0x40, 0xe7, 0xc1, 0x8d, 0x91, 0xdd,
-	0x5a, 0x79, 0xea, 0xcb, 0xdd, 0x3c, 0x64, 0x89, 0xd9, 0x0d, 0x65, 0xe5, 0xb5, 0x2f, 0x41, 0x2d,
-	0xdc, 0xbf, 0xfb, 0x3d, 0xbf, 0x09, 0x97, 0xcd, 0xb8, 0x9f, 0xa4, 0x02, 0xc9, 0x11, 0xd4, 0x52,
-	0xc1, 0x72, 0xb2, 0xf6, 0x1e, 0x5e, 0xe4, 0xae, 0x36, 0xf2, 0x76, 0xf8, 0x92, 0x06, 0x78, 0xc4,
-	0xb3, 0x37, 0x41, 0xad, 0x66, 0xc7, 0x7e, 0x02, 0x8d, 0x84, 0x85, 0x18, 0x27, 0x7e, 0xb8, 0xc8,
-	0x26, 0x5f, 0x93, 0x50, 0x5c, 0x0a, 0xa9, 0x7b, 0xd9, 0x32, 0x34, 0x38, 0xce, 0x2b, 0x0d, 0xd0,
-	0x7f, 0xc0, 0xbe, 0x1f, 0x62, 0xa1, 0xbd, 0x3a, 0xfd, 0xd7, 0x7f, 0xee, 0x01, 0x20, 0xcf, 0x9f,
-	0x46, 0xab, 0x47, 0x9e, 0x00, 0x19, 0x8c, 0xfa, 0x96, 0x4d, 0xfb, 0xba, 0x67, 0x52, 0x77, 0x7c,
-	0x4d, 0x8d, 0x61, 0x4f, 0xa9, 0x90, 0x17, 0x70, 0xbe, 0x86, 0x3b, 0xa6, 0x3b, 0x1e, 0x78, 0xcb,
-	0x70, 0x95, 0x3c, 0x07, 0xd5, 0x35, 0x9d, 0x89, 0xe9, 0x50, 0xd7, 0xb4, 0x7b, 0xd4, 0xb3, 0x86,
-	0x2b, 0x72, 0x4d, 0x92, 0x1d, 0xf3, 0xa7, 0xb1, 0xe9, 0x7a, 0x74, 0xec, 0x9a, 0xce, 0xc7, 0xe1,
-	0x3d, 0x72, 0x01, 0x4f, 0x57, 0xb0, 0x37, 0x2a, 0x85, 0x8a, 0xf8, 0xfe, 0x3a, 0xfd, 0xda, 0xb2,
-	0x7b, 0x74, 0x38, 0xba, 0xb6, 0x06, 0x32, 0xf3, 0x47, 0xd3, 0x56, 0x0e, 0xc8, 0x19, 0xb4, 0xb7,
-	0x84, 0x95, 0x3a, 0xf9, 0x0c, 0x5e, 0x3a, 0xa6, 0x37, 0x76, 0xec, 0x4d, 0x5a, 0xd1, 0x81, 0x72,
-	0x98, 0x8b, 0x6f, 0x24, 0x15, 0xe1, 0x06, 0x79, 0x06, 0x67, 0x4b, 0xeb, 0x37, 0x7d, 0x47, 0xef,
-	0x99, 0x54, 0x37, 0x8c, 0xd1, 0xd8, 0xf6, 0x14, 0x20, 0xe7, 0xf0, 0xb8, 0xe0, 0x96, 0xb1, 0x82,
-	0x77, 0x44, 0x5e, 0xc2, 0xb3, 0x25, 0xcf, 0xde, 0x74, 0xfd, 0x88, 0x7c, 0x0e, 0xff, 0x2f, 0xb9,
-	0xf6, 0x4e, 0x7b, 0xcd, 0xbc, 0xc4, 0x16, 0x1d, 0xa5, 0x95, 0x97, 0xd8, 0xa2, 0x50, 0x70, 0x8f,
-	0xe5, 0x60, 0x26, 0xa6, 0x63, 0xfd, 0xf0, 0x0b, 0xd5, 0xed, 0x9e, 0x33, 0xb2, 0x7a, 0xba, 0xdd,
-	0xbb, 0x31, 0x14, 0x45, 0x0e, 0xbc, 0x14, 0x7d, 0xf7, 0x73, 0x39, 0x6e, 0xab, 0x6f, 0xeb, 0xde,
-	0xd8, 0x31, 0x95, 0x13, 0xf2, 0x0a, 0x3a, 0x85, 0xf2, 0x66, 0xb8, 0x94, 0x27, 0xe4, 0x31, 0x9c,
-	0x14, 0x59, 0x03, 0x53, 0x9f, 0x98, 0xb4, 0xaf, 0x0f, 0x4d, 0xa5, 0xfd, 0x9a, 0xc2, 0x31, 0xf2,
-	0xe2, 0x57, 0x27, 0x44, 0xf9, 0x2d, 0x26, 0x2d, 0x80, 0x41, 0x9f, 0xca, 0x7f, 0x69, 0x74, 0xaf,
-	0xfc, 0x8f, 0x9c, 0x40, 0xb3, 0xfc, 0x9c, 0x3d, 0x0a, 0x4a, 0x85, 0x10, 0x68, 0x95, 0x90, 0x95,
-	0x11, 0x95, 0xaa, 0x2c, 0x50, 0x62, 0x76, 0x24, 0x4f, 0x85, 0x4d, 0x51, 0xa9, 0xfd, 0x1d, 0x00,
-	0x00, 0xff, 0xff, 0xb0, 0x16, 0x20, 0x09, 0xde, 0x07, 0x00, 0x00,
+var fileDescriptor_c9ae379302872f37 = []byte{
+	// 1070 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xb4, 0x56, 0x5d, 0x53, 0xdb, 0x46,
+	0x17, 0x8e, 0x6d, 0x88, 0xf1, 0x01, 0x83, 0x58, 0xbe, 0x14, 0x3e, 0xfd, 0x2a, 0x79, 0x67, 0x3c,
+	0x49, 0x27, 0x43, 0x72, 0xd5, 0x61, 0x3a, 0x9d, 0x0a, 0x59, 0xb8, 0x9e, 0x1a, 0x41, 0x56, 0x32,
+	0x69, 0xae, 0x34, 0xc2, 0x5a, 0x9c, 0x2d, 0xf6, 0xca, 0x5d, 0x49, 0xd0, 0xdc, 0xf4, 0x3f, 0xf4,
+	0x7f, 0xf4, 0xa2, 0x3f, 0xb1, 0xb3, 0xab, 0x4f, 0x30, 0x94, 0x4e, 0x67, 0x32, 0xdc, 0xe8, 0x3c,
+	0xcf, 0x3e, 0xe7, 0x63, 0xcf, 0xd9, 0x83, 0x41, 0xe9, 0x7a, 0x11, 0xb1, 0xe3, 0x4b, 0x63, 0xe2,
+	0xbf, 0x9d, 0xf2, 0x20, 0x0a, 0x10, 0x14, 0x88, 0xf6, 0x57, 0x0d, 0x9a, 0xfd, 0x60, 0x44, 0x99,
+	0xc0, 0x7a, 0xec, 0x2a, 0x40, 0x9b, 0xf0, 0x3c, 0x0e, 0x09, 0xa7, 0xbe, 0x5a, 0x69, 0x55, 0xdb,
+	0x4d, 0x9c, 0x5a, 0x68, 0x1d, 0xe6, 0xa3, 0xe0, 0x9a, 0x30, 0xb5, 0xda, 0xaa, 0xb6, 0x1b, 0x38,
+	0x31, 0xd0, 0x0e, 0xd4, 0x69, 0x87, 0xdc, 0xd0, 0x21, 0x51, 0x6b, 0xad, 0x6a, 0x7b, 0xfe, 0xa8,
+	0xf2, 0x0e, 0x67, 0x08, 0x3a, 0x80, 0x06, 0x3d, 0x1f, 0x7b, 0xd1, 0x55, 0xc0, 0x27, 0xea, 0x5c,
+	0x46, 0x17, 0x18, 0x7a, 0x09, 0x0b, 0xf4, 0x82, 0xf0, 0x90, 0x06, 0x4c, 0x9d, 0x17, 0x6e, 0x8f,
+	0xea, 0xef, 0xde, 0x1e, 0x8a, 0x3f, 0x9c, 0x13, 0x68, 0x1b, 0x16, 0x62, 0x6a, 0x4f, 0x39, 0xf1,
+	0x7c, 0xf5, 0x79, 0xab, 0xd2, 0x6e, 0xe2, 0xdc, 0x46, 0x2d, 0x58, 0x9c, 0x7a, 0xc3, 0x6b, 0x6f,
+	0x44, 0xae, 0xc6, 0xde, 0x48, 0xad, 0xb7, 0x2a, 0xed, 0x06, 0x2e, 0x43, 0x48, 0x83, 0x25, 0x5f,
+	0x66, 0x13, 0x46, 0x9c, 0xb2, 0x91, 0xba, 0x20, 0x8f, 0xdc, 0xc1, 0x64, 0x84, 0x90, 0x70, 0xcb,
+	0x9b, 0x10, 0xb5, 0x21, 0xf9, 0xdc, 0x16, 0x9c, 0x70, 0x37, 0xf1, 0xf8, 0xb5, 0x0a, 0x09, 0x97,
+	0xd9, 0x68, 0x0f, 0x80, 0x4e, 0x5d, 0xcf, 0xf7, 0x39, 0x09, 0x43, 0x75, 0x51, 0xb2, 0x0d, 0x3a,
+	0xd5, 0x13, 0x00, 0xbd, 0x81, 0x95, 0xf4, 0x26, 0x44, 0xc1, 0x27, 0xe2, 0x12, 0x96, 0x5a, 0x15,
+	0x71, 0x09, 0x87, 0xf8, 0x3e, 0x83, 0xda, 0xb0, 0x1c, 0x46, 0xdc, 0xf8, 0xec, 0x31, 0x46, 0xc6,
+	0x32, 0x93, 0xa6, 0xf0, 0x77, 0xf4, 0x0c, 0xdf, 0xc3, 0xb5, 0xf7, 0xb0, 0x96, 0x77, 0x0c, 0x93,
+	0x30, 0x1e, 0x47, 0xb2, 0x6f, 0x3b, 0x50, 0xe7, 0x24, 0x1a, 0x06, 0x3e, 0x91, 0x8d, 0x93, 0x51,
+	0x32, 0x44, 0x7b, 0x0f, 0xeb, 0x36, 0xe1, 0x37, 0x84, 0x3b, 0x74, 0x42, 0x6c, 0xc2, 0x7c, 0x63,
+	0x4c, 0x09, 0x8b, 0x44, 0x75, 0x23, 0x6f, 0x42, 0x04, 0x2a, 0x55, 0x35, 0x9c, 0xdb, 0xda, 0x21,
+	0xa0, 0x41, 0x58, 0x28, 0x12, 0xfd, 0x3f, 0x2a, 0x6e, 0x61, 0xcb, 0xb0, 0x5d, 0x4c, 0x7e, 0x8d,
+	0x49, 0x18, 0xb9, 0xa7, 0xc1, 0x25, 0x1d, 0x13, 0xd7, 0x91, 0x73, 0xa2, 0x42, 0xdd, 0x1b, 0x0e,
+	0x83, 0x98, 0x45, 0x52, 0xd5, 0xc0, 0x99, 0x29, 0x5b, 0xf8, 0x39, 0x60, 0xc4, 0x8a, 0x27, 0x97,
+	0x84, 0xa7, 0xd3, 0x55, 0x86, 0xee, 0x37, 0xb9, 0x36, 0xd3, 0x64, 0xed, 0x17, 0xd8, 0x2c, 0x05,
+	0x3e, 0xa6, 0xcc, 0x4f, 0xa3, 0xff, 0x8b, 0xb8, 0x6c, 0x36, 0x6e, 0x02, 0x15, 0x13, 0x5f, 0x2b,
+	0x4d, 0xbc, 0xf6, 0x3d, 0x68, 0xb6, 0xe1, 0x62, 0x12, 0xc5, 0x9c, 0x95, 0x43, 0x25, 0x85, 0xba,
+	0x49, 0x47, 0x44, 0x5c, 0x4e, 0x22, 0x23, 0xef, 0x06, 0xce, 0x4c, 0xed, 0x5b, 0xd8, 0x7d, 0x58,
+	0xff, 0xa4, 0x32, 0x82, 0xed, 0x52, 0x95, 0x83, 0xe9, 0x88, 0x7b, 0x3e, 0x71, 0xf5, 0xb4, 0x9e,
+	0x7d, 0x80, 0x60, 0xec, 0xdf, 0x2d, 0xb6, 0x84, 0x08, 0x9e, 0x91, 0xdb, 0x8c, 0x4f, 0xca, 0x2d,
+	0x21, 0xe2, 0xdd, 0x4f, 0xbd, 0x30, 0xbc, 0xf5, 0xd3, 0x72, 0x53, 0x4b, 0xfb, 0x0e, 0x5a, 0x45,
+	0xbe, 0xf7, 0x82, 0x3e, 0x9d, 0xf3, 0xef, 0xb0, 0x5f, 0xce, 0x99, 0xcd, 0x5c, 0xd8, 0x57, 0x9e,
+	0x8c, 0x1f, 0xe0, 0x55, 0x29, 0x7b, 0xf6, 0x1f, 0xfa, 0x35, 0x06, 0xf5, 0xb1, 0x0a, 0xbe, 0xc2,
+	0x74, 0x1d, 0xc1, 0xfe, 0x63, 0xf9, 0x3e, 0x99, 0xe9, 0x07, 0x58, 0xbb, 0x20, 0x9c, 0x5e, 0x7d,
+	0x71, 0x75, 0xe6, 0xf3, 0x80, 0xfa, 0x3a, 0xf3, 0xcf, 0x0d, 0xb9, 0xc1, 0xb2, 0x25, 0x9c, 0x64,
+	0x99, 0xdb, 0x62, 0x28, 0x6e, 0xa4, 0x44, 0xee, 0x8d, 0x74, 0x28, 0x0a, 0x44, 0xfb, 0x06, 0xd4,
+	0xb4, 0xf2, 0x8f, 0xbf, 0x25, 0x0b, 0xc0, 0xa6, 0x23, 0xe6, 0x45, 0x31, 0x27, 0x48, 0x81, 0x5a,
+	0xcc, 0x69, 0xea, 0x52, 0x7c, 0x6a, 0x7f, 0x54, 0x60, 0x2f, 0x49, 0x7d, 0xe6, 0xf4, 0x53, 0xc9,
+	0x8b, 0x2c, 0x59, 0xc0, 0xe4, 0x4a, 0x56, 0xab, 0xc9, 0x9e, 0xcd, 0x6c, 0xb4, 0x0b, 0x8d, 0x88,
+	0x4e, 0x48, 0x18, 0x79, 0x93, 0xa9, 0x6c, 0x72, 0x0d, 0x17, 0x80, 0x60, 0xc3, 0x2c, 0x8c, 0x3a,
+	0x97, 0x2c, 0xe1, 0x1c, 0xd0, 0xde, 0xc0, 0x4a, 0x92, 0x52, 0x9f, 0x78, 0x37, 0xa4, 0x2b, 0x56,
+	0xba, 0x7a, 0x6f, 0x53, 0x16, 0x6b, 0x72, 0x55, 0x1c, 0x96, 0xe5, 0xda, 0x5f, 0xd8, 0x50, 0xec,
+	0xb4, 0xd7, 0x7f, 0xce, 0x03, 0x10, 0x96, 0xfc, 0xb7, 0xec, 0x75, 0xd0, 0x26, 0xa0, 0xfe, 0x59,
+	0xb7, 0x67, 0xb9, 0x5d, 0xdd, 0x31, 0x5d, 0x7b, 0x70, 0xec, 0x1a, 0xa7, 0x1d, 0xa5, 0x82, 0xf6,
+	0xe0, 0x45, 0x09, 0xc7, 0xa6, 0x3d, 0xe8, 0x3b, 0x39, 0x5d, 0x45, 0xbb, 0xa0, 0xda, 0x26, 0xbe,
+	0x30, 0xb1, 0x6b, 0x9b, 0x56, 0xc7, 0x75, 0x7a, 0xa7, 0x85, 0xb8, 0x26, 0xc4, 0xd8, 0xfc, 0x30,
+	0x30, 0x6d, 0xc7, 0x1d, 0xd8, 0x26, 0xbe, 0x4b, 0xcf, 0xa1, 0x7d, 0xd8, 0x2e, 0x60, 0xe7, 0x2c,
+	0x73, 0x94, 0xf2, 0xf3, 0x65, 0xf9, 0x71, 0xcf, 0xea, 0xb8, 0xa7, 0x67, 0xc7, 0xbd, 0xbe, 0x38,
+	0xf9, 0x93, 0x69, 0x29, 0xcf, 0xd1, 0x16, 0xac, 0x3d, 0x40, 0x2b, 0x75, 0xf4, 0x12, 0x0e, 0xb0,
+	0xe9, 0x0c, 0xb0, 0x35, 0x2b, 0x4b, 0x2b, 0x50, 0x16, 0x12, 0xe7, 0x33, 0x87, 0x52, 0xba, 0x81,
+	0x76, 0x60, 0x2b, 0x4f, 0xfd, 0xbc, 0x8b, 0xf5, 0x8e, 0xe9, 0xea, 0x86, 0x71, 0x36, 0xb0, 0x1c,
+	0x05, 0xd0, 0x0b, 0xd8, 0x48, 0xb5, 0x19, 0x97, 0xea, 0x16, 0xd1, 0x01, 0xec, 0xe4, 0x3a, 0x6b,
+	0x36, 0xeb, 0x25, 0xf4, 0x7f, 0xf8, 0x5f, 0xa6, 0xb5, 0x1e, 0x4d, 0xaf, 0x99, 0x84, 0x78, 0xc0,
+	0x8f, 0xb2, 0x9c, 0x84, 0x78, 0xc0, 0x43, 0xaa, 0x5d, 0x11, 0x17, 0x73, 0x61, 0xe2, 0xde, 0xc9,
+	0x27, 0x57, 0xb7, 0x3a, 0xf8, 0xac, 0xd7, 0xd1, 0xad, 0xce, 0xb9, 0xa1, 0x28, 0xe2, 0xc2, 0x33,
+	0xa7, 0x1f, 0x7f, 0xce, 0xae, 0xbb, 0xd7, 0xb5, 0x74, 0x67, 0x80, 0x4d, 0x65, 0x15, 0xbd, 0x82,
+	0x56, 0xea, 0x79, 0x96, 0xce, 0xdc, 0x23, 0xb4, 0x01, 0xab, 0xe9, 0xa9, 0xbe, 0xa9, 0x5f, 0x98,
+	0x6e, 0x57, 0x3f, 0x35, 0x95, 0xb5, 0xb2, 0xf3, 0x1f, 0x4d, 0x1d, 0x3b, 0xee, 0xb1, 0xa9, 0x17,
+	0xa3, 0xb2, 0x5e, 0xba, 0xf0, 0x07, 0xe8, 0x8d, 0x72, 0xb3, 0xed, 0x4f, 0x96, 0x71, 0x77, 0x56,
+	0x36, 0x5f, 0xdf, 0xc2, 0x0a, 0x61, 0xe9, 0xcf, 0x83, 0x09, 0x91, 0x2f, 0x6b, 0x19, 0xa0, 0xdf,
+	0x75, 0xc5, 0xa7, 0x1b, 0x5c, 0x2b, 0xcf, 0xd0, 0x2a, 0x34, 0x33, 0x5b, 0xae, 0x40, 0xa5, 0x82,
+	0x10, 0x2c, 0x67, 0x50, 0x4f, 0x0a, 0x95, 0xaa, 0x48, 0x3f, 0xc3, 0xac, 0x40, 0xbc, 0x66, 0x3a,
+	0x24, 0x4a, 0x4d, 0x3e, 0x80, 0x14, 0x36, 0xc6, 0xf1, 0xe5, 0x49, 0xc0, 0x2f, 0xa9, 0xaf, 0xcc,
+	0xfd, 0x1d, 0x00, 0x00, 0xff, 0xff, 0x0d, 0x8f, 0x35, 0xd8, 0x67, 0x0a, 0x00, 0x00,
 }

@@ -1,5 +1,6 @@
 syntax = "proto2";
 package Main;
+
 enum enMainCmdID{
 
 	LOGIN_MAIN_CMD						= 1;	// 与登录服务器交互的消息 子命令 和消息体定义在 LoginSubCmd.proto
@@ -18,7 +19,11 @@ enum enMainCmdID{
 	LOBBY_MAIN_RANK						= 20;	// 排行榜
 	LOBBY_MAIN_PERSON_SET				= 21;	//个人设置
 	LOBBY_MAIN_PURCHASE_REWARD			= 22;	//充值奖励相关	
-	
-	CLUB_MAIN_CMD						   = 23;	// 俱乐部相关消息
+	CLUB_MAIN_CMD						= 23;	// 俱乐部相关消息
+	ACTIVE_MAIN_CMD						= 24;	 //活动相关
+	LOBBY_MAIN_ITEM						= 25;     //物品
+	LOBBY_MAIN_MISC						= 26;     //玩家杂项系统
+	LOBBY_MAIN_TASK						= 27;     //玩家任务系统
+	LOBBY_MAIN_MATCH 					= 28; 	  //玩家大厅比赛系统
 }
 

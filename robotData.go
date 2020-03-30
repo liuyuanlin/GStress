@@ -25,9 +25,11 @@ type RobotData struct {
 	MXzmjTableId     int
 	MXzmjGameCount   int
 
-	MDdzRoomId    int
-	MDdzTableId   int
-	MDdzGameCount int
+	MDdzRoomType    int
+	MDdzMatchTypeId int
+	MDdzRoomId      int
+	MDdzTableId     int
+	MDdzGameCount   int
 
 	MWantClubId  int
 	MToken       string
@@ -49,7 +51,9 @@ type RobotAttr struct {
 	MIsNeedAutoLogin bool
 	MXzmjRoomId      int
 	MXzmjTableId     int
+	MDdzRoomType     int
 	MDdzRoomId       int
+	MDdzMatchTypeId  int
 	MDdzTableId      int
 	MWantClubId      int
 	MTaskId          []int
@@ -75,6 +79,9 @@ func (RD *RobotData) Init(robotAttr RobotAttr) error {
 
 	RD.MDdzRoomId = robotAttr.MDdzRoomId
 	RD.MDdzTableId = robotAttr.MDdzTableId
+
+	RD.MDdzMatchTypeId = robotAttr.MDdzMatchTypeId
+	RD.MDdzRoomType = robotAttr.MDdzRoomType
 
 	return nil
 

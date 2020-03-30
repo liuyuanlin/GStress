@@ -19,13 +19,17 @@ enum enSubCmdID
 	RETURN_UNBIND_MOBILE_TOKEN_RESULT                    = 13;       //请求解绑手机验证码结果
 	REQUEST_UNBIND_MOBILE                                = 14;       //请求解绑定手机 			
 	RETURN_UNBIND_MOBILE_RESULT                          = 15;       //请求解绑定结果
-   VERIFY_ANDROIDANDPC									 = 16;		//安卓和PC验证
-   
-   REQUEST_WXSERVER_SIGNATURE                           = 17;       //请求威信服务签名
-   RETURN_WXSERVER_SIGNATURE_RESULT                     = 18;       //请求威信服务签名 
+	VERIFY_ANDROIDANDPC									 = 16;		//安卓和PC验证
 
-   RETURN_LEAVE_GAME 									= 19;      //离开游戏，不再重新连接，进入登录界面   
-    
+	REQUEST_WXSERVER_SIGNATURE                           = 17;       //请求威信服务签名
+	RETURN_WXSERVER_SIGNATURE_RESULT                     = 18;       //请求威信服务签名 
+
+	RETURN_LEAVE_GAME 									= 19;      //离开游戏，不再重新连接，进入登录界面   
+
+	REQUEST_HEART_BEAT_SUB_CMD                            = 20;	//客户端心跳请求
+	RETURN_HEART_BEAT_SUB_CMD                            = 21;	//客户端心跳请求返回
+
+	REQUEST_SYNC_TIME_SUB_CMD							= 22;	// 客户端请求同步时间
 }
 
 
@@ -36,6 +40,7 @@ enum enLoginGameCode
 	LG_Code_Token              = 1; // token错误
 	LG_Code_InGame             = 2; // 重复登录
 	LG_Code_NoService          = 3; // 维护中
+	LG_Code_ClubForbid         = 4; // 微游戏已冻结
 	
 }
 
@@ -53,6 +58,8 @@ message LoginGateInfo
 	optional string userName  = 9;                  //登录用的用户名
 	optional string packmark = 10;					//包标识
 	optional string ip_address = 11;				//IP地址
+	optional int32 iDevicePlatForm = 12 [default = 0];        //登陆的平台 1:APP  2:H5
+	optional string strChannelName= 13 [default = ""];        //登陆的平台 1:APP  2:H5
 }
 
 
@@ -176,4 +183,10 @@ message ReturnWxServerSignatureResult
 message ReturnLeaveGame
 {
 	 required int32 retcode = 1; //0 表示直接推出不提示， 1：表示账号在其他地方登陆，被挤下线。
+}
+
+
+// REQUEST_SYNC_TIME_SUB_CMD 	// 客户端请求同步时间
+message RequestSyncTime
+{
 }

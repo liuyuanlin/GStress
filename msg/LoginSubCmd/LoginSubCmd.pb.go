@@ -3,9 +3,11 @@
 
 package LoginSubCmd
 
-import proto "github.com/golang/protobuf/proto"
-import fmt "fmt"
-import math "math"
+import (
+	fmt "fmt"
+	proto "github.com/golang/protobuf/proto"
+	math "math"
+)
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
@@ -18,11 +20,12 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
-// 此文件对应主消息为 LOGIN_MAIN_CMD
+//此文件对应主消息为 LOGIN_MAIN_CMD
 //
 type EnSubCmdID int32
 
 const (
+	EnSubCmdID_REQUEST_MOBILE_TOKEN_SUB_CMD           EnSubCmdID = 1
 	EnSubCmdID_REQUEST_LOGIN_SUB_CMD                  EnSubCmdID = 2
 	EnSubCmdID_RETURN_LOGININFO_SUB_CMD               EnSubCmdID = 3
 	EnSubCmdID_LOGIN_ERROR_CODE_SUB_CMD               EnSubCmdID = 4
@@ -38,26 +41,59 @@ const (
 	EnSubCmdID_TECENT_LOGIN_RESULT_SUB_CMD            EnSubCmdID = 15
 	EnSubCmdID_REQUEST_CHANGE_DEVICE_TOKEN            EnSubCmdID = 16
 	EnSubCmdID_RETURN_CHANGE_DEVICE_TOKEN             EnSubCmdID = 17
+	EnSubCmdID_REQUEST_MOBILE_LOGIN_SUB_CMD           EnSubCmdID = 18
+	EnSubCmdID_OPENTC_REQUEST_LOGIN_SUB_CMD           EnSubCmdID = 100
+	EnSubCmdID_OPENTC_LOGIN_RESULT_SUB_CMD            EnSubCmdID = 101
+	EnSubCmdID_QH360_REQUEST_LOGIN_SUB_CMD            EnSubCmdID = 102
+	EnSubCmdID_QH360_LOGIN_RESULT_SUB_CMD             EnSubCmdID = 103
+	EnSubCmdID_BaiDu_REQUEST_LOGIN_SUB_CMD            EnSubCmdID = 104
+	EnSubCmdID_BaiDu_LOGIN_RESULT_SUB_CMD             EnSubCmdID = 105
+	EnSubCmdID_HUAWEI_REQUEST_LOGIN_SUB_CMD           EnSubCmdID = 106
+	EnSubCmdID_HUAWEI_LOGIN_RESULT_SUB_CMD            EnSubCmdID = 107
+	EnSubCmdID_XMI_REQUEST_LOGIN_SUB_CMD              EnSubCmdID = 108
+	EnSubCmdID_XMI_LOGIN_RESULT_SUB_CMD               EnSubCmdID = 109
+	EnSubCmdID_OPPO_REQUEST_LOGIN_SUB_CMD             EnSubCmdID = 110
+	EnSubCmdID_OPPO_LOGIN_RESULT_SUB_CMD              EnSubCmdID = 111
+	EnSubCmdID_VIVO_REQUEST_LOGIN_SUB_CMD             EnSubCmdID = 112
+	EnSubCmdID_VIVO_LOGIN_RESULT_SUB_CMD              EnSubCmdID = 113
 )
 
 var EnSubCmdID_name = map[int32]string{
-	2:  "REQUEST_LOGIN_SUB_CMD",
-	3:  "RETURN_LOGININFO_SUB_CMD",
-	4:  "LOGIN_ERROR_CODE_SUB_CMD",
-	5:  "VISITOR_REQUEST_LOGIN_SUB_CMD",
-	7:  "REQUEST_CREATE_MOBILE_ACCOUNT_SUB_CMD",
-	8:  "RETURN_CREATE_ACCOUNT_RESULT_SUB_CMD",
-	9:  "RETURN_MOBILE_TOKEN_RESULT_SUB_CMD",
-	10: "REQUEST_RESET_PASSWD_TOKEN",
-	11: "RESET_NEW_PASSWD_SUB_CMD",
-	12: "RETURN_RESET_PASSWD_TOKEN",
-	13: "RETURN_RESET_NEW_PASSWD_RESULT_SUB_CMD",
-	14: "TECENT_REQUEST_LOGIN_SUB_CMD",
-	15: "TECENT_LOGIN_RESULT_SUB_CMD",
-	16: "REQUEST_CHANGE_DEVICE_TOKEN",
-	17: "RETURN_CHANGE_DEVICE_TOKEN",
+	1:   "REQUEST_MOBILE_TOKEN_SUB_CMD",
+	2:   "REQUEST_LOGIN_SUB_CMD",
+	3:   "RETURN_LOGININFO_SUB_CMD",
+	4:   "LOGIN_ERROR_CODE_SUB_CMD",
+	5:   "VISITOR_REQUEST_LOGIN_SUB_CMD",
+	7:   "REQUEST_CREATE_MOBILE_ACCOUNT_SUB_CMD",
+	8:   "RETURN_CREATE_ACCOUNT_RESULT_SUB_CMD",
+	9:   "RETURN_MOBILE_TOKEN_RESULT_SUB_CMD",
+	10:  "REQUEST_RESET_PASSWD_TOKEN",
+	11:  "RESET_NEW_PASSWD_SUB_CMD",
+	12:  "RETURN_RESET_PASSWD_TOKEN",
+	13:  "RETURN_RESET_NEW_PASSWD_RESULT_SUB_CMD",
+	14:  "TECENT_REQUEST_LOGIN_SUB_CMD",
+	15:  "TECENT_LOGIN_RESULT_SUB_CMD",
+	16:  "REQUEST_CHANGE_DEVICE_TOKEN",
+	17:  "RETURN_CHANGE_DEVICE_TOKEN",
+	18:  "REQUEST_MOBILE_LOGIN_SUB_CMD",
+	100: "OPENTC_REQUEST_LOGIN_SUB_CMD",
+	101: "OPENTC_LOGIN_RESULT_SUB_CMD",
+	102: "QH360_REQUEST_LOGIN_SUB_CMD",
+	103: "QH360_LOGIN_RESULT_SUB_CMD",
+	104: "BaiDu_REQUEST_LOGIN_SUB_CMD",
+	105: "BaiDu_LOGIN_RESULT_SUB_CMD",
+	106: "HUAWEI_REQUEST_LOGIN_SUB_CMD",
+	107: "HUAWEI_LOGIN_RESULT_SUB_CMD",
+	108: "XMI_REQUEST_LOGIN_SUB_CMD",
+	109: "XMI_LOGIN_RESULT_SUB_CMD",
+	110: "OPPO_REQUEST_LOGIN_SUB_CMD",
+	111: "OPPO_LOGIN_RESULT_SUB_CMD",
+	112: "VIVO_REQUEST_LOGIN_SUB_CMD",
+	113: "VIVO_LOGIN_RESULT_SUB_CMD",
 }
+
 var EnSubCmdID_value = map[string]int32{
+	"REQUEST_MOBILE_TOKEN_SUB_CMD":           1,
 	"REQUEST_LOGIN_SUB_CMD":                  2,
 	"RETURN_LOGININFO_SUB_CMD":               3,
 	"LOGIN_ERROR_CODE_SUB_CMD":               4,
@@ -73,6 +109,21 @@ var EnSubCmdID_value = map[string]int32{
 	"TECENT_LOGIN_RESULT_SUB_CMD":            15,
 	"REQUEST_CHANGE_DEVICE_TOKEN":            16,
 	"RETURN_CHANGE_DEVICE_TOKEN":             17,
+	"REQUEST_MOBILE_LOGIN_SUB_CMD":           18,
+	"OPENTC_REQUEST_LOGIN_SUB_CMD":           100,
+	"OPENTC_LOGIN_RESULT_SUB_CMD":            101,
+	"QH360_REQUEST_LOGIN_SUB_CMD":            102,
+	"QH360_LOGIN_RESULT_SUB_CMD":             103,
+	"BaiDu_REQUEST_LOGIN_SUB_CMD":            104,
+	"BaiDu_LOGIN_RESULT_SUB_CMD":             105,
+	"HUAWEI_REQUEST_LOGIN_SUB_CMD":           106,
+	"HUAWEI_LOGIN_RESULT_SUB_CMD":            107,
+	"XMI_REQUEST_LOGIN_SUB_CMD":              108,
+	"XMI_LOGIN_RESULT_SUB_CMD":               109,
+	"OPPO_REQUEST_LOGIN_SUB_CMD":             110,
+	"OPPO_LOGIN_RESULT_SUB_CMD":              111,
+	"VIVO_REQUEST_LOGIN_SUB_CMD":             112,
+	"VIVO_LOGIN_RESULT_SUB_CMD":              113,
 }
 
 func (x EnSubCmdID) Enum() *EnSubCmdID {
@@ -80,9 +131,11 @@ func (x EnSubCmdID) Enum() *EnSubCmdID {
 	*p = x
 	return p
 }
+
 func (x EnSubCmdID) String() string {
 	return proto.EnumName(EnSubCmdID_name, int32(x))
 }
+
 func (x *EnSubCmdID) UnmarshalJSON(data []byte) error {
 	value, err := proto.UnmarshalJSONEnum(EnSubCmdID_value, data, "EnSubCmdID")
 	if err != nil {
@@ -91,8 +144,9 @@ func (x *EnSubCmdID) UnmarshalJSON(data []byte) error {
 	*x = EnSubCmdID(value)
 	return nil
 }
+
 func (EnSubCmdID) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_LoginSubCmd_c4600421c1ef001a, []int{0}
+	return fileDescriptor_0da59f04006f3232, []int{0}
 }
 
 type EnErrorCode int32
@@ -111,6 +165,9 @@ const (
 	EnErrorCode_ERROR_CODE_CHANGE_DEVICE                EnErrorCode = 10
 	EnErrorCode_ERROR_CODE_CHANGE_DEVICE_TOKEN_TIME_OUT EnErrorCode = 11
 	EnErrorCode_ERROR_CODE_CHANGE_DEVICE_TOKEN_ERROR    EnErrorCode = 12
+	EnErrorCode_ERROR_CODE_VERIFY_CODE_ERROR            EnErrorCode = 13
+	EnErrorCode_ERROR_CODE_MOBILE_EXIST                 EnErrorCode = 14
+	EnErrorCode_ERROR_CODE_MOBILE_TOKEN_INVALID         EnErrorCode = 15
 )
 
 var EnErrorCode_name = map[int32]string{
@@ -127,7 +184,11 @@ var EnErrorCode_name = map[int32]string{
 	10: "ERROR_CODE_CHANGE_DEVICE",
 	11: "ERROR_CODE_CHANGE_DEVICE_TOKEN_TIME_OUT",
 	12: "ERROR_CODE_CHANGE_DEVICE_TOKEN_ERROR",
+	13: "ERROR_CODE_VERIFY_CODE_ERROR",
+	14: "ERROR_CODE_MOBILE_EXIST",
+	15: "ERROR_CODE_MOBILE_TOKEN_INVALID",
 }
+
 var EnErrorCode_value = map[string]int32{
 	"ERROR_CODE_UNKNOWN":                      0,
 	"ERROR_CODE_ACCOUNT":                      1,
@@ -142,6 +203,9 @@ var EnErrorCode_value = map[string]int32{
 	"ERROR_CODE_CHANGE_DEVICE":                10,
 	"ERROR_CODE_CHANGE_DEVICE_TOKEN_TIME_OUT": 11,
 	"ERROR_CODE_CHANGE_DEVICE_TOKEN_ERROR":    12,
+	"ERROR_CODE_VERIFY_CODE_ERROR":            13,
+	"ERROR_CODE_MOBILE_EXIST":                 14,
+	"ERROR_CODE_MOBILE_TOKEN_INVALID":         15,
 }
 
 func (x EnErrorCode) Enum() *EnErrorCode {
@@ -149,9 +213,11 @@ func (x EnErrorCode) Enum() *EnErrorCode {
 	*p = x
 	return p
 }
+
 func (x EnErrorCode) String() string {
 	return proto.EnumName(EnErrorCode_name, int32(x))
 }
+
 func (x *EnErrorCode) UnmarshalJSON(data []byte) error {
 	value, err := proto.UnmarshalJSONEnum(EnErrorCode_value, data, "EnErrorCode")
 	if err != nil {
@@ -160,12 +226,53 @@ func (x *EnErrorCode) UnmarshalJSON(data []byte) error {
 	*x = EnErrorCode(value)
 	return nil
 }
+
 func (EnErrorCode) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_LoginSubCmd_c4600421c1ef001a, []int{1}
+	return fileDescriptor_0da59f04006f3232, []int{1}
 }
 
-// 客服端数据
-// 版本号
+//REQUEST_MOBILE_TOKEN_SUB_CMD						= 1;//获取手机验证码
+type CS_Reques_Monile_Token struct {
+	StrPhoneNum          *string  `protobuf:"bytes,1,opt,name=strPhoneNum" json:"strPhoneNum,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *CS_Reques_Monile_Token) Reset()         { *m = CS_Reques_Monile_Token{} }
+func (m *CS_Reques_Monile_Token) String() string { return proto.CompactTextString(m) }
+func (*CS_Reques_Monile_Token) ProtoMessage()    {}
+func (*CS_Reques_Monile_Token) Descriptor() ([]byte, []int) {
+	return fileDescriptor_0da59f04006f3232, []int{0}
+}
+
+func (m *CS_Reques_Monile_Token) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_CS_Reques_Monile_Token.Unmarshal(m, b)
+}
+func (m *CS_Reques_Monile_Token) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_CS_Reques_Monile_Token.Marshal(b, m, deterministic)
+}
+func (m *CS_Reques_Monile_Token) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CS_Reques_Monile_Token.Merge(m, src)
+}
+func (m *CS_Reques_Monile_Token) XXX_Size() int {
+	return xxx_messageInfo_CS_Reques_Monile_Token.Size(m)
+}
+func (m *CS_Reques_Monile_Token) XXX_DiscardUnknown() {
+	xxx_messageInfo_CS_Reques_Monile_Token.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CS_Reques_Monile_Token proto.InternalMessageInfo
+
+func (m *CS_Reques_Monile_Token) GetStrPhoneNum() string {
+	if m != nil && m.StrPhoneNum != nil {
+		return *m.StrPhoneNum
+	}
+	return ""
+}
+
+//客服端数据
+//版本号
 // subCmd  REQUEST_LOGIN_SUB_CMD
 type LoginRequestInfo struct {
 	Account              *string  `protobuf:"bytes,1,req,name=account" json:"account,omitempty"`
@@ -179,6 +286,8 @@ type LoginRequestInfo struct {
 	ClientIp             *string  `protobuf:"bytes,11,opt,name=clientIp" json:"clientIp,omitempty"`
 	PhoneNumber          *string  `protobuf:"bytes,12,opt,name=phoneNumber" json:"phoneNumber,omitempty"`
 	Token                *string  `protobuf:"bytes,13,opt,name=token" json:"token,omitempty"`
+	StrCode              *string  `protobuf:"bytes,14,opt,name=strCode" json:"strCode,omitempty"`
+	StrVerifyCode        *string  `protobuf:"bytes,15,opt,name=strVerifyCode" json:"strVerifyCode,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -188,16 +297,17 @@ func (m *LoginRequestInfo) Reset()         { *m = LoginRequestInfo{} }
 func (m *LoginRequestInfo) String() string { return proto.CompactTextString(m) }
 func (*LoginRequestInfo) ProtoMessage()    {}
 func (*LoginRequestInfo) Descriptor() ([]byte, []int) {
-	return fileDescriptor_LoginSubCmd_c4600421c1ef001a, []int{0}
+	return fileDescriptor_0da59f04006f3232, []int{1}
 }
+
 func (m *LoginRequestInfo) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_LoginRequestInfo.Unmarshal(m, b)
 }
 func (m *LoginRequestInfo) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_LoginRequestInfo.Marshal(b, m, deterministic)
 }
-func (dst *LoginRequestInfo) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_LoginRequestInfo.Merge(dst, src)
+func (m *LoginRequestInfo) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_LoginRequestInfo.Merge(m, src)
 }
 func (m *LoginRequestInfo) XXX_Size() int {
 	return xxx_messageInfo_LoginRequestInfo.Size(m)
@@ -285,7 +395,21 @@ func (m *LoginRequestInfo) GetToken() string {
 	return ""
 }
 
-// 服务器数据
+func (m *LoginRequestInfo) GetStrCode() string {
+	if m != nil && m.StrCode != nil {
+		return *m.StrCode
+	}
+	return ""
+}
+
+func (m *LoginRequestInfo) GetStrVerifyCode() string {
+	if m != nil && m.StrVerifyCode != nil {
+		return *m.StrVerifyCode
+	}
+	return ""
+}
+
+//服务器数据
 // subCmd  RETURN_LOGININFO_SUB_CMD
 type LoginReturnInfo struct {
 	Userid               *int32   `protobuf:"varint,2,req,name=userid" json:"userid,omitempty"`
@@ -303,16 +427,17 @@ func (m *LoginReturnInfo) Reset()         { *m = LoginReturnInfo{} }
 func (m *LoginReturnInfo) String() string { return proto.CompactTextString(m) }
 func (*LoginReturnInfo) ProtoMessage()    {}
 func (*LoginReturnInfo) Descriptor() ([]byte, []int) {
-	return fileDescriptor_LoginSubCmd_c4600421c1ef001a, []int{1}
+	return fileDescriptor_0da59f04006f3232, []int{2}
 }
+
 func (m *LoginReturnInfo) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_LoginReturnInfo.Unmarshal(m, b)
 }
 func (m *LoginReturnInfo) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_LoginReturnInfo.Marshal(b, m, deterministic)
 }
-func (dst *LoginReturnInfo) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_LoginReturnInfo.Merge(dst, src)
+func (m *LoginReturnInfo) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_LoginReturnInfo.Merge(m, src)
 }
 func (m *LoginReturnInfo) XXX_Size() int {
 	return xxx_messageInfo_LoginReturnInfo.Size(m)
@@ -365,9 +490,10 @@ func (m *LoginReturnInfo) GetAccountType() int32 {
 	return 0
 }
 
-// LOGIN_ERROR_CODE_SUB_CMD
+//LOGIN_ERROR_CODE_SUB_CMD
 type LoginErrorCode struct {
 	Retcode              *EnErrorCode `protobuf:"varint,1,req,name=retcode,enum=LoginSubCmd.EnErrorCode" json:"retcode,omitempty"`
+	UserACCID            *int32       `protobuf:"varint,2,opt,name=UserACCID" json:"UserACCID,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}     `json:"-"`
 	XXX_unrecognized     []byte       `json:"-"`
 	XXX_sizecache        int32        `json:"-"`
@@ -377,16 +503,17 @@ func (m *LoginErrorCode) Reset()         { *m = LoginErrorCode{} }
 func (m *LoginErrorCode) String() string { return proto.CompactTextString(m) }
 func (*LoginErrorCode) ProtoMessage()    {}
 func (*LoginErrorCode) Descriptor() ([]byte, []int) {
-	return fileDescriptor_LoginSubCmd_c4600421c1ef001a, []int{2}
+	return fileDescriptor_0da59f04006f3232, []int{3}
 }
+
 func (m *LoginErrorCode) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_LoginErrorCode.Unmarshal(m, b)
 }
 func (m *LoginErrorCode) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_LoginErrorCode.Marshal(b, m, deterministic)
 }
-func (dst *LoginErrorCode) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_LoginErrorCode.Merge(dst, src)
+func (m *LoginErrorCode) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_LoginErrorCode.Merge(m, src)
 }
 func (m *LoginErrorCode) XXX_Size() int {
 	return xxx_messageInfo_LoginErrorCode.Size(m)
@@ -404,12 +531,20 @@ func (m *LoginErrorCode) GetRetcode() EnErrorCode {
 	return EnErrorCode_ERROR_CODE_UNKNOWN
 }
 
-// VISITOR_REQUEST_LOGIN_SUB_CMD                        = 5;   // 游客登录
+func (m *LoginErrorCode) GetUserACCID() int32 {
+	if m != nil && m.UserACCID != nil {
+		return *m.UserACCID
+	}
+	return 0
+}
+
+//VISITOR_REQUEST_LOGIN_SUB_CMD                        = 5;   // 游客登录
 type CS_Visitor_Request_Login struct {
 	DeviceString         *string  `protobuf:"bytes,1,req,name=deviceString" json:"deviceString,omitempty"`
 	IDevice              *int32   `protobuf:"varint,2,req,name=iDevice" json:"iDevice,omitempty"`
 	Packageflag          *string  `protobuf:"bytes,3,req,name=packageflag" json:"packageflag,omitempty"`
 	ClientIp             *string  `protobuf:"bytes,4,opt,name=clientIp" json:"clientIp,omitempty"`
+	StrVerifyCode        *string  `protobuf:"bytes,5,opt,name=strVerifyCode" json:"strVerifyCode,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -419,16 +554,17 @@ func (m *CS_Visitor_Request_Login) Reset()         { *m = CS_Visitor_Request_Log
 func (m *CS_Visitor_Request_Login) String() string { return proto.CompactTextString(m) }
 func (*CS_Visitor_Request_Login) ProtoMessage()    {}
 func (*CS_Visitor_Request_Login) Descriptor() ([]byte, []int) {
-	return fileDescriptor_LoginSubCmd_c4600421c1ef001a, []int{3}
+	return fileDescriptor_0da59f04006f3232, []int{4}
 }
+
 func (m *CS_Visitor_Request_Login) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CS_Visitor_Request_Login.Unmarshal(m, b)
 }
 func (m *CS_Visitor_Request_Login) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_CS_Visitor_Request_Login.Marshal(b, m, deterministic)
 }
-func (dst *CS_Visitor_Request_Login) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_CS_Visitor_Request_Login.Merge(dst, src)
+func (m *CS_Visitor_Request_Login) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CS_Visitor_Request_Login.Merge(m, src)
 }
 func (m *CS_Visitor_Request_Login) XXX_Size() int {
 	return xxx_messageInfo_CS_Visitor_Request_Login.Size(m)
@@ -467,7 +603,14 @@ func (m *CS_Visitor_Request_Login) GetClientIp() string {
 	return ""
 }
 
-// REQUEST_CREATE_MOBILE_ACCOUNT_SUB_CMD                = 7;   // 手机号注册账号
+func (m *CS_Visitor_Request_Login) GetStrVerifyCode() string {
+	if m != nil && m.StrVerifyCode != nil {
+		return *m.StrVerifyCode
+	}
+	return ""
+}
+
+//REQUEST_CREATE_MOBILE_ACCOUNT_SUB_CMD                = 7;   // 手机号注册账号
 type CS_Request_Mobile_Account struct {
 	PhoneNumber          *string  `protobuf:"bytes,1,req,name=phoneNumber" json:"phoneNumber,omitempty"`
 	Passwd               *string  `protobuf:"bytes,2,req,name=passwd" json:"passwd,omitempty"`
@@ -486,16 +629,17 @@ func (m *CS_Request_Mobile_Account) Reset()         { *m = CS_Request_Mobile_Acc
 func (m *CS_Request_Mobile_Account) String() string { return proto.CompactTextString(m) }
 func (*CS_Request_Mobile_Account) ProtoMessage()    {}
 func (*CS_Request_Mobile_Account) Descriptor() ([]byte, []int) {
-	return fileDescriptor_LoginSubCmd_c4600421c1ef001a, []int{4}
+	return fileDescriptor_0da59f04006f3232, []int{5}
 }
+
 func (m *CS_Request_Mobile_Account) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CS_Request_Mobile_Account.Unmarshal(m, b)
 }
 func (m *CS_Request_Mobile_Account) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_CS_Request_Mobile_Account.Marshal(b, m, deterministic)
 }
-func (dst *CS_Request_Mobile_Account) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_CS_Request_Mobile_Account.Merge(dst, src)
+func (m *CS_Request_Mobile_Account) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CS_Request_Mobile_Account.Merge(m, src)
 }
 func (m *CS_Request_Mobile_Account) XXX_Size() int {
 	return xxx_messageInfo_CS_Request_Mobile_Account.Size(m)
@@ -562,7 +706,7 @@ func (m *CS_Request_Mobile_Account) GetClientIp() string {
 	return ""
 }
 
-// RETURN_CREATE_ACCOUNT_RESULT_SUB_CMD                 = 8;   // 账号注册结果
+//RETURN_CREATE_ACCOUNT_RESULT_SUB_CMD                 = 8;   // 账号注册结果
 type SC_Create_Account_Result struct {
 	RetCode              *int32   `protobuf:"varint,1,req,name=retCode" json:"retCode,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
@@ -574,16 +718,17 @@ func (m *SC_Create_Account_Result) Reset()         { *m = SC_Create_Account_Resu
 func (m *SC_Create_Account_Result) String() string { return proto.CompactTextString(m) }
 func (*SC_Create_Account_Result) ProtoMessage()    {}
 func (*SC_Create_Account_Result) Descriptor() ([]byte, []int) {
-	return fileDescriptor_LoginSubCmd_c4600421c1ef001a, []int{5}
+	return fileDescriptor_0da59f04006f3232, []int{6}
 }
+
 func (m *SC_Create_Account_Result) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_SC_Create_Account_Result.Unmarshal(m, b)
 }
 func (m *SC_Create_Account_Result) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_SC_Create_Account_Result.Marshal(b, m, deterministic)
 }
-func (dst *SC_Create_Account_Result) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_SC_Create_Account_Result.Merge(dst, src)
+func (m *SC_Create_Account_Result) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SC_Create_Account_Result.Merge(m, src)
 }
 func (m *SC_Create_Account_Result) XXX_Size() int {
 	return xxx_messageInfo_SC_Create_Account_Result.Size(m)
@@ -601,7 +746,7 @@ func (m *SC_Create_Account_Result) GetRetCode() int32 {
 	return 0
 }
 
-// RETURN_MOBILE_TOKEN_RESULT_SUB_CMD                   = 9;   // 请求手机验证码发送结果
+//RETURN_MOBILE_TOKEN_RESULT_SUB_CMD                   = 9;   // 请求手机验证码发送结果
 type SC_Request_Mobile_Token_Result struct {
 	RetCode              *int32   `protobuf:"varint,1,req,name=retCode" json:"retCode,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
@@ -613,16 +758,17 @@ func (m *SC_Request_Mobile_Token_Result) Reset()         { *m = SC_Request_Mobil
 func (m *SC_Request_Mobile_Token_Result) String() string { return proto.CompactTextString(m) }
 func (*SC_Request_Mobile_Token_Result) ProtoMessage()    {}
 func (*SC_Request_Mobile_Token_Result) Descriptor() ([]byte, []int) {
-	return fileDescriptor_LoginSubCmd_c4600421c1ef001a, []int{6}
+	return fileDescriptor_0da59f04006f3232, []int{7}
 }
+
 func (m *SC_Request_Mobile_Token_Result) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_SC_Request_Mobile_Token_Result.Unmarshal(m, b)
 }
 func (m *SC_Request_Mobile_Token_Result) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_SC_Request_Mobile_Token_Result.Marshal(b, m, deterministic)
 }
-func (dst *SC_Request_Mobile_Token_Result) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_SC_Request_Mobile_Token_Result.Merge(dst, src)
+func (m *SC_Request_Mobile_Token_Result) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SC_Request_Mobile_Token_Result.Merge(m, src)
 }
 func (m *SC_Request_Mobile_Token_Result) XXX_Size() int {
 	return xxx_messageInfo_SC_Request_Mobile_Token_Result.Size(m)
@@ -640,7 +786,7 @@ func (m *SC_Request_Mobile_Token_Result) GetRetCode() int32 {
 	return 0
 }
 
-// REQUEST_RESET_PASSWD_TOKEN                           = 10;  // 请求重置密码的手机验证码
+//REQUEST_RESET_PASSWD_TOKEN                           = 10;  // 请求重置密码的手机验证码
 type CS_Request_Reset_Passwd_Token struct {
 	Account              *string  `protobuf:"bytes,1,req,name=account" json:"account,omitempty"`
 	PhoneNumber          *string  `protobuf:"bytes,2,req,name=phoneNumber" json:"phoneNumber,omitempty"`
@@ -654,16 +800,17 @@ func (m *CS_Request_Reset_Passwd_Token) Reset()         { *m = CS_Request_Reset_
 func (m *CS_Request_Reset_Passwd_Token) String() string { return proto.CompactTextString(m) }
 func (*CS_Request_Reset_Passwd_Token) ProtoMessage()    {}
 func (*CS_Request_Reset_Passwd_Token) Descriptor() ([]byte, []int) {
-	return fileDescriptor_LoginSubCmd_c4600421c1ef001a, []int{7}
+	return fileDescriptor_0da59f04006f3232, []int{8}
 }
+
 func (m *CS_Request_Reset_Passwd_Token) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CS_Request_Reset_Passwd_Token.Unmarshal(m, b)
 }
 func (m *CS_Request_Reset_Passwd_Token) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_CS_Request_Reset_Passwd_Token.Marshal(b, m, deterministic)
 }
-func (dst *CS_Request_Reset_Passwd_Token) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_CS_Request_Reset_Passwd_Token.Merge(dst, src)
+func (m *CS_Request_Reset_Passwd_Token) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CS_Request_Reset_Passwd_Token.Merge(m, src)
 }
 func (m *CS_Request_Reset_Passwd_Token) XXX_Size() int {
 	return xxx_messageInfo_CS_Request_Reset_Passwd_Token.Size(m)
@@ -695,7 +842,7 @@ func (m *CS_Request_Reset_Passwd_Token) GetPackageflag() string {
 	return ""
 }
 
-// RESET_NEW_PASSWD_SUB_CMD                             = 11;  // 请求重置密码
+//RESET_NEW_PASSWD_SUB_CMD                             = 11;  // 请求重置密码
 type CS_Request_Reset_Passwd struct {
 	Account              *string  `protobuf:"bytes,1,req,name=account" json:"account,omitempty"`
 	PhoneNumber          *string  `protobuf:"bytes,2,req,name=phoneNumber" json:"phoneNumber,omitempty"`
@@ -710,16 +857,17 @@ func (m *CS_Request_Reset_Passwd) Reset()         { *m = CS_Request_Reset_Passwd
 func (m *CS_Request_Reset_Passwd) String() string { return proto.CompactTextString(m) }
 func (*CS_Request_Reset_Passwd) ProtoMessage()    {}
 func (*CS_Request_Reset_Passwd) Descriptor() ([]byte, []int) {
-	return fileDescriptor_LoginSubCmd_c4600421c1ef001a, []int{8}
+	return fileDescriptor_0da59f04006f3232, []int{9}
 }
+
 func (m *CS_Request_Reset_Passwd) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CS_Request_Reset_Passwd.Unmarshal(m, b)
 }
 func (m *CS_Request_Reset_Passwd) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_CS_Request_Reset_Passwd.Marshal(b, m, deterministic)
 }
-func (dst *CS_Request_Reset_Passwd) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_CS_Request_Reset_Passwd.Merge(dst, src)
+func (m *CS_Request_Reset_Passwd) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CS_Request_Reset_Passwd.Merge(m, src)
 }
 func (m *CS_Request_Reset_Passwd) XXX_Size() int {
 	return xxx_messageInfo_CS_Request_Reset_Passwd.Size(m)
@@ -758,7 +906,7 @@ func (m *CS_Request_Reset_Passwd) GetToken() string {
 	return ""
 }
 
-// 	RETURN_RESET_PASSWD_TOKEN                            = 12;  // 请求重置密码的手机验证码结果
+//	RETURN_RESET_PASSWD_TOKEN                            = 12;  // 请求重置密码的手机验证码结果
 type SC_Return_Reset_Passwd_Token_Result struct {
 	RetCode              *int32   `protobuf:"varint,1,req,name=retCode" json:"retCode,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
@@ -770,16 +918,17 @@ func (m *SC_Return_Reset_Passwd_Token_Result) Reset()         { *m = SC_Return_R
 func (m *SC_Return_Reset_Passwd_Token_Result) String() string { return proto.CompactTextString(m) }
 func (*SC_Return_Reset_Passwd_Token_Result) ProtoMessage()    {}
 func (*SC_Return_Reset_Passwd_Token_Result) Descriptor() ([]byte, []int) {
-	return fileDescriptor_LoginSubCmd_c4600421c1ef001a, []int{9}
+	return fileDescriptor_0da59f04006f3232, []int{10}
 }
+
 func (m *SC_Return_Reset_Passwd_Token_Result) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_SC_Return_Reset_Passwd_Token_Result.Unmarshal(m, b)
 }
 func (m *SC_Return_Reset_Passwd_Token_Result) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_SC_Return_Reset_Passwd_Token_Result.Marshal(b, m, deterministic)
 }
-func (dst *SC_Return_Reset_Passwd_Token_Result) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_SC_Return_Reset_Passwd_Token_Result.Merge(dst, src)
+func (m *SC_Return_Reset_Passwd_Token_Result) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SC_Return_Reset_Passwd_Token_Result.Merge(m, src)
 }
 func (m *SC_Return_Reset_Passwd_Token_Result) XXX_Size() int {
 	return xxx_messageInfo_SC_Return_Reset_Passwd_Token_Result.Size(m)
@@ -797,7 +946,7 @@ func (m *SC_Return_Reset_Passwd_Token_Result) GetRetCode() int32 {
 	return 0
 }
 
-// 	RETURN_RESET_NEW_PASSWD_RESULT_SUB_CMD               = 13;  // 请求重置密码结果
+//	RETURN_RESET_NEW_PASSWD_RESULT_SUB_CMD               = 13;  // 请求重置密码结果
 type SC_Return_Reset_New_Passwd_Result struct {
 	RetCode              *int32   `protobuf:"varint,1,req,name=retCode" json:"retCode,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
@@ -809,16 +958,17 @@ func (m *SC_Return_Reset_New_Passwd_Result) Reset()         { *m = SC_Return_Res
 func (m *SC_Return_Reset_New_Passwd_Result) String() string { return proto.CompactTextString(m) }
 func (*SC_Return_Reset_New_Passwd_Result) ProtoMessage()    {}
 func (*SC_Return_Reset_New_Passwd_Result) Descriptor() ([]byte, []int) {
-	return fileDescriptor_LoginSubCmd_c4600421c1ef001a, []int{10}
+	return fileDescriptor_0da59f04006f3232, []int{11}
 }
+
 func (m *SC_Return_Reset_New_Passwd_Result) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_SC_Return_Reset_New_Passwd_Result.Unmarshal(m, b)
 }
 func (m *SC_Return_Reset_New_Passwd_Result) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_SC_Return_Reset_New_Passwd_Result.Marshal(b, m, deterministic)
 }
-func (dst *SC_Return_Reset_New_Passwd_Result) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_SC_Return_Reset_New_Passwd_Result.Merge(dst, src)
+func (m *SC_Return_Reset_New_Passwd_Result) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SC_Return_Reset_New_Passwd_Result.Merge(m, src)
 }
 func (m *SC_Return_Reset_New_Passwd_Result) XXX_Size() int {
 	return xxx_messageInfo_SC_Return_Reset_New_Passwd_Result.Size(m)
@@ -836,7 +986,7 @@ func (m *SC_Return_Reset_New_Passwd_Result) GetRetCode() int32 {
 	return 0
 }
 
-// TECENT_REQUEST_LOGIN_SUB_CMD                         = 14;   // 腾讯账号登录
+//TECENT_REQUEST_LOGIN_SUB_CMD                         = 14;   // 腾讯账号登录
 type CS_Tecent_Request_Login struct {
 	TecentType           *int32   `protobuf:"varint,1,req,name=tecentType" json:"tecentType,omitempty"`
 	Openid               *string  `protobuf:"bytes,2,req,name=openid" json:"openid,omitempty"`
@@ -849,6 +999,9 @@ type CS_Tecent_Request_Login struct {
 	StrFace              *string  `protobuf:"bytes,9,opt,name=strFace" json:"strFace,omitempty"`
 	StrNick              *string  `protobuf:"bytes,10,opt,name=strNick" json:"strNick,omitempty"`
 	ISex                 *int32   `protobuf:"varint,11,opt,name=iSex" json:"iSex,omitempty"`
+	UiSpread             *uint32  `protobuf:"varint,12,opt,name=uiSpread" json:"uiSpread,omitempty"`
+	StrAgentID           *string  `protobuf:"bytes,13,opt,name=strAgentID" json:"strAgentID,omitempty"`
+	StrVerifyCode        *string  `protobuf:"bytes,14,opt,name=strVerifyCode" json:"strVerifyCode,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -858,16 +1011,17 @@ func (m *CS_Tecent_Request_Login) Reset()         { *m = CS_Tecent_Request_Login
 func (m *CS_Tecent_Request_Login) String() string { return proto.CompactTextString(m) }
 func (*CS_Tecent_Request_Login) ProtoMessage()    {}
 func (*CS_Tecent_Request_Login) Descriptor() ([]byte, []int) {
-	return fileDescriptor_LoginSubCmd_c4600421c1ef001a, []int{11}
+	return fileDescriptor_0da59f04006f3232, []int{12}
 }
+
 func (m *CS_Tecent_Request_Login) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CS_Tecent_Request_Login.Unmarshal(m, b)
 }
 func (m *CS_Tecent_Request_Login) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_CS_Tecent_Request_Login.Marshal(b, m, deterministic)
 }
-func (dst *CS_Tecent_Request_Login) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_CS_Tecent_Request_Login.Merge(dst, src)
+func (m *CS_Tecent_Request_Login) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CS_Tecent_Request_Login.Merge(m, src)
 }
 func (m *CS_Tecent_Request_Login) XXX_Size() int {
 	return xxx_messageInfo_CS_Tecent_Request_Login.Size(m)
@@ -955,7 +1109,28 @@ func (m *CS_Tecent_Request_Login) GetISex() int32 {
 	return 0
 }
 
-// TECENT_LOGIN_RESULT_SUB_CMD                          = 15;   // 腾讯账号登录结果
+func (m *CS_Tecent_Request_Login) GetUiSpread() uint32 {
+	if m != nil && m.UiSpread != nil {
+		return *m.UiSpread
+	}
+	return 0
+}
+
+func (m *CS_Tecent_Request_Login) GetStrAgentID() string {
+	if m != nil && m.StrAgentID != nil {
+		return *m.StrAgentID
+	}
+	return ""
+}
+
+func (m *CS_Tecent_Request_Login) GetStrVerifyCode() string {
+	if m != nil && m.StrVerifyCode != nil {
+		return *m.StrVerifyCode
+	}
+	return ""
+}
+
+//TECENT_LOGIN_RESULT_SUB_CMD                          = 15;   // 腾讯账号登录结果
 type SC_Tecent_Lgin_Result struct {
 	Retcode              *EnErrorCode `protobuf:"varint,1,req,name=retcode,enum=LoginSubCmd.EnErrorCode" json:"retcode,omitempty"`
 	Account              *string      `protobuf:"bytes,2,opt,name=account" json:"account,omitempty"`
@@ -969,16 +1144,17 @@ func (m *SC_Tecent_Lgin_Result) Reset()         { *m = SC_Tecent_Lgin_Result{} }
 func (m *SC_Tecent_Lgin_Result) String() string { return proto.CompactTextString(m) }
 func (*SC_Tecent_Lgin_Result) ProtoMessage()    {}
 func (*SC_Tecent_Lgin_Result) Descriptor() ([]byte, []int) {
-	return fileDescriptor_LoginSubCmd_c4600421c1ef001a, []int{12}
+	return fileDescriptor_0da59f04006f3232, []int{13}
 }
+
 func (m *SC_Tecent_Lgin_Result) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_SC_Tecent_Lgin_Result.Unmarshal(m, b)
 }
 func (m *SC_Tecent_Lgin_Result) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_SC_Tecent_Lgin_Result.Marshal(b, m, deterministic)
 }
-func (dst *SC_Tecent_Lgin_Result) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_SC_Tecent_Lgin_Result.Merge(dst, src)
+func (m *SC_Tecent_Lgin_Result) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SC_Tecent_Lgin_Result.Merge(m, src)
 }
 func (m *SC_Tecent_Lgin_Result) XXX_Size() int {
 	return xxx_messageInfo_SC_Tecent_Lgin_Result.Size(m)
@@ -1011,7 +1187,7 @@ func (m *SC_Tecent_Lgin_Result) GetToken() string {
 }
 
 // 更换设备登录 获取验证码
-// REQUEST_CHANGE_DEVICE_TOKEN                          = 16;   // 设备变化 请求验证码
+//REQUEST_CHANGE_DEVICE_TOKEN                          = 16;   // 设备变化 请求验证码
 type CS_Request_Change_Device_Token struct {
 	Account              *string  `protobuf:"bytes,1,req,name=account" json:"account,omitempty"`
 	PhoneNumber          *string  `protobuf:"bytes,2,req,name=phoneNumber" json:"phoneNumber,omitempty"`
@@ -1025,16 +1201,17 @@ func (m *CS_Request_Change_Device_Token) Reset()         { *m = CS_Request_Chang
 func (m *CS_Request_Change_Device_Token) String() string { return proto.CompactTextString(m) }
 func (*CS_Request_Change_Device_Token) ProtoMessage()    {}
 func (*CS_Request_Change_Device_Token) Descriptor() ([]byte, []int) {
-	return fileDescriptor_LoginSubCmd_c4600421c1ef001a, []int{13}
+	return fileDescriptor_0da59f04006f3232, []int{14}
 }
+
 func (m *CS_Request_Change_Device_Token) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CS_Request_Change_Device_Token.Unmarshal(m, b)
 }
 func (m *CS_Request_Change_Device_Token) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_CS_Request_Change_Device_Token.Marshal(b, m, deterministic)
 }
-func (dst *CS_Request_Change_Device_Token) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_CS_Request_Change_Device_Token.Merge(dst, src)
+func (m *CS_Request_Change_Device_Token) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CS_Request_Change_Device_Token.Merge(m, src)
 }
 func (m *CS_Request_Change_Device_Token) XXX_Size() int {
 	return xxx_messageInfo_CS_Request_Change_Device_Token.Size(m)
@@ -1079,16 +1256,17 @@ func (m *SC_Return_Change_Device_Token) Reset()         { *m = SC_Return_Change_
 func (m *SC_Return_Change_Device_Token) String() string { return proto.CompactTextString(m) }
 func (*SC_Return_Change_Device_Token) ProtoMessage()    {}
 func (*SC_Return_Change_Device_Token) Descriptor() ([]byte, []int) {
-	return fileDescriptor_LoginSubCmd_c4600421c1ef001a, []int{14}
+	return fileDescriptor_0da59f04006f3232, []int{15}
 }
+
 func (m *SC_Return_Change_Device_Token) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_SC_Return_Change_Device_Token.Unmarshal(m, b)
 }
 func (m *SC_Return_Change_Device_Token) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_SC_Return_Change_Device_Token.Marshal(b, m, deterministic)
 }
-func (dst *SC_Return_Change_Device_Token) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_SC_Return_Change_Device_Token.Merge(dst, src)
+func (m *SC_Return_Change_Device_Token) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SC_Return_Change_Device_Token.Merge(m, src)
 }
 func (m *SC_Return_Change_Device_Token) XXX_Size() int {
 	return xxx_messageInfo_SC_Return_Change_Device_Token.Size(m)
@@ -1113,7 +1291,1122 @@ func (m *SC_Return_Change_Device_Token) GetPhoneNumber() string {
 	return ""
 }
 
+//OPENTC_REQUEST_LOGIN_SUB_CMD   // 应用包账号登录
+type CS_Opentc_Request_Login struct {
+	LoginType            *int32   `protobuf:"varint,1,req,name=loginType" json:"loginType,omitempty"`
+	Accesstoken          *string  `protobuf:"bytes,2,req,name=accesstoken" json:"accesstoken,omitempty"`
+	Openid               *string  `protobuf:"bytes,3,req,name=openid" json:"openid,omitempty"`
+	DeviceString         *string  `protobuf:"bytes,4,req,name=deviceString" json:"deviceString,omitempty"`
+	IDevice              *int32   `protobuf:"varint,5,req,name=iDevice" json:"iDevice,omitempty"`
+	Packageflag          *string  `protobuf:"bytes,6,req,name=packageflag" json:"packageflag,omitempty"`
+	ClientIp             *string  `protobuf:"bytes,7,opt,name=clientIp" json:"clientIp,omitempty"`
+	UiSpread             *uint32  `protobuf:"varint,8,opt,name=uiSpread" json:"uiSpread,omitempty"`
+	StrFace              *string  `protobuf:"bytes,9,opt,name=strFace" json:"strFace,omitempty"`
+	StrNick              *string  `protobuf:"bytes,10,opt,name=strNick" json:"strNick,omitempty"`
+	ISex                 *int32   `protobuf:"varint,11,opt,name=iSex" json:"iSex,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *CS_Opentc_Request_Login) Reset()         { *m = CS_Opentc_Request_Login{} }
+func (m *CS_Opentc_Request_Login) String() string { return proto.CompactTextString(m) }
+func (*CS_Opentc_Request_Login) ProtoMessage()    {}
+func (*CS_Opentc_Request_Login) Descriptor() ([]byte, []int) {
+	return fileDescriptor_0da59f04006f3232, []int{16}
+}
+
+func (m *CS_Opentc_Request_Login) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_CS_Opentc_Request_Login.Unmarshal(m, b)
+}
+func (m *CS_Opentc_Request_Login) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_CS_Opentc_Request_Login.Marshal(b, m, deterministic)
+}
+func (m *CS_Opentc_Request_Login) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CS_Opentc_Request_Login.Merge(m, src)
+}
+func (m *CS_Opentc_Request_Login) XXX_Size() int {
+	return xxx_messageInfo_CS_Opentc_Request_Login.Size(m)
+}
+func (m *CS_Opentc_Request_Login) XXX_DiscardUnknown() {
+	xxx_messageInfo_CS_Opentc_Request_Login.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CS_Opentc_Request_Login proto.InternalMessageInfo
+
+func (m *CS_Opentc_Request_Login) GetLoginType() int32 {
+	if m != nil && m.LoginType != nil {
+		return *m.LoginType
+	}
+	return 0
+}
+
+func (m *CS_Opentc_Request_Login) GetAccesstoken() string {
+	if m != nil && m.Accesstoken != nil {
+		return *m.Accesstoken
+	}
+	return ""
+}
+
+func (m *CS_Opentc_Request_Login) GetOpenid() string {
+	if m != nil && m.Openid != nil {
+		return *m.Openid
+	}
+	return ""
+}
+
+func (m *CS_Opentc_Request_Login) GetDeviceString() string {
+	if m != nil && m.DeviceString != nil {
+		return *m.DeviceString
+	}
+	return ""
+}
+
+func (m *CS_Opentc_Request_Login) GetIDevice() int32 {
+	if m != nil && m.IDevice != nil {
+		return *m.IDevice
+	}
+	return 0
+}
+
+func (m *CS_Opentc_Request_Login) GetPackageflag() string {
+	if m != nil && m.Packageflag != nil {
+		return *m.Packageflag
+	}
+	return ""
+}
+
+func (m *CS_Opentc_Request_Login) GetClientIp() string {
+	if m != nil && m.ClientIp != nil {
+		return *m.ClientIp
+	}
+	return ""
+}
+
+func (m *CS_Opentc_Request_Login) GetUiSpread() uint32 {
+	if m != nil && m.UiSpread != nil {
+		return *m.UiSpread
+	}
+	return 0
+}
+
+func (m *CS_Opentc_Request_Login) GetStrFace() string {
+	if m != nil && m.StrFace != nil {
+		return *m.StrFace
+	}
+	return ""
+}
+
+func (m *CS_Opentc_Request_Login) GetStrNick() string {
+	if m != nil && m.StrNick != nil {
+		return *m.StrNick
+	}
+	return ""
+}
+
+func (m *CS_Opentc_Request_Login) GetISex() int32 {
+	if m != nil && m.ISex != nil {
+		return *m.ISex
+	}
+	return 0
+}
+
+//OPENTC_LOGIN_RESULT_SUB_CMD  // 应用包账号登录结果
+type SC_Opentc_Lgin_Result struct {
+	Retcode              *EnErrorCode `protobuf:"varint,1,req,name=retcode,enum=LoginSubCmd.EnErrorCode" json:"retcode,omitempty"`
+	Account              *string      `protobuf:"bytes,2,opt,name=account" json:"account,omitempty"`
+	Token                *string      `protobuf:"bytes,3,opt,name=token" json:"token,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}     `json:"-"`
+	XXX_unrecognized     []byte       `json:"-"`
+	XXX_sizecache        int32        `json:"-"`
+}
+
+func (m *SC_Opentc_Lgin_Result) Reset()         { *m = SC_Opentc_Lgin_Result{} }
+func (m *SC_Opentc_Lgin_Result) String() string { return proto.CompactTextString(m) }
+func (*SC_Opentc_Lgin_Result) ProtoMessage()    {}
+func (*SC_Opentc_Lgin_Result) Descriptor() ([]byte, []int) {
+	return fileDescriptor_0da59f04006f3232, []int{17}
+}
+
+func (m *SC_Opentc_Lgin_Result) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_SC_Opentc_Lgin_Result.Unmarshal(m, b)
+}
+func (m *SC_Opentc_Lgin_Result) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_SC_Opentc_Lgin_Result.Marshal(b, m, deterministic)
+}
+func (m *SC_Opentc_Lgin_Result) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SC_Opentc_Lgin_Result.Merge(m, src)
+}
+func (m *SC_Opentc_Lgin_Result) XXX_Size() int {
+	return xxx_messageInfo_SC_Opentc_Lgin_Result.Size(m)
+}
+func (m *SC_Opentc_Lgin_Result) XXX_DiscardUnknown() {
+	xxx_messageInfo_SC_Opentc_Lgin_Result.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SC_Opentc_Lgin_Result proto.InternalMessageInfo
+
+func (m *SC_Opentc_Lgin_Result) GetRetcode() EnErrorCode {
+	if m != nil && m.Retcode != nil {
+		return *m.Retcode
+	}
+	return EnErrorCode_ERROR_CODE_UNKNOWN
+}
+
+func (m *SC_Opentc_Lgin_Result) GetAccount() string {
+	if m != nil && m.Account != nil {
+		return *m.Account
+	}
+	return ""
+}
+
+func (m *SC_Opentc_Lgin_Result) GetToken() string {
+	if m != nil && m.Token != nil {
+		return *m.Token
+	}
+	return ""
+}
+
+//QH360_REQUEST_LOGIN_SUB_CMD   // 360账号登录
+type CS_QH360_Request_Login struct {
+	LoginType            *int32   `protobuf:"varint,1,req,name=loginType" json:"loginType,omitempty"`
+	Token                *string  `protobuf:"bytes,2,req,name=token" json:"token,omitempty"`
+	DeviceString         *string  `protobuf:"bytes,3,req,name=deviceString" json:"deviceString,omitempty"`
+	IDevice              *int32   `protobuf:"varint,4,req,name=iDevice" json:"iDevice,omitempty"`
+	Packageflag          *string  `protobuf:"bytes,5,req,name=packageflag" json:"packageflag,omitempty"`
+	ClientIp             *string  `protobuf:"bytes,6,opt,name=clientIp" json:"clientIp,omitempty"`
+	UiSpread             *uint32  `protobuf:"varint,7,opt,name=uiSpread" json:"uiSpread,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *CS_QH360_Request_Login) Reset()         { *m = CS_QH360_Request_Login{} }
+func (m *CS_QH360_Request_Login) String() string { return proto.CompactTextString(m) }
+func (*CS_QH360_Request_Login) ProtoMessage()    {}
+func (*CS_QH360_Request_Login) Descriptor() ([]byte, []int) {
+	return fileDescriptor_0da59f04006f3232, []int{18}
+}
+
+func (m *CS_QH360_Request_Login) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_CS_QH360_Request_Login.Unmarshal(m, b)
+}
+func (m *CS_QH360_Request_Login) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_CS_QH360_Request_Login.Marshal(b, m, deterministic)
+}
+func (m *CS_QH360_Request_Login) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CS_QH360_Request_Login.Merge(m, src)
+}
+func (m *CS_QH360_Request_Login) XXX_Size() int {
+	return xxx_messageInfo_CS_QH360_Request_Login.Size(m)
+}
+func (m *CS_QH360_Request_Login) XXX_DiscardUnknown() {
+	xxx_messageInfo_CS_QH360_Request_Login.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CS_QH360_Request_Login proto.InternalMessageInfo
+
+func (m *CS_QH360_Request_Login) GetLoginType() int32 {
+	if m != nil && m.LoginType != nil {
+		return *m.LoginType
+	}
+	return 0
+}
+
+func (m *CS_QH360_Request_Login) GetToken() string {
+	if m != nil && m.Token != nil {
+		return *m.Token
+	}
+	return ""
+}
+
+func (m *CS_QH360_Request_Login) GetDeviceString() string {
+	if m != nil && m.DeviceString != nil {
+		return *m.DeviceString
+	}
+	return ""
+}
+
+func (m *CS_QH360_Request_Login) GetIDevice() int32 {
+	if m != nil && m.IDevice != nil {
+		return *m.IDevice
+	}
+	return 0
+}
+
+func (m *CS_QH360_Request_Login) GetPackageflag() string {
+	if m != nil && m.Packageflag != nil {
+		return *m.Packageflag
+	}
+	return ""
+}
+
+func (m *CS_QH360_Request_Login) GetClientIp() string {
+	if m != nil && m.ClientIp != nil {
+		return *m.ClientIp
+	}
+	return ""
+}
+
+func (m *CS_QH360_Request_Login) GetUiSpread() uint32 {
+	if m != nil && m.UiSpread != nil {
+		return *m.UiSpread
+	}
+	return 0
+}
+
+//QH360_LOGIN_RESULT_SUB_CMD  // 360账号登录结果
+type SC_QH360_Lgin_Result struct {
+	Retcode              *EnErrorCode `protobuf:"varint,1,req,name=retcode,enum=LoginSubCmd.EnErrorCode" json:"retcode,omitempty"`
+	Account              *string      `protobuf:"bytes,2,opt,name=account" json:"account,omitempty"`
+	Token                *string      `protobuf:"bytes,3,opt,name=token" json:"token,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}     `json:"-"`
+	XXX_unrecognized     []byte       `json:"-"`
+	XXX_sizecache        int32        `json:"-"`
+}
+
+func (m *SC_QH360_Lgin_Result) Reset()         { *m = SC_QH360_Lgin_Result{} }
+func (m *SC_QH360_Lgin_Result) String() string { return proto.CompactTextString(m) }
+func (*SC_QH360_Lgin_Result) ProtoMessage()    {}
+func (*SC_QH360_Lgin_Result) Descriptor() ([]byte, []int) {
+	return fileDescriptor_0da59f04006f3232, []int{19}
+}
+
+func (m *SC_QH360_Lgin_Result) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_SC_QH360_Lgin_Result.Unmarshal(m, b)
+}
+func (m *SC_QH360_Lgin_Result) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_SC_QH360_Lgin_Result.Marshal(b, m, deterministic)
+}
+func (m *SC_QH360_Lgin_Result) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SC_QH360_Lgin_Result.Merge(m, src)
+}
+func (m *SC_QH360_Lgin_Result) XXX_Size() int {
+	return xxx_messageInfo_SC_QH360_Lgin_Result.Size(m)
+}
+func (m *SC_QH360_Lgin_Result) XXX_DiscardUnknown() {
+	xxx_messageInfo_SC_QH360_Lgin_Result.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SC_QH360_Lgin_Result proto.InternalMessageInfo
+
+func (m *SC_QH360_Lgin_Result) GetRetcode() EnErrorCode {
+	if m != nil && m.Retcode != nil {
+		return *m.Retcode
+	}
+	return EnErrorCode_ERROR_CODE_UNKNOWN
+}
+
+func (m *SC_QH360_Lgin_Result) GetAccount() string {
+	if m != nil && m.Account != nil {
+		return *m.Account
+	}
+	return ""
+}
+
+func (m *SC_QH360_Lgin_Result) GetToken() string {
+	if m != nil && m.Token != nil {
+		return *m.Token
+	}
+	return ""
+}
+
+//BaiDu_REQUEST_LOGIN_SUB_CMD            百度账号登录
+type CS_BaiDu_Request_Login struct {
+	LoginType            *int32   `protobuf:"varint,1,req,name=loginType" json:"loginType,omitempty"`
+	Token                *string  `protobuf:"bytes,2,req,name=token" json:"token,omitempty"`
+	Uid                  *string  `protobuf:"bytes,3,req,name=uid" json:"uid,omitempty"`
+	DeviceString         *string  `protobuf:"bytes,4,req,name=deviceString" json:"deviceString,omitempty"`
+	IDevice              *int32   `protobuf:"varint,5,req,name=iDevice" json:"iDevice,omitempty"`
+	Packageflag          *string  `protobuf:"bytes,6,req,name=packageflag" json:"packageflag,omitempty"`
+	ClientIp             *string  `protobuf:"bytes,7,opt,name=clientIp" json:"clientIp,omitempty"`
+	UiSpread             *uint32  `protobuf:"varint,8,opt,name=uiSpread" json:"uiSpread,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *CS_BaiDu_Request_Login) Reset()         { *m = CS_BaiDu_Request_Login{} }
+func (m *CS_BaiDu_Request_Login) String() string { return proto.CompactTextString(m) }
+func (*CS_BaiDu_Request_Login) ProtoMessage()    {}
+func (*CS_BaiDu_Request_Login) Descriptor() ([]byte, []int) {
+	return fileDescriptor_0da59f04006f3232, []int{20}
+}
+
+func (m *CS_BaiDu_Request_Login) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_CS_BaiDu_Request_Login.Unmarshal(m, b)
+}
+func (m *CS_BaiDu_Request_Login) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_CS_BaiDu_Request_Login.Marshal(b, m, deterministic)
+}
+func (m *CS_BaiDu_Request_Login) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CS_BaiDu_Request_Login.Merge(m, src)
+}
+func (m *CS_BaiDu_Request_Login) XXX_Size() int {
+	return xxx_messageInfo_CS_BaiDu_Request_Login.Size(m)
+}
+func (m *CS_BaiDu_Request_Login) XXX_DiscardUnknown() {
+	xxx_messageInfo_CS_BaiDu_Request_Login.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CS_BaiDu_Request_Login proto.InternalMessageInfo
+
+func (m *CS_BaiDu_Request_Login) GetLoginType() int32 {
+	if m != nil && m.LoginType != nil {
+		return *m.LoginType
+	}
+	return 0
+}
+
+func (m *CS_BaiDu_Request_Login) GetToken() string {
+	if m != nil && m.Token != nil {
+		return *m.Token
+	}
+	return ""
+}
+
+func (m *CS_BaiDu_Request_Login) GetUid() string {
+	if m != nil && m.Uid != nil {
+		return *m.Uid
+	}
+	return ""
+}
+
+func (m *CS_BaiDu_Request_Login) GetDeviceString() string {
+	if m != nil && m.DeviceString != nil {
+		return *m.DeviceString
+	}
+	return ""
+}
+
+func (m *CS_BaiDu_Request_Login) GetIDevice() int32 {
+	if m != nil && m.IDevice != nil {
+		return *m.IDevice
+	}
+	return 0
+}
+
+func (m *CS_BaiDu_Request_Login) GetPackageflag() string {
+	if m != nil && m.Packageflag != nil {
+		return *m.Packageflag
+	}
+	return ""
+}
+
+func (m *CS_BaiDu_Request_Login) GetClientIp() string {
+	if m != nil && m.ClientIp != nil {
+		return *m.ClientIp
+	}
+	return ""
+}
+
+func (m *CS_BaiDu_Request_Login) GetUiSpread() uint32 {
+	if m != nil && m.UiSpread != nil {
+		return *m.UiSpread
+	}
+	return 0
+}
+
+//BaiDu_LOGIN_RESULT_SUB_CMD             百度账号登录结果
+type SC_BaiDu_Lgin_Result struct {
+	Retcode              *EnErrorCode `protobuf:"varint,1,req,name=retcode,enum=LoginSubCmd.EnErrorCode" json:"retcode,omitempty"`
+	Account              *string      `protobuf:"bytes,2,opt,name=account" json:"account,omitempty"`
+	Token                *string      `protobuf:"bytes,3,opt,name=token" json:"token,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}     `json:"-"`
+	XXX_unrecognized     []byte       `json:"-"`
+	XXX_sizecache        int32        `json:"-"`
+}
+
+func (m *SC_BaiDu_Lgin_Result) Reset()         { *m = SC_BaiDu_Lgin_Result{} }
+func (m *SC_BaiDu_Lgin_Result) String() string { return proto.CompactTextString(m) }
+func (*SC_BaiDu_Lgin_Result) ProtoMessage()    {}
+func (*SC_BaiDu_Lgin_Result) Descriptor() ([]byte, []int) {
+	return fileDescriptor_0da59f04006f3232, []int{21}
+}
+
+func (m *SC_BaiDu_Lgin_Result) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_SC_BaiDu_Lgin_Result.Unmarshal(m, b)
+}
+func (m *SC_BaiDu_Lgin_Result) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_SC_BaiDu_Lgin_Result.Marshal(b, m, deterministic)
+}
+func (m *SC_BaiDu_Lgin_Result) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SC_BaiDu_Lgin_Result.Merge(m, src)
+}
+func (m *SC_BaiDu_Lgin_Result) XXX_Size() int {
+	return xxx_messageInfo_SC_BaiDu_Lgin_Result.Size(m)
+}
+func (m *SC_BaiDu_Lgin_Result) XXX_DiscardUnknown() {
+	xxx_messageInfo_SC_BaiDu_Lgin_Result.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SC_BaiDu_Lgin_Result proto.InternalMessageInfo
+
+func (m *SC_BaiDu_Lgin_Result) GetRetcode() EnErrorCode {
+	if m != nil && m.Retcode != nil {
+		return *m.Retcode
+	}
+	return EnErrorCode_ERROR_CODE_UNKNOWN
+}
+
+func (m *SC_BaiDu_Lgin_Result) GetAccount() string {
+	if m != nil && m.Account != nil {
+		return *m.Account
+	}
+	return ""
+}
+
+func (m *SC_BaiDu_Lgin_Result) GetToken() string {
+	if m != nil && m.Token != nil {
+		return *m.Token
+	}
+	return ""
+}
+
+//HUAWEI_REQUEST_LOGIN_SUB_CMD	//华为帐号登录
+type CS_HW_Request_Login struct {
+	ILoginType           *int32   `protobuf:"varint,1,req,name=iLoginType" json:"iLoginType,omitempty"`
+	StrToken             *string  `protobuf:"bytes,2,req,name=strToken" json:"strToken,omitempty"`
+	StrTs                *string  `protobuf:"bytes,3,opt,name=strTs" json:"strTs,omitempty"`
+	StrPlayID            *string  `protobuf:"bytes,4,req,name=strPlayID" json:"strPlayID,omitempty"`
+	StrPlayerLevel       *string  `protobuf:"bytes,5,opt,name=strPlayerLevel" json:"strPlayerLevel,omitempty"`
+	StrPlayerSSign       *string  `protobuf:"bytes,6,opt,name=strPlayerSSign" json:"strPlayerSSign,omitempty"`
+	StrName              *string  `protobuf:"bytes,7,req,name=strName" json:"strName,omitempty"`
+	StrDevice            *string  `protobuf:"bytes,8,req,name=strDevice" json:"strDevice,omitempty"`
+	IDevice              *int32   `protobuf:"varint,9,req,name=iDevice" json:"iDevice,omitempty"`
+	Packageflag          *string  `protobuf:"bytes,10,req,name=packageflag" json:"packageflag,omitempty"`
+	ClientIp             *string  `protobuf:"bytes,11,opt,name=clientIp" json:"clientIp,omitempty"`
+	UiSpread             *uint32  `protobuf:"varint,12,opt,name=uiSpread" json:"uiSpread,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *CS_HW_Request_Login) Reset()         { *m = CS_HW_Request_Login{} }
+func (m *CS_HW_Request_Login) String() string { return proto.CompactTextString(m) }
+func (*CS_HW_Request_Login) ProtoMessage()    {}
+func (*CS_HW_Request_Login) Descriptor() ([]byte, []int) {
+	return fileDescriptor_0da59f04006f3232, []int{22}
+}
+
+func (m *CS_HW_Request_Login) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_CS_HW_Request_Login.Unmarshal(m, b)
+}
+func (m *CS_HW_Request_Login) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_CS_HW_Request_Login.Marshal(b, m, deterministic)
+}
+func (m *CS_HW_Request_Login) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CS_HW_Request_Login.Merge(m, src)
+}
+func (m *CS_HW_Request_Login) XXX_Size() int {
+	return xxx_messageInfo_CS_HW_Request_Login.Size(m)
+}
+func (m *CS_HW_Request_Login) XXX_DiscardUnknown() {
+	xxx_messageInfo_CS_HW_Request_Login.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CS_HW_Request_Login proto.InternalMessageInfo
+
+func (m *CS_HW_Request_Login) GetILoginType() int32 {
+	if m != nil && m.ILoginType != nil {
+		return *m.ILoginType
+	}
+	return 0
+}
+
+func (m *CS_HW_Request_Login) GetStrToken() string {
+	if m != nil && m.StrToken != nil {
+		return *m.StrToken
+	}
+	return ""
+}
+
+func (m *CS_HW_Request_Login) GetStrTs() string {
+	if m != nil && m.StrTs != nil {
+		return *m.StrTs
+	}
+	return ""
+}
+
+func (m *CS_HW_Request_Login) GetStrPlayID() string {
+	if m != nil && m.StrPlayID != nil {
+		return *m.StrPlayID
+	}
+	return ""
+}
+
+func (m *CS_HW_Request_Login) GetStrPlayerLevel() string {
+	if m != nil && m.StrPlayerLevel != nil {
+		return *m.StrPlayerLevel
+	}
+	return ""
+}
+
+func (m *CS_HW_Request_Login) GetStrPlayerSSign() string {
+	if m != nil && m.StrPlayerSSign != nil {
+		return *m.StrPlayerSSign
+	}
+	return ""
+}
+
+func (m *CS_HW_Request_Login) GetStrName() string {
+	if m != nil && m.StrName != nil {
+		return *m.StrName
+	}
+	return ""
+}
+
+func (m *CS_HW_Request_Login) GetStrDevice() string {
+	if m != nil && m.StrDevice != nil {
+		return *m.StrDevice
+	}
+	return ""
+}
+
+func (m *CS_HW_Request_Login) GetIDevice() int32 {
+	if m != nil && m.IDevice != nil {
+		return *m.IDevice
+	}
+	return 0
+}
+
+func (m *CS_HW_Request_Login) GetPackageflag() string {
+	if m != nil && m.Packageflag != nil {
+		return *m.Packageflag
+	}
+	return ""
+}
+
+func (m *CS_HW_Request_Login) GetClientIp() string {
+	if m != nil && m.ClientIp != nil {
+		return *m.ClientIp
+	}
+	return ""
+}
+
+func (m *CS_HW_Request_Login) GetUiSpread() uint32 {
+	if m != nil && m.UiSpread != nil {
+		return *m.UiSpread
+	}
+	return 0
+}
+
+//HUAWEI_LOGIN_RESULT_SUB_CMD	//华为帐号登录结果
+type SC_HW_Login_Result struct {
+	Retcode              *EnErrorCode `protobuf:"varint,1,req,name=retcode,enum=LoginSubCmd.EnErrorCode" json:"retcode,omitempty"`
+	StrToken             *string      `protobuf:"bytes,2,opt,name=strToken" json:"strToken,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}     `json:"-"`
+	XXX_unrecognized     []byte       `json:"-"`
+	XXX_sizecache        int32        `json:"-"`
+}
+
+func (m *SC_HW_Login_Result) Reset()         { *m = SC_HW_Login_Result{} }
+func (m *SC_HW_Login_Result) String() string { return proto.CompactTextString(m) }
+func (*SC_HW_Login_Result) ProtoMessage()    {}
+func (*SC_HW_Login_Result) Descriptor() ([]byte, []int) {
+	return fileDescriptor_0da59f04006f3232, []int{23}
+}
+
+func (m *SC_HW_Login_Result) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_SC_HW_Login_Result.Unmarshal(m, b)
+}
+func (m *SC_HW_Login_Result) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_SC_HW_Login_Result.Marshal(b, m, deterministic)
+}
+func (m *SC_HW_Login_Result) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SC_HW_Login_Result.Merge(m, src)
+}
+func (m *SC_HW_Login_Result) XXX_Size() int {
+	return xxx_messageInfo_SC_HW_Login_Result.Size(m)
+}
+func (m *SC_HW_Login_Result) XXX_DiscardUnknown() {
+	xxx_messageInfo_SC_HW_Login_Result.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SC_HW_Login_Result proto.InternalMessageInfo
+
+func (m *SC_HW_Login_Result) GetRetcode() EnErrorCode {
+	if m != nil && m.Retcode != nil {
+		return *m.Retcode
+	}
+	return EnErrorCode_ERROR_CODE_UNKNOWN
+}
+
+func (m *SC_HW_Login_Result) GetStrToken() string {
+	if m != nil && m.StrToken != nil {
+		return *m.StrToken
+	}
+	return ""
+}
+
+//XMI_REQUEST_LOGIN_SUB_CMD			 // 小米帐号登录
+type CS_XMI_Request_Login struct {
+	LoginType            *int32   `protobuf:"varint,1,req,name=loginType" json:"loginType,omitempty"`
+	Token                *string  `protobuf:"bytes,2,req,name=token" json:"token,omitempty"`
+	Uid                  *string  `protobuf:"bytes,3,req,name=uid" json:"uid,omitempty"`
+	DeviceString         *string  `protobuf:"bytes,4,req,name=deviceString" json:"deviceString,omitempty"`
+	IDevice              *int32   `protobuf:"varint,5,req,name=iDevice" json:"iDevice,omitempty"`
+	Packageflag          *string  `protobuf:"bytes,6,req,name=packageflag" json:"packageflag,omitempty"`
+	ClientIp             *string  `protobuf:"bytes,7,opt,name=clientIp" json:"clientIp,omitempty"`
+	UiSpread             *uint32  `protobuf:"varint,8,opt,name=uiSpread" json:"uiSpread,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *CS_XMI_Request_Login) Reset()         { *m = CS_XMI_Request_Login{} }
+func (m *CS_XMI_Request_Login) String() string { return proto.CompactTextString(m) }
+func (*CS_XMI_Request_Login) ProtoMessage()    {}
+func (*CS_XMI_Request_Login) Descriptor() ([]byte, []int) {
+	return fileDescriptor_0da59f04006f3232, []int{24}
+}
+
+func (m *CS_XMI_Request_Login) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_CS_XMI_Request_Login.Unmarshal(m, b)
+}
+func (m *CS_XMI_Request_Login) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_CS_XMI_Request_Login.Marshal(b, m, deterministic)
+}
+func (m *CS_XMI_Request_Login) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CS_XMI_Request_Login.Merge(m, src)
+}
+func (m *CS_XMI_Request_Login) XXX_Size() int {
+	return xxx_messageInfo_CS_XMI_Request_Login.Size(m)
+}
+func (m *CS_XMI_Request_Login) XXX_DiscardUnknown() {
+	xxx_messageInfo_CS_XMI_Request_Login.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CS_XMI_Request_Login proto.InternalMessageInfo
+
+func (m *CS_XMI_Request_Login) GetLoginType() int32 {
+	if m != nil && m.LoginType != nil {
+		return *m.LoginType
+	}
+	return 0
+}
+
+func (m *CS_XMI_Request_Login) GetToken() string {
+	if m != nil && m.Token != nil {
+		return *m.Token
+	}
+	return ""
+}
+
+func (m *CS_XMI_Request_Login) GetUid() string {
+	if m != nil && m.Uid != nil {
+		return *m.Uid
+	}
+	return ""
+}
+
+func (m *CS_XMI_Request_Login) GetDeviceString() string {
+	if m != nil && m.DeviceString != nil {
+		return *m.DeviceString
+	}
+	return ""
+}
+
+func (m *CS_XMI_Request_Login) GetIDevice() int32 {
+	if m != nil && m.IDevice != nil {
+		return *m.IDevice
+	}
+	return 0
+}
+
+func (m *CS_XMI_Request_Login) GetPackageflag() string {
+	if m != nil && m.Packageflag != nil {
+		return *m.Packageflag
+	}
+	return ""
+}
+
+func (m *CS_XMI_Request_Login) GetClientIp() string {
+	if m != nil && m.ClientIp != nil {
+		return *m.ClientIp
+	}
+	return ""
+}
+
+func (m *CS_XMI_Request_Login) GetUiSpread() uint32 {
+	if m != nil && m.UiSpread != nil {
+		return *m.UiSpread
+	}
+	return 0
+}
+
+//XMI_LOGIN_RESULT_SUB_CMD						 // 小米帐号登录结果
+type SC_XMI_Lgin_Result struct {
+	Retcode              *EnErrorCode `protobuf:"varint,1,req,name=retcode,enum=LoginSubCmd.EnErrorCode" json:"retcode,omitempty"`
+	Account              *string      `protobuf:"bytes,2,opt,name=account" json:"account,omitempty"`
+	Token                *string      `protobuf:"bytes,3,opt,name=token" json:"token,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}     `json:"-"`
+	XXX_unrecognized     []byte       `json:"-"`
+	XXX_sizecache        int32        `json:"-"`
+}
+
+func (m *SC_XMI_Lgin_Result) Reset()         { *m = SC_XMI_Lgin_Result{} }
+func (m *SC_XMI_Lgin_Result) String() string { return proto.CompactTextString(m) }
+func (*SC_XMI_Lgin_Result) ProtoMessage()    {}
+func (*SC_XMI_Lgin_Result) Descriptor() ([]byte, []int) {
+	return fileDescriptor_0da59f04006f3232, []int{25}
+}
+
+func (m *SC_XMI_Lgin_Result) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_SC_XMI_Lgin_Result.Unmarshal(m, b)
+}
+func (m *SC_XMI_Lgin_Result) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_SC_XMI_Lgin_Result.Marshal(b, m, deterministic)
+}
+func (m *SC_XMI_Lgin_Result) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SC_XMI_Lgin_Result.Merge(m, src)
+}
+func (m *SC_XMI_Lgin_Result) XXX_Size() int {
+	return xxx_messageInfo_SC_XMI_Lgin_Result.Size(m)
+}
+func (m *SC_XMI_Lgin_Result) XXX_DiscardUnknown() {
+	xxx_messageInfo_SC_XMI_Lgin_Result.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SC_XMI_Lgin_Result proto.InternalMessageInfo
+
+func (m *SC_XMI_Lgin_Result) GetRetcode() EnErrorCode {
+	if m != nil && m.Retcode != nil {
+		return *m.Retcode
+	}
+	return EnErrorCode_ERROR_CODE_UNKNOWN
+}
+
+func (m *SC_XMI_Lgin_Result) GetAccount() string {
+	if m != nil && m.Account != nil {
+		return *m.Account
+	}
+	return ""
+}
+
+func (m *SC_XMI_Lgin_Result) GetToken() string {
+	if m != nil && m.Token != nil {
+		return *m.Token
+	}
+	return ""
+}
+
+//OPPO_REQUEST_LOGIN_SUB_CMD					 // OPPO帐号登录
+type CS_OPPO_Request_Login struct {
+	LoginType            *int32   `protobuf:"varint,1,req,name=loginType" json:"loginType,omitempty"`
+	Token                *string  `protobuf:"bytes,2,req,name=token" json:"token,omitempty"`
+	Ssoid                *string  `protobuf:"bytes,3,req,name=ssoid" json:"ssoid,omitempty"`
+	DeviceString         *string  `protobuf:"bytes,4,req,name=deviceString" json:"deviceString,omitempty"`
+	IDevice              *int32   `protobuf:"varint,5,req,name=iDevice" json:"iDevice,omitempty"`
+	Packageflag          *string  `protobuf:"bytes,6,req,name=packageflag" json:"packageflag,omitempty"`
+	ClientIp             *string  `protobuf:"bytes,7,opt,name=clientIp" json:"clientIp,omitempty"`
+	UiSpread             *uint32  `protobuf:"varint,8,opt,name=uiSpread" json:"uiSpread,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *CS_OPPO_Request_Login) Reset()         { *m = CS_OPPO_Request_Login{} }
+func (m *CS_OPPO_Request_Login) String() string { return proto.CompactTextString(m) }
+func (*CS_OPPO_Request_Login) ProtoMessage()    {}
+func (*CS_OPPO_Request_Login) Descriptor() ([]byte, []int) {
+	return fileDescriptor_0da59f04006f3232, []int{26}
+}
+
+func (m *CS_OPPO_Request_Login) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_CS_OPPO_Request_Login.Unmarshal(m, b)
+}
+func (m *CS_OPPO_Request_Login) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_CS_OPPO_Request_Login.Marshal(b, m, deterministic)
+}
+func (m *CS_OPPO_Request_Login) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CS_OPPO_Request_Login.Merge(m, src)
+}
+func (m *CS_OPPO_Request_Login) XXX_Size() int {
+	return xxx_messageInfo_CS_OPPO_Request_Login.Size(m)
+}
+func (m *CS_OPPO_Request_Login) XXX_DiscardUnknown() {
+	xxx_messageInfo_CS_OPPO_Request_Login.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CS_OPPO_Request_Login proto.InternalMessageInfo
+
+func (m *CS_OPPO_Request_Login) GetLoginType() int32 {
+	if m != nil && m.LoginType != nil {
+		return *m.LoginType
+	}
+	return 0
+}
+
+func (m *CS_OPPO_Request_Login) GetToken() string {
+	if m != nil && m.Token != nil {
+		return *m.Token
+	}
+	return ""
+}
+
+func (m *CS_OPPO_Request_Login) GetSsoid() string {
+	if m != nil && m.Ssoid != nil {
+		return *m.Ssoid
+	}
+	return ""
+}
+
+func (m *CS_OPPO_Request_Login) GetDeviceString() string {
+	if m != nil && m.DeviceString != nil {
+		return *m.DeviceString
+	}
+	return ""
+}
+
+func (m *CS_OPPO_Request_Login) GetIDevice() int32 {
+	if m != nil && m.IDevice != nil {
+		return *m.IDevice
+	}
+	return 0
+}
+
+func (m *CS_OPPO_Request_Login) GetPackageflag() string {
+	if m != nil && m.Packageflag != nil {
+		return *m.Packageflag
+	}
+	return ""
+}
+
+func (m *CS_OPPO_Request_Login) GetClientIp() string {
+	if m != nil && m.ClientIp != nil {
+		return *m.ClientIp
+	}
+	return ""
+}
+
+func (m *CS_OPPO_Request_Login) GetUiSpread() uint32 {
+	if m != nil && m.UiSpread != nil {
+		return *m.UiSpread
+	}
+	return 0
+}
+
+//OPPO_LOGIN_RESULT_SUB_CMD						 // OPPO帐号登录结果
+type SC_OPPO_Login_Result struct {
+	Retcode              *EnErrorCode `protobuf:"varint,1,req,name=retcode,enum=LoginSubCmd.EnErrorCode" json:"retcode,omitempty"`
+	Account              *string      `protobuf:"bytes,2,opt,name=account" json:"account,omitempty"`
+	Token                *string      `protobuf:"bytes,3,opt,name=token" json:"token,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}     `json:"-"`
+	XXX_unrecognized     []byte       `json:"-"`
+	XXX_sizecache        int32        `json:"-"`
+}
+
+func (m *SC_OPPO_Login_Result) Reset()         { *m = SC_OPPO_Login_Result{} }
+func (m *SC_OPPO_Login_Result) String() string { return proto.CompactTextString(m) }
+func (*SC_OPPO_Login_Result) ProtoMessage()    {}
+func (*SC_OPPO_Login_Result) Descriptor() ([]byte, []int) {
+	return fileDescriptor_0da59f04006f3232, []int{27}
+}
+
+func (m *SC_OPPO_Login_Result) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_SC_OPPO_Login_Result.Unmarshal(m, b)
+}
+func (m *SC_OPPO_Login_Result) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_SC_OPPO_Login_Result.Marshal(b, m, deterministic)
+}
+func (m *SC_OPPO_Login_Result) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SC_OPPO_Login_Result.Merge(m, src)
+}
+func (m *SC_OPPO_Login_Result) XXX_Size() int {
+	return xxx_messageInfo_SC_OPPO_Login_Result.Size(m)
+}
+func (m *SC_OPPO_Login_Result) XXX_DiscardUnknown() {
+	xxx_messageInfo_SC_OPPO_Login_Result.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SC_OPPO_Login_Result proto.InternalMessageInfo
+
+func (m *SC_OPPO_Login_Result) GetRetcode() EnErrorCode {
+	if m != nil && m.Retcode != nil {
+		return *m.Retcode
+	}
+	return EnErrorCode_ERROR_CODE_UNKNOWN
+}
+
+func (m *SC_OPPO_Login_Result) GetAccount() string {
+	if m != nil && m.Account != nil {
+		return *m.Account
+	}
+	return ""
+}
+
+func (m *SC_OPPO_Login_Result) GetToken() string {
+	if m != nil && m.Token != nil {
+		return *m.Token
+	}
+	return ""
+}
+
+//VIVO_REQUEST_LOGIN_SUB_CMD						   // VIVO帐号登录
+type CS_VIVO_Request_Login struct {
+	LoginType            *int32   `protobuf:"varint,1,req,name=loginType" json:"loginType,omitempty"`
+	Token                *string  `protobuf:"bytes,2,req,name=token" json:"token,omitempty"`
+	Openid               *string  `protobuf:"bytes,3,req,name=openid" json:"openid,omitempty"`
+	Name                 *string  `protobuf:"bytes,4,req,name=name" json:"name,omitempty"`
+	DeviceString         *string  `protobuf:"bytes,5,req,name=deviceString" json:"deviceString,omitempty"`
+	IDevice              *int32   `protobuf:"varint,6,req,name=iDevice" json:"iDevice,omitempty"`
+	Packageflag          *string  `protobuf:"bytes,7,req,name=packageflag" json:"packageflag,omitempty"`
+	ClientIp             *string  `protobuf:"bytes,8,opt,name=clientIp" json:"clientIp,omitempty"`
+	UiSpread             *uint32  `protobuf:"varint,9,opt,name=uiSpread" json:"uiSpread,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *CS_VIVO_Request_Login) Reset()         { *m = CS_VIVO_Request_Login{} }
+func (m *CS_VIVO_Request_Login) String() string { return proto.CompactTextString(m) }
+func (*CS_VIVO_Request_Login) ProtoMessage()    {}
+func (*CS_VIVO_Request_Login) Descriptor() ([]byte, []int) {
+	return fileDescriptor_0da59f04006f3232, []int{28}
+}
+
+func (m *CS_VIVO_Request_Login) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_CS_VIVO_Request_Login.Unmarshal(m, b)
+}
+func (m *CS_VIVO_Request_Login) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_CS_VIVO_Request_Login.Marshal(b, m, deterministic)
+}
+func (m *CS_VIVO_Request_Login) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CS_VIVO_Request_Login.Merge(m, src)
+}
+func (m *CS_VIVO_Request_Login) XXX_Size() int {
+	return xxx_messageInfo_CS_VIVO_Request_Login.Size(m)
+}
+func (m *CS_VIVO_Request_Login) XXX_DiscardUnknown() {
+	xxx_messageInfo_CS_VIVO_Request_Login.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CS_VIVO_Request_Login proto.InternalMessageInfo
+
+func (m *CS_VIVO_Request_Login) GetLoginType() int32 {
+	if m != nil && m.LoginType != nil {
+		return *m.LoginType
+	}
+	return 0
+}
+
+func (m *CS_VIVO_Request_Login) GetToken() string {
+	if m != nil && m.Token != nil {
+		return *m.Token
+	}
+	return ""
+}
+
+func (m *CS_VIVO_Request_Login) GetOpenid() string {
+	if m != nil && m.Openid != nil {
+		return *m.Openid
+	}
+	return ""
+}
+
+func (m *CS_VIVO_Request_Login) GetName() string {
+	if m != nil && m.Name != nil {
+		return *m.Name
+	}
+	return ""
+}
+
+func (m *CS_VIVO_Request_Login) GetDeviceString() string {
+	if m != nil && m.DeviceString != nil {
+		return *m.DeviceString
+	}
+	return ""
+}
+
+func (m *CS_VIVO_Request_Login) GetIDevice() int32 {
+	if m != nil && m.IDevice != nil {
+		return *m.IDevice
+	}
+	return 0
+}
+
+func (m *CS_VIVO_Request_Login) GetPackageflag() string {
+	if m != nil && m.Packageflag != nil {
+		return *m.Packageflag
+	}
+	return ""
+}
+
+func (m *CS_VIVO_Request_Login) GetClientIp() string {
+	if m != nil && m.ClientIp != nil {
+		return *m.ClientIp
+	}
+	return ""
+}
+
+func (m *CS_VIVO_Request_Login) GetUiSpread() uint32 {
+	if m != nil && m.UiSpread != nil {
+		return *m.UiSpread
+	}
+	return 0
+}
+
+//VIVO_LOGIN_RESULT_SUB_CMD							 // VIVO帐号登录结果
+type SC_VIVO_Login_Result struct {
+	Retcode              *EnErrorCode `protobuf:"varint,1,req,name=retcode,enum=LoginSubCmd.EnErrorCode" json:"retcode,omitempty"`
+	Account              *string      `protobuf:"bytes,2,opt,name=account" json:"account,omitempty"`
+	Token                *string      `protobuf:"bytes,3,opt,name=token" json:"token,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}     `json:"-"`
+	XXX_unrecognized     []byte       `json:"-"`
+	XXX_sizecache        int32        `json:"-"`
+}
+
+func (m *SC_VIVO_Login_Result) Reset()         { *m = SC_VIVO_Login_Result{} }
+func (m *SC_VIVO_Login_Result) String() string { return proto.CompactTextString(m) }
+func (*SC_VIVO_Login_Result) ProtoMessage()    {}
+func (*SC_VIVO_Login_Result) Descriptor() ([]byte, []int) {
+	return fileDescriptor_0da59f04006f3232, []int{29}
+}
+
+func (m *SC_VIVO_Login_Result) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_SC_VIVO_Login_Result.Unmarshal(m, b)
+}
+func (m *SC_VIVO_Login_Result) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_SC_VIVO_Login_Result.Marshal(b, m, deterministic)
+}
+func (m *SC_VIVO_Login_Result) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SC_VIVO_Login_Result.Merge(m, src)
+}
+func (m *SC_VIVO_Login_Result) XXX_Size() int {
+	return xxx_messageInfo_SC_VIVO_Login_Result.Size(m)
+}
+func (m *SC_VIVO_Login_Result) XXX_DiscardUnknown() {
+	xxx_messageInfo_SC_VIVO_Login_Result.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SC_VIVO_Login_Result proto.InternalMessageInfo
+
+func (m *SC_VIVO_Login_Result) GetRetcode() EnErrorCode {
+	if m != nil && m.Retcode != nil {
+		return *m.Retcode
+	}
+	return EnErrorCode_ERROR_CODE_UNKNOWN
+}
+
+func (m *SC_VIVO_Login_Result) GetAccount() string {
+	if m != nil && m.Account != nil {
+		return *m.Account
+	}
+	return ""
+}
+
+func (m *SC_VIVO_Login_Result) GetToken() string {
+	if m != nil && m.Token != nil {
+		return *m.Token
+	}
+	return ""
+}
+
 func init() {
+	proto.RegisterEnum("LoginSubCmd.EnSubCmdID", EnSubCmdID_name, EnSubCmdID_value)
+	proto.RegisterEnum("LoginSubCmd.EnErrorCode", EnErrorCode_name, EnErrorCode_value)
+	proto.RegisterType((*CS_Reques_Monile_Token)(nil), "LoginSubCmd.CS_Reques_Monile_Token")
 	proto.RegisterType((*LoginRequestInfo)(nil), "LoginSubCmd.LoginRequestInfo")
 	proto.RegisterType((*LoginReturnInfo)(nil), "LoginSubCmd.LoginReturnInfo")
 	proto.RegisterType((*LoginErrorCode)(nil), "LoginSubCmd.LoginErrorCode")
@@ -1129,77 +2422,134 @@ func init() {
 	proto.RegisterType((*SC_Tecent_Lgin_Result)(nil), "LoginSubCmd.SC_Tecent_Lgin_Result")
 	proto.RegisterType((*CS_Request_Change_Device_Token)(nil), "LoginSubCmd.CS_Request_Change_Device_Token")
 	proto.RegisterType((*SC_Return_Change_Device_Token)(nil), "LoginSubCmd.SC_Return_Change_Device_Token")
-	proto.RegisterEnum("LoginSubCmd.EnSubCmdID", EnSubCmdID_name, EnSubCmdID_value)
-	proto.RegisterEnum("LoginSubCmd.EnErrorCode", EnErrorCode_name, EnErrorCode_value)
+	proto.RegisterType((*CS_Opentc_Request_Login)(nil), "LoginSubCmd.CS_Opentc_Request_Login")
+	proto.RegisterType((*SC_Opentc_Lgin_Result)(nil), "LoginSubCmd.SC_Opentc_Lgin_Result")
+	proto.RegisterType((*CS_QH360_Request_Login)(nil), "LoginSubCmd.CS_QH360_Request_Login")
+	proto.RegisterType((*SC_QH360_Lgin_Result)(nil), "LoginSubCmd.SC_QH360_Lgin_Result")
+	proto.RegisterType((*CS_BaiDu_Request_Login)(nil), "LoginSubCmd.CS_BaiDu_Request_Login")
+	proto.RegisterType((*SC_BaiDu_Lgin_Result)(nil), "LoginSubCmd.SC_BaiDu_Lgin_Result")
+	proto.RegisterType((*CS_HW_Request_Login)(nil), "LoginSubCmd.CS_HW_Request_Login")
+	proto.RegisterType((*SC_HW_Login_Result)(nil), "LoginSubCmd.SC_HW_Login_Result")
+	proto.RegisterType((*CS_XMI_Request_Login)(nil), "LoginSubCmd.CS_XMI_Request_Login")
+	proto.RegisterType((*SC_XMI_Lgin_Result)(nil), "LoginSubCmd.SC_XMI_Lgin_Result")
+	proto.RegisterType((*CS_OPPO_Request_Login)(nil), "LoginSubCmd.CS_OPPO_Request_Login")
+	proto.RegisterType((*SC_OPPO_Login_Result)(nil), "LoginSubCmd.SC_OPPO_Login_Result")
+	proto.RegisterType((*CS_VIVO_Request_Login)(nil), "LoginSubCmd.CS_VIVO_Request_Login")
+	proto.RegisterType((*SC_VIVO_Login_Result)(nil), "LoginSubCmd.SC_VIVO_Login_Result")
 }
 
-func init() { proto.RegisterFile("LoginSubCmd.proto", fileDescriptor_LoginSubCmd_c4600421c1ef001a) }
+func init() { proto.RegisterFile("LoginSubCmd.proto", fileDescriptor_0da59f04006f3232) }
 
-var fileDescriptor_LoginSubCmd_c4600421c1ef001a = []byte{
-	// 1034 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xa4, 0x54, 0xdb, 0x6e, 0xe2, 0x56,
-	0x14, 0xad, 0x01, 0x43, 0xd8, 0x10, 0x70, 0xce, 0xdc, 0xce, 0x5c, 0x92, 0x32, 0x6e, 0x3b, 0x65,
-	0x32, 0xd2, 0x48, 0xad, 0xaa, 0xbe, 0xf4, 0x89, 0xd8, 0x27, 0x53, 0x6b, 0xc0, 0xa6, 0xb6, 0x49,
-	0x7a, 0x91, 0x6a, 0x19, 0x38, 0x21, 0x56, 0x88, 0x4d, 0x6d, 0xd3, 0xe9, 0x3c, 0xf5, 0x17, 0xaa,
-	0xfe, 0x48, 0x7f, 0xa8, 0xfd, 0x97, 0xca, 0xc7, 0x97, 0x1c, 0x0c, 0xa8, 0x23, 0xf5, 0x05, 0x89,
-	0xbd, 0xd7, 0xbe, 0xac, 0xb5, 0x97, 0x0f, 0x1c, 0x0d, 0x83, 0x85, 0xe7, 0x5b, 0xeb, 0xa9, 0x72,
-	0x3b, 0x7f, 0xbd, 0x0a, 0x83, 0x38, 0x40, 0x2d, 0x2e, 0x24, 0xff, 0x2d, 0x80, 0xc4, 0xfe, 0x9b,
-	0xf4, 0x97, 0x35, 0x8d, 0x62, 0xcd, 0xbf, 0x0a, 0x50, 0x17, 0x1a, 0xee, 0x6c, 0x16, 0xac, 0xfd,
-	0x18, 0x0b, 0xbd, 0x4a, 0xbf, 0x89, 0x3a, 0x50, 0x5f, 0xb9, 0x51, 0xf4, 0x6e, 0x8e, 0x2b, 0xec,
-	0x7f, 0x17, 0x1a, 0x9e, 0x4a, 0x7f, 0xf5, 0x66, 0x14, 0x57, 0x7b, 0x42, 0x5f, 0x44, 0x47, 0xd0,
-	0xf4, 0xc6, 0x4b, 0x37, 0xbe, 0x0a, 0xc2, 0x5b, 0x5c, 0x63, 0x21, 0x09, 0x0e, 0xbc, 0x0b, 0x1a,
-	0x46, 0x5e, 0xe0, 0x63, 0xb1, 0x27, 0xf4, 0x9b, 0x49, 0x64, 0xed, 0x59, 0xab, 0x90, 0xba, 0x73,
-	0x5c, 0xef, 0x09, 0xfd, 0x43, 0x74, 0x0f, 0x5a, 0x2b, 0x77, 0x76, 0xe3, 0x2e, 0xe8, 0xd5, 0xd2,
-	0x5d, 0xe0, 0x06, 0x83, 0xdd, 0x87, 0xf6, 0x9c, 0xf5, 0xb6, 0xe2, 0xd0, 0xf3, 0x17, 0xf8, 0x20,
-	0x2f, 0x9e, 0x2d, 0x3d, 0xea, 0xc7, 0xda, 0x0a, 0xb7, 0x58, 0x24, 0x29, 0xbe, 0x0e, 0x7c, 0xaa,
-	0xaf, 0x6f, 0xa7, 0x34, 0xc4, 0x6d, 0x16, 0x3c, 0x04, 0x31, 0x0e, 0x6e, 0xa8, 0x8f, 0x0f, 0x93,
-	0xbf, 0xf2, 0xef, 0xd0, 0xcd, 0xd8, 0xc5, 0xeb, 0xd0, 0x67, 0xe4, 0x3a, 0x50, 0x5f, 0x47, 0x34,
-	0xf4, 0x52, 0x2e, 0x62, 0x32, 0x6e, 0x19, 0x4c, 0xa7, 0xef, 0x07, 0xf3, 0x79, 0x48, 0xa3, 0x08,
-	0x57, 0x19, 0xc3, 0x23, 0x68, 0xb2, 0xe8, 0x38, 0x08, 0x63, 0x5c, 0x63, 0xc0, 0xa2, 0xb5, 0x98,
-	0x6b, 0x90, 0x8b, 0x54, 0x67, 0x81, 0x7b, 0xd0, 0xca, 0x02, 0xf6, 0xfb, 0x15, 0xc5, 0x8d, 0xa4,
-	0x48, 0xfe, 0x06, 0x3a, 0x6c, 0x01, 0x12, 0x86, 0x41, 0xa8, 0x04, 0x73, 0x8a, 0x5e, 0x42, 0x23,
-	0xa4, 0xf1, 0x2c, 0x98, 0x53, 0x26, 0x6e, 0xe7, 0x4b, 0xfc, 0x9a, 0xbf, 0x11, 0xbd, 0x83, 0xca,
-	0xd7, 0x80, 0x15, 0xcb, 0xb9, 0xf0, 0x22, 0x2f, 0x0e, 0x42, 0x27, 0xbb, 0x90, 0xc3, 0xd0, 0x5b,
-	0x2a, 0x09, 0xe5, 0xc3, 0xa4, 0xec, 0x4a, 0x0a, 0xa7, 0xe4, 0x78, 0x2d, 0x6b, 0x4c, 0xa7, 0xbf,
-	0x04, 0x78, 0xac, 0x58, 0xc5, 0x88, 0x51, 0x30, 0xf5, 0x96, 0xd4, 0x19, 0xa4, 0x74, 0xca, 0x4a,
-	0xef, 0xf6, 0x44, 0x21, 0x4f, 0x31, 0xa3, 0x38, 0x76, 0x8d, 0x1d, 0xbb, 0xd8, 0x38, 0x4a, 0x37,
-	0x16, 0x8b, 0x2b, 0x72, 0x0b, 0xd6, 0x59, 0x90, 0xa3, 0xc1, 0x64, 0xdc, 0xd8, 0x98, 0xf9, 0x41,
-	0x7e, 0x05, 0xd8, 0x52, 0x1c, 0x25, 0xa4, 0x6e, 0x5c, 0x2c, 0xea, 0x98, 0x34, 0x5a, 0x2f, 0xe3,
-	0xa4, 0x3c, 0xa4, 0xb1, 0x92, 0x4b, 0x2c, 0xca, 0x5f, 0xc0, 0x89, 0xa5, 0x94, 0xd9, 0xd9, 0xc9,
-	0xb6, 0x7b, 0x4b, 0x7e, 0x84, 0x63, 0x4e, 0x10, 0x93, 0x46, 0x34, 0x76, 0xc6, 0x8c, 0x6f, 0x5a,
-	0xb8, 0xfd, 0x91, 0x94, 0x54, 0xaa, 0x14, 0xc1, 0x0d, 0xfd, 0x93, 0xdd, 0x7f, 0x86, 0x47, 0x7b,
-	0x7a, 0x7f, 0x60, 0xd7, 0x3b, 0xed, 0xab, 0x9b, 0xda, 0x27, 0x4e, 0x6d, 0xca, 0x5f, 0xc3, 0x27,
-	0x8c, 0x6e, 0xe2, 0xf9, 0x1d, 0xab, 0xef, 0xe5, 0xfc, 0x15, 0x3c, 0x2f, 0xd7, 0xe9, 0xf4, 0x5d,
-	0x5e, 0xbb, 0xaf, 0xea, 0x1f, 0x81, 0xd1, 0xb1, 0xe9, 0x8c, 0xb2, 0x13, 0xf0, 0x2e, 0x45, 0x00,
-	0x31, 0x8b, 0xb3, 0x4f, 0x82, 0xe1, 0x93, 0xe5, 0x83, 0x15, 0xf5, 0xbd, 0x3d, 0xc6, 0x29, 0x1b,
-	0xbb, 0x56, 0x36, 0xb6, 0xb8, 0xcb, 0xd8, 0xf5, 0x2d, 0x63, 0xa7, 0x8f, 0x09, 0xfb, 0x8e, 0x17,
-	0x9e, 0xcf, 0xe6, 0x1f, 0xb0, 0x87, 0xa9, 0x0b, 0x8d, 0x28, 0x0e, 0xcf, 0xdd, 0x19, 0xc5, 0xcd,
-	0xdc, 0x6d, 0x51, 0x1c, 0xea, 0xde, 0xec, 0x06, 0x03, 0x0b, 0xb4, 0xa1, 0xe6, 0x59, 0xf4, 0x37,
-	0xf6, 0xce, 0x88, 0xf2, 0x14, 0x1e, 0x58, 0x4a, 0x4e, 0x6f, 0xb8, 0xf0, 0x0a, 0xfd, 0x3e, 0xfc,
-	0x4b, 0xe6, 0xcf, 0x5a, 0xd9, 0x7c, 0xa7, 0x52, 0x47, 0xfc, 0x04, 0x27, 0x9c, 0x23, 0x94, 0x6b,
-	0xd7, 0x5f, 0x50, 0x27, 0xe5, 0xfb, 0xff, 0xec, 0x96, 0xd8, 0x81, 0xc0, 0xf1, 0xdd, 0x59, 0xf7,
-	0xf4, 0xe6, 0x89, 0x88, 0xdb, 0xbd, 0x85, 0x7e, 0xf3, 0xf4, 0x8f, 0x1a, 0x00, 0xcd, 0xc8, 0x69,
-	0x2a, 0x7a, 0x0c, 0x0f, 0x4c, 0xf2, 0xdd, 0x84, 0x58, 0xb6, 0x33, 0x34, 0xde, 0x68, 0xba, 0x63,
-	0x4d, 0xce, 0x1c, 0x65, 0xa4, 0x4a, 0x15, 0xf4, 0x0c, 0xb0, 0x49, 0xec, 0x89, 0xa9, 0xa7, 0x19,
-	0x4d, 0x3f, 0x37, 0x8a, 0x6c, 0x35, 0xc9, 0xa6, 0x05, 0xc4, 0x34, 0x0d, 0xd3, 0x51, 0x0c, 0x95,
-	0x14, 0xd9, 0x1a, 0x7a, 0x0e, 0xc7, 0x17, 0x9a, 0xa5, 0xd9, 0x86, 0xe9, 0xec, 0x6e, 0x2f, 0xa2,
-	0x97, 0xf0, 0x59, 0x9e, 0x52, 0x4c, 0x32, 0xb0, 0x89, 0x33, 0x32, 0xce, 0xb4, 0x21, 0x71, 0x06,
-	0x8a, 0x62, 0x4c, 0x74, 0xbb, 0x80, 0x36, 0x50, 0x1f, 0x3e, 0xcd, 0x36, 0xc9, 0x90, 0x39, 0xc4,
-	0x24, 0xd6, 0x64, 0x78, 0x87, 0x3c, 0x40, 0x2f, 0x40, 0xce, 0x90, 0x59, 0x33, 0xdb, 0x78, 0x4b,
-	0xf4, 0x32, 0xae, 0x89, 0x4e, 0xe0, 0x49, 0x3e, 0xdc, 0x24, 0x16, 0xb1, 0x9d, 0xf1, 0xc0, 0xb2,
-	0x2e, 0xd5, 0x14, 0x2e, 0x41, 0xca, 0x3d, 0x89, 0xeb, 0xe4, 0x32, 0xcf, 0xe5, 0xd5, 0x2d, 0x74,
-	0x0c, 0x8f, 0xb3, 0x29, 0x3b, 0x8a, 0xdb, 0xe8, 0x14, 0x5e, 0x6c, 0xa4, 0xb9, 0x1e, 0xa5, 0x45,
-	0x0e, 0x51, 0x0f, 0x9e, 0xd9, 0x44, 0x21, 0x8c, 0xcb, 0x2e, 0x9d, 0x3a, 0xe8, 0x63, 0x78, 0x9a,
-	0x21, 0xd2, 0x4c, 0xa9, 0x45, 0x37, 0x01, 0x14, 0x42, 0x7e, 0x3b, 0xd0, 0xdf, 0x10, 0x47, 0x25,
-	0x17, 0x9a, 0x92, 0x71, 0x97, 0xa4, 0x94, 0x6c, 0x2a, 0xdf, 0x8e, 0xfc, 0xd1, 0xe9, 0x9f, 0x55,
-	0x68, 0xf1, 0x36, 0x7f, 0x08, 0x88, 0x3b, 0xea, 0x44, 0x7f, 0xab, 0x1b, 0x97, 0xba, 0xf4, 0x51,
-	0x29, 0x9e, 0xdd, 0x40, 0x12, 0x10, 0x86, 0xfb, 0x5c, 0x5c, 0x37, 0x2c, 0x62, 0x26, 0xfd, 0xa5,
-	0x4a, 0x29, 0x73, 0x6e, 0x98, 0x67, 0x9a, 0x3a, 0xb1, 0x88, 0x54, 0x2d, 0xf5, 0xd2, 0x0d, 0xf2,
-	0xbd, 0x66, 0xd9, 0x52, 0x0d, 0x3d, 0x85, 0x47, 0xfc, 0x8c, 0xa1, 0x49, 0x06, 0xea, 0x0f, 0x69,
-	0x52, 0x4c, 0xcc, 0xca, 0x25, 0x33, 0x2f, 0x10, 0xd3, 0x94, 0xea, 0xe8, 0x09, 0x3c, 0xe4, 0x8d,
-	0x38, 0x26, 0xa6, 0xaa, 0xa9, 0x2c, 0xd7, 0x40, 0x32, 0x9c, 0x6c, 0xef, 0xed, 0xa4, 0xbf, 0x43,
-	0x6d, 0xa4, 0xd9, 0xd2, 0x41, 0xa9, 0x3e, 0x13, 0xfc, 0x7c, 0xa0, 0x0d, 0xa5, 0x66, 0x62, 0x06,
-	0x7e, 0x2c, 0xaf, 0xa1, 0x04, 0xe8, 0x15, 0x7c, 0xbe, 0x2f, 0x9b, 0xb9, 0xcf, 0xd6, 0x46, 0xc4,
-	0x31, 0x26, 0xb6, 0xd4, 0x4a, 0x9c, 0xfc, 0x1f, 0x60, 0x96, 0x96, 0xda, 0xff, 0x06, 0x00, 0x00,
-	0xff, 0xff, 0x52, 0xb1, 0x12, 0xdd, 0xf3, 0x09, 0x00, 0x00,
+var fileDescriptor_0da59f04006f3232 = []byte{
+	// 1753 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe4, 0x57, 0xdd, 0x6e, 0xe3, 0xc6,
+	0x15, 0x2e, 0xf5, 0xaf, 0x23, 0xdb, 0xcb, 0x4c, 0x77, 0x1d, 0xee, 0x66, 0xed, 0x38, 0x4c, 0xba,
+	0x75, 0xb7, 0x40, 0x50, 0xa4, 0x45, 0x2f, 0x02, 0x14, 0x85, 0x4c, 0xd1, 0x31, 0x11, 0x99, 0x54,
+	0x48, 0x4a, 0x4e, 0xd0, 0x0b, 0x42, 0x96, 0xc6, 0x5a, 0xd6, 0x32, 0xa9, 0x90, 0x54, 0x12, 0xb7,
+	0x68, 0x81, 0x22, 0xf7, 0xed, 0x65, 0x1f, 0xa2, 0xaf, 0xd0, 0x3e, 0x44, 0xdf, 0xa1, 0x8f, 0x50,
+	0x04, 0xe8, 0x5d, 0x31, 0x3f, 0xa4, 0x86, 0x14, 0x25, 0x23, 0x5d, 0xd7, 0x0d, 0xd0, 0x1b, 0x43,
+	0x73, 0xfe, 0xe6, 0x9c, 0xef, 0x3b, 0xe7, 0x0c, 0x0d, 0x6f, 0xf4, 0xc3, 0x99, 0x1f, 0x38, 0xcb,
+	0x4b, 0xed, 0x66, 0xfa, 0xfe, 0x22, 0x0a, 0x93, 0x10, 0x75, 0x04, 0x91, 0xfa, 0x21, 0xec, 0x6b,
+	0x8e, 0x67, 0xe3, 0xcf, 0x97, 0x38, 0xf6, 0xce, 0xc3, 0xc0, 0x9f, 0x63, 0xcf, 0x0d, 0xaf, 0x71,
+	0x80, 0x8e, 0xa0, 0x13, 0x27, 0xd1, 0xe0, 0x55, 0x18, 0x60, 0x73, 0x79, 0xa3, 0x48, 0x47, 0xd2,
+	0x71, 0xdb, 0x16, 0x45, 0xea, 0x1f, 0xab, 0x20, 0xd3, 0x58, 0xcc, 0x3d, 0x31, 0x82, 0xab, 0x10,
+	0x29, 0xd0, 0x1c, 0x4f, 0x26, 0xe1, 0x32, 0x48, 0x14, 0xe9, 0xa8, 0x72, 0xdc, 0xb6, 0xd3, 0x23,
+	0xda, 0x87, 0xc6, 0x62, 0x1c, 0xc7, 0x5f, 0x4e, 0x95, 0x0a, 0x55, 0xf0, 0x13, 0xf1, 0xf0, 0x7b,
+	0xf8, 0x0b, 0x7f, 0x82, 0x95, 0xea, 0x91, 0x74, 0x5c, 0xb7, 0xd3, 0x23, 0x7a, 0x0e, 0x6d, 0x7f,
+	0x30, 0x1f, 0x27, 0x57, 0x61, 0x74, 0xa3, 0xd4, 0xa8, 0x6e, 0x25, 0x40, 0xcf, 0xa0, 0xe5, 0x8f,
+	0x70, 0x14, 0xfb, 0x61, 0xa0, 0xd4, 0x69, 0x76, 0xd9, 0x99, 0xe8, 0x96, 0xbe, 0xb3, 0x88, 0xf0,
+	0x78, 0xaa, 0x34, 0x8e, 0xa4, 0xe3, 0x5d, 0x3b, 0x3b, 0x93, 0xc2, 0x16, 0xe3, 0xc9, 0xf5, 0x78,
+	0x86, 0xaf, 0xe6, 0xe3, 0x99, 0xd2, 0x64, 0x85, 0x09, 0x22, 0xa4, 0xc2, 0xce, 0x94, 0x66, 0xe0,
+	0x24, 0x91, 0x1f, 0xcc, 0x94, 0x16, 0x35, 0xc9, 0xc9, 0xc8, 0x0d, 0x93, 0xb9, 0x8f, 0x83, 0xc4,
+	0x58, 0x28, 0x1d, 0x76, 0x7b, 0x7a, 0xa6, 0x37, 0x70, 0x90, 0x2e, 0x71, 0xa4, 0xec, 0xf0, 0x1b,
+	0x56, 0x22, 0xf4, 0x18, 0xea, 0x09, 0x41, 0x59, 0xd9, 0xa5, 0x3a, 0x76, 0x20, 0x48, 0xc4, 0x49,
+	0xa4, 0x85, 0x53, 0xac, 0xec, 0x51, 0x79, 0x7a, 0x44, 0xef, 0xc1, 0x6e, 0x9c, 0x44, 0x23, 0x1c,
+	0xf9, 0x57, 0xb7, 0x54, 0xff, 0x88, 0xea, 0xf3, 0x42, 0xf5, 0x6f, 0x12, 0x3c, 0xe2, 0x84, 0x24,
+	0xcb, 0x28, 0xa0, 0x7c, 0xec, 0x43, 0x63, 0x19, 0xe3, 0xc8, 0x67, 0xa8, 0xd7, 0x6d, 0x7e, 0x22,
+	0x35, 0xce, 0xc3, 0xcb, 0xcb, 0xdb, 0xee, 0x74, 0x1a, 0xe1, 0x38, 0x56, 0xaa, 0x94, 0x93, 0x9c,
+	0x8c, 0xe0, 0x4f, 0xcf, 0x83, 0x30, 0x4a, 0x94, 0x1a, 0x75, 0x5f, 0x09, 0x56, 0x35, 0xd4, 0xa9,
+	0xeb, 0xaa, 0x86, 0x94, 0xff, 0x46, 0x9e, 0xff, 0x23, 0xe8, 0xf0, 0x9f, 0xee, 0xed, 0x02, 0x2b,
+	0x4d, 0x1a, 0x4f, 0x14, 0xa9, 0x97, 0xb0, 0x47, 0xd3, 0xd7, 0xa3, 0x28, 0x64, 0x75, 0x7f, 0x00,
+	0xcd, 0x08, 0x27, 0x13, 0x52, 0x31, 0xe9, 0xa6, 0xbd, 0x0f, 0x94, 0xf7, 0xc5, 0x86, 0xc6, 0x2b,
+	0x53, 0x3b, 0x35, 0x24, 0x59, 0x0f, 0x63, 0x1c, 0x75, 0x35, 0xcd, 0xe8, 0x29, 0x15, 0xd6, 0x35,
+	0x99, 0x40, 0xfd, 0xab, 0x04, 0x8a, 0xe6, 0x78, 0x23, 0x3f, 0xf6, 0x93, 0x30, 0xe2, 0x9d, 0x9f,
+	0x78, 0x34, 0xea, 0x1a, 0xf1, 0xac, 0x83, 0xf3, 0xc4, 0x0b, 0xed, 0xca, 0x10, 0xcd, 0xda, 0xb5,
+	0xd0, 0x58, 0x0c, 0xd1, 0x5c, 0x63, 0x89, 0x4d, 0x53, 0x2b, 0x34, 0xcd, 0x1a, 0xc5, 0xf5, 0x32,
+	0x8a, 0xbf, 0xae, 0xc0, 0xd3, 0x6c, 0x60, 0x13, 0xef, 0x3c, 0xbc, 0x24, 0x13, 0xdb, 0x5d, 0x41,
+	0x2c, 0x36, 0x9e, 0xc4, 0x33, 0x10, 0x1a, 0x6f, 0xd3, 0x10, 0x66, 0x64, 0x56, 0x45, 0x32, 0xc5,
+	0x31, 0xaa, 0x15, 0xc6, 0x28, 0xc3, 0x2a, 0x66, 0x58, 0xd5, 0xc5, 0x21, 0x61, 0xb2, 0x22, 0x22,
+	0x8d, 0xf5, 0x51, 0x13, 0xd0, 0x6c, 0xe6, 0xd1, 0x14, 0xb1, 0x6a, 0xe5, 0xb1, 0x52, 0x7f, 0x06,
+	0x8a, 0xa3, 0x79, 0x5a, 0x84, 0xc7, 0x49, 0x56, 0xbc, 0x67, 0xe3, 0x78, 0x39, 0x4f, 0x48, 0xc4,
+	0x08, 0x27, 0x5a, 0xda, 0x32, 0x75, 0x3b, 0x3d, 0xaa, 0x1f, 0xc2, 0xa1, 0xa3, 0x15, 0xa1, 0xa3,
+	0xcb, 0xee, 0x6e, 0xdf, 0xdf, 0xc1, 0x81, 0x00, 0xbb, 0x8d, 0x63, 0x9c, 0x78, 0x03, 0x0a, 0x1d,
+	0x5f, 0x97, 0x9b, 0xf7, 0x5e, 0x81, 0x94, 0xca, 0x3a, 0x29, 0x6b, 0x8d, 0x53, 0x84, 0x49, 0xfd,
+	0x5a, 0x82, 0x37, 0x37, 0xdc, 0xff, 0x5a, 0x37, 0xaf, 0xda, 0xa1, 0x5a, 0xde, 0x0e, 0x35, 0xa1,
+	0x1d, 0xd4, 0x5f, 0xc2, 0xbb, 0x14, 0x40, 0xb2, 0x5c, 0x4a, 0x30, 0xb8, 0x1b, 0xc5, 0x5f, 0xc0,
+	0x3b, 0xc5, 0x00, 0x26, 0xfe, 0x32, 0x0d, 0x72, 0xa7, 0xfb, 0x5f, 0xaa, 0x14, 0x05, 0x17, 0x4f,
+	0x30, 0xe5, 0x5b, 0x1c, 0xdd, 0x43, 0x80, 0x84, 0xca, 0xe9, 0x72, 0x61, 0x8e, 0x82, 0x84, 0x54,
+	0x1a, 0x2e, 0x70, 0xe0, 0x67, 0x8d, 0xcf, 0x4e, 0x1b, 0x1a, 0xbf, 0xb8, 0x08, 0x6a, 0xdb, 0x17,
+	0x41, 0x7d, 0xeb, 0x22, 0x68, 0x6c, 0x5f, 0x04, 0xcd, 0xc2, 0x22, 0xa0, 0x5b, 0x77, 0xe6, 0x07,
+	0xb4, 0x90, 0x16, 0xdb, 0x5f, 0x99, 0x80, 0xbf, 0x11, 0xa7, 0xe3, 0x09, 0x56, 0xda, 0xd9, 0x1b,
+	0x41, 0x8e, 0x5c, 0x63, 0xfa, 0x93, 0x6b, 0x05, 0x32, 0x0d, 0x39, 0x22, 0x04, 0x35, 0xdf, 0xc1,
+	0x5f, 0xd1, 0x77, 0xaa, 0x6e, 0xd3, 0xdf, 0xb9, 0xd1, 0xde, 0x29, 0x8c, 0xf6, 0x21, 0x40, 0x9c,
+	0x44, 0xdd, 0x19, 0xc9, 0xa7, 0xc7, 0x9f, 0x28, 0x41, 0xb2, 0xbe, 0xaa, 0xf6, 0xca, 0x56, 0xd5,
+	0x6f, 0xe1, 0x89, 0xa3, 0xa5, 0x64, 0xf5, 0x67, 0x7e, 0xd6, 0x1f, 0xff, 0xc9, 0x52, 0x17, 0x9a,
+	0xbc, 0xc2, 0x8a, 0x4b, 0x9b, 0x5c, 0x20, 0x70, 0xf5, 0x94, 0xaa, 0xbf, 0x87, 0x43, 0x61, 0x5e,
+	0xb4, 0x57, 0xe3, 0x60, 0x86, 0x3d, 0x46, 0xcf, 0x7f, 0x63, 0x60, 0x8b, 0x04, 0xab, 0xbf, 0x82,
+	0x83, 0x55, 0xa7, 0x6f, 0xb8, 0x5e, 0x04, 0xa1, 0xbe, 0x2a, 0x75, 0xed, 0xfa, 0xe2, 0xd7, 0x83,
+	0xfa, 0xf7, 0x0a, 0x9d, 0x03, 0x6b, 0x81, 0x83, 0x64, 0x52, 0x98, 0x83, 0x5c, 0xf7, 0x48, 0xe9,
+	0x9b, 0x9d, 0x76, 0x0f, 0x7b, 0x83, 0x71, 0x1c, 0x33, 0xc8, 0x78, 0x69, 0x82, 0x48, 0x98, 0x93,
+	0x6a, 0x6e, 0x4e, 0xfe, 0x97, 0x13, 0x21, 0xf6, 0x6a, 0xab, 0xd0, 0xab, 0xf7, 0x34, 0x0f, 0xbc,
+	0x5b, 0x39, 0xa4, 0x0f, 0xdd, 0xad, 0xff, 0x90, 0xe8, 0x67, 0xf8, 0x27, 0x67, 0x3f, 0xfd, 0xf9,
+	0x4f, 0xbe, 0x15, 0x9f, 0x59, 0xb8, 0xca, 0xb6, 0xed, 0x55, 0xdd, 0xce, 0x55, 0x6d, 0x2b, 0x57,
+	0xf5, 0xed, 0x5c, 0x35, 0xb6, 0x70, 0xd5, 0xcc, 0x73, 0xa5, 0xfe, 0x06, 0x1e, 0x3b, 0x1a, 0xaf,
+	0xf2, 0xa1, 0x21, 0xfe, 0x86, 0x41, 0x7c, 0x32, 0xf6, 0x7b, 0xcb, 0x7b, 0x80, 0x58, 0x86, 0xea,
+	0x32, 0x9b, 0x11, 0xf2, 0xf3, 0xbb, 0x3a, 0x20, 0x1c, 0x74, 0x56, 0xf7, 0x43, 0x83, 0xfe, 0x87,
+	0x2a, 0x7c, 0x5f, 0x73, 0xbc, 0xb3, 0x8b, 0xf5, 0xc7, 0xda, 0xef, 0x17, 0x20, 0x17, 0x24, 0xa4,
+	0x9e, 0x38, 0x89, 0x5c, 0x01, 0xf6, 0xec, 0x4c, 0x6e, 0x22, 0xbf, 0xe3, 0xf4, 0x26, 0x7a, 0x20,
+	0x1c, 0x92, 0x7f, 0x4d, 0xe7, 0xe3, 0x5b, 0xa3, 0xc7, 0xa1, 0x5f, 0x09, 0xd0, 0x0b, 0xd8, 0xe3,
+	0x07, 0x1c, 0xf5, 0xf1, 0x17, 0x78, 0xce, 0xbf, 0x56, 0x0b, 0xd2, 0x9c, 0x9d, 0xe3, 0xf8, 0xb3,
+	0x80, 0xb7, 0x77, 0x41, 0x9a, 0xae, 0x96, 0xf1, 0x0d, 0xfb, 0x6a, 0xe5, 0xab, 0x65, 0x7c, 0x83,
+	0x79, 0x1e, 0x9c, 0xe3, 0x56, 0x96, 0x07, 0x67, 0x59, 0xe0, 0xbf, 0xbd, 0x95, 0x7f, 0xd8, 0xce,
+	0x7f, 0x67, 0x0b, 0xff, 0x85, 0xc7, 0x5c, 0x9d, 0x02, 0x72, 0x34, 0x42, 0x01, 0x85, 0xf7, 0x75,
+	0xd8, 0xcf, 0xb3, 0x22, 0x89, 0xac, 0xa8, 0xff, 0x94, 0xe0, 0xb1, 0xe6, 0x78, 0x9f, 0x9e, 0x1b,
+	0xff, 0x57, 0xc3, 0xf5, 0x15, 0x05, 0x97, 0x54, 0xfd, 0xd0, 0xa3, 0xf5, 0x2f, 0x09, 0x9e, 0x90,
+	0x6f, 0x80, 0xc1, 0xc0, 0xba, 0x07, 0xc4, 0xc9, 0x50, 0xc5, 0x61, 0x86, 0x39, 0x3b, 0x7c, 0xc7,
+	0x57, 0x1a, 0x2d, 0xfd, 0xb5, 0x9b, 0xfa, 0xdb, 0xe2, 0xfe, 0xa7, 0x0a, 0xc5, 0x7d, 0x64, 0x8c,
+	0xee, 0x03, 0xf7, 0x4d, 0x5f, 0x5b, 0x08, 0x6a, 0x01, 0xd9, 0x2e, 0x0c, 0x71, 0xfa, 0x7b, 0x8d,
+	0x8d, 0xfa, 0x76, 0x36, 0x1a, 0x5b, 0xd9, 0x68, 0x6e, 0x67, 0xa3, 0xb5, 0x85, 0x8d, 0x76, 0x29,
+	0x1b, 0x14, 0x90, 0x87, 0x66, 0xe3, 0xe5, 0x9f, 0x5b, 0x00, 0x98, 0x47, 0x34, 0x7a, 0xe8, 0x08,
+	0x9e, 0xdb, 0xfa, 0x27, 0x43, 0xdd, 0x71, 0xbd, 0x73, 0xeb, 0xc4, 0xe8, 0xeb, 0x9e, 0x6b, 0x7d,
+	0xac, 0x9b, 0x9e, 0x33, 0x3c, 0xf1, 0xb4, 0xf3, 0x9e, 0x2c, 0xa1, 0xa7, 0xf0, 0x24, 0xb5, 0xe8,
+	0x5b, 0x1f, 0x19, 0x2b, 0x55, 0x05, 0x3d, 0x07, 0xc5, 0xd6, 0xdd, 0xa1, 0x6d, 0x32, 0x8d, 0x61,
+	0x9e, 0x5a, 0x99, 0xb6, 0x4a, 0xb4, 0xcc, 0x41, 0xb7, 0x6d, 0xcb, 0xf6, 0x34, 0xab, 0xa7, 0x67,
+	0xda, 0x1a, 0x7a, 0x07, 0x0e, 0x46, 0x86, 0x63, 0xb8, 0x96, 0xed, 0x95, 0x87, 0xaf, 0xa3, 0x1f,
+	0xc1, 0x0f, 0x52, 0x95, 0x66, 0xeb, 0x5d, 0x57, 0x4f, 0x53, 0xec, 0x6a, 0x9a, 0x35, 0x34, 0xdd,
+	0xcc, 0xb4, 0x89, 0x8e, 0xe1, 0x3d, 0x9e, 0x09, 0xb7, 0x4c, 0x4d, 0x6c, 0xdd, 0x19, 0xf6, 0x57,
+	0x96, 0x2d, 0xf4, 0x02, 0x54, 0x6e, 0x99, 0xab, 0xb7, 0x60, 0xd7, 0x46, 0x87, 0xf0, 0x2c, 0xbd,
+	0xdc, 0xd6, 0x1d, 0xdd, 0xf5, 0x06, 0x5d, 0xc7, 0xb9, 0xe8, 0x31, 0x73, 0x19, 0x58, 0xed, 0x44,
+	0x6e, 0xea, 0x17, 0xa9, 0x2e, 0xf5, 0xee, 0xa0, 0x03, 0x78, 0xca, 0x6f, 0x29, 0x71, 0xde, 0x41,
+	0x2f, 0xe1, 0x45, 0x4e, 0x2d, 0xc4, 0x28, 0x24, 0xb2, 0x4b, 0x18, 0x72, 0x75, 0x4d, 0xa7, 0xb5,
+	0x94, 0xe1, 0xb4, 0x87, 0xde, 0x86, 0xb7, 0xb8, 0x05, 0xd3, 0x14, 0x42, 0x3c, 0x22, 0x06, 0x19,
+	0x90, 0x67, 0x5d, 0xf3, 0x23, 0xdd, 0xeb, 0xe9, 0x23, 0x43, 0xe3, 0xb5, 0xcb, 0x32, 0x2b, 0x96,
+	0xc1, 0x57, 0xa2, 0x7f, 0xa3, 0xa4, 0x4b, 0xf2, 0x39, 0x20, 0x62, 0x61, 0x0d, 0x74, 0xd3, 0xd5,
+	0x36, 0x64, 0x39, 0x25, 0x49, 0x70, 0x8b, 0xd2, 0x2c, 0x31, 0x31, 0xe0, 0x9f, 0xf3, 0xa5, 0x11,
+	0xae, 0x48, 0x96, 0xfc, 0x4b, 0xb8, 0x2c, 0xc0, 0x8c, 0x04, 0xe0, 0x1f, 0xab, 0xa5, 0x01, 0x5e,
+	0x91, 0x00, 0xfc, 0xab, 0xae, 0x2c, 0x80, 0x4f, 0x8a, 0x38, 0x1b, 0x76, 0x2f, 0x74, 0x63, 0x43,
+	0x84, 0x5f, 0x93, 0x2b, 0xb8, 0x45, 0x69, 0x88, 0x6b, 0x42, 0x3c, 0x7d, 0xd1, 0x4b, 0xfd, 0xe7,
+	0xa4, 0x6b, 0xe8, 0xd3, 0x57, 0xe6, 0x7c, 0x43, 0xf2, 0x63, 0xaf, 0x53, 0xa9, 0x77, 0x40, 0x82,
+	0xb3, 0x15, 0x5e, 0xe6, 0x1e, 0x12, 0x77, 0xb6, 0x64, 0x4b, 0xdd, 0x17, 0xc4, 0x9d, 0xed, 0x9c,
+	0x32, 0xf7, 0xcf, 0x5f, 0x7e, 0x53, 0x85, 0x8e, 0xb0, 0x62, 0xd0, 0x3e, 0x20, 0x61, 0x72, 0x87,
+	0xe6, 0xc7, 0xa6, 0x75, 0x61, 0xca, 0xdf, 0x2b, 0xc8, 0xf9, 0xa0, 0xc9, 0x12, 0x52, 0xe0, 0xb1,
+	0x20, 0x37, 0x2d, 0x47, 0xb7, 0x49, 0x13, 0xc9, 0x95, 0x82, 0xe6, 0xd4, 0xb2, 0x4f, 0x8c, 0xde,
+	0xd0, 0xd1, 0xe5, 0x6a, 0x21, 0x96, 0x69, 0xe9, 0x9f, 0x1a, 0x8e, 0x2b, 0xd7, 0xd0, 0x5b, 0xf0,
+	0xa6, 0x78, 0x47, 0xdf, 0xd6, 0xbb, 0xbd, 0xcf, 0x98, 0xb2, 0x4e, 0x36, 0x92, 0xa0, 0xe4, 0x03,
+	0xaf, 0xdb, 0xb6, 0xdc, 0x40, 0xcf, 0x60, 0x5f, 0xdc, 0x36, 0x03, 0xdd, 0xee, 0x19, 0x3d, 0xaa,
+	0x6b, 0x22, 0x15, 0x0e, 0xd7, 0xf3, 0xf6, 0xd8, 0xdf, 0xbe, 0x71, 0x6e, 0xb8, 0x72, 0xab, 0xe0,
+	0xcf, 0xa7, 0xea, 0xb4, 0x6b, 0xf4, 0xe5, 0x36, 0xe1, 0x4e, 0xbc, 0x56, 0x1c, 0x14, 0x19, 0xd0,
+	0x8f, 0xe1, 0x87, 0x9b, 0xb4, 0x7c, 0xc5, 0xb8, 0xc6, 0xb9, 0xee, 0x59, 0x43, 0x57, 0xee, 0x90,
+	0x75, 0x75, 0x87, 0x31, 0x55, 0xcb, 0x3b, 0xa4, 0x25, 0x05, 0xcb, 0x91, 0x6e, 0x1b, 0xa7, 0x9f,
+	0xb1, 0xdf, 0xcc, 0x62, 0xb7, 0x00, 0x15, 0x1f, 0x4f, 0x06, 0xd5, 0x1e, 0x7a, 0x17, 0xde, 0x5e,
+	0x57, 0xb2, 0x1b, 0x0c, 0x73, 0xd4, 0xed, 0x1b, 0x3d, 0xf9, 0xd1, 0xbf, 0x03, 0x00, 0x00, 0xff,
+	0xff, 0xb9, 0xb0, 0x23, 0x03, 0xf2, 0x1a, 0x00, 0x00,
 }

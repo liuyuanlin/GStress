@@ -25,7 +25,6 @@ enum enGameFrameID{
 	GAME_SUB_USER_RELOGIN_SC = 19;			//玩家重新登陆消息
 	GAME_SUB_CANCEL_TUOGUAN_CS = 20;	    // 取消托管
 	GAME_SUB_TUOGUAN_CS = 21; 				//玩家请求被托管
-	
 }
 
 enum enGameSubID{
@@ -45,9 +44,16 @@ enum enGameSubID{
 	
 	GAME_SUB_SYNC_BEILV_SC = 110; //倍率改变了要同步倍率
 	
-	GAME_SUB_SYNC_CARDHOLDER_SC = 111; //同步记牌器，
+	GAME_SUB_SYNC_CARDHOLDER_SC = 111; //同步记牌器
 	
-	
+	GAME_SUB_SC_ADD_SUPER_BEILV_RESULT = 112; //超级加倍结果通知-目前只有超级加倍失败才会通知,主要是超级加倍卡不足
+}
+
+//GAME_SUB_SC_ADD_SUPER_BEILV_RESULT 超级加倍结果通知-目前只有超级加倍失败才会通知,主要是超级加倍卡不足
+message GAME_SUB_SC_ADD_SUPER_BEILV_RESULT_MSG
+{
+	required int32 iResult = 1; //结果,非0失败,目前只有失败,超级加倍成功不会发送此消息
+	required string strMsg = 2; //结构描述
 }
 
 enum enShuffleType
@@ -55,6 +61,7 @@ enum enShuffleType
 		enShuffleType_WENROU = 1; //温柔洗
 		enShuffleType_BAOLI =2; //暴力洗
 }
+
 message CardHoldUnit
 {
 	required int32 iCardVal = 1;  //1-13，78 79 
@@ -64,20 +71,19 @@ message CardHoldUnit
 
 message GAME_SUB_SYNC_CARDHOLDER_SC_MSG
 {
-	
-	
 	repeated CardHoldUnit szList = 1 ; //记牌器列表
 }
 
 enum enBeiLvType
 {
-	enBeiLvType_Public =1; //公共
+	enBeiLvType_Public = 1; //公共
 	enBeiLvType_MingPai = 2; //明牌
 	enBeiLvType_Bomb = 3; //炸弹
 	enBeiLvType_Spring = 4; //春天
 	enBeiLvType_BackSpring = 5; //反春
-	
-	
+	enBeiLvType_DZAddBeiLv = 6; //地主加倍
+	enBeiLvType_NMAddBeiLv = 7; //农民加倍
+	enBeiLvType_Start = 8;		//公共起始倍数
 }
 
 //修改后都会通知客户端
@@ -95,7 +101,7 @@ message GAME_SUB_SYNC_BEILV_SC_MSG
 	required int32 iTotalBeiLv = 4;
 	required int32 iBeiLvLimit = 5;
 	required int32 iBaseScore = 6;
-	
+	required int64 iMaxScore = 7; //封顶值
 }
 
 message GAME_SUB_TUOGUAN_CS_MSG
@@ -125,6 +131,7 @@ message ForwardCardInfo
 	required int32 iSeatId = 2;
 	repeated int32 szCardList  = 3;
 	repeated int32 szReplaceList = 4;
+	required bool bIsPass = 5;
 	
 };
 
@@ -134,17 +141,25 @@ message MinPaiInfo
 	repeated uint32 szCardList = 2;
 };
 
+message ActorAskLandOwnerInfo
+{
+    required int32 iSeatId = 1;
+    required int32 iType = 2; //1叫地主、2抢地主 、4叫分 ，5不叫地主  0 不抢 enSeat_Operate - 1,没有操作
+    optional int32 iScore = 3; //分数
+};
+
 message GAME_SUB_USER_RELOGIN_SC_MSG
 {
 	required int32 iTableState = 1;
 	repeated int32 szHandCardList = 2; //手牌
-	optional ForwardCardInfo forwordCardInfo = 3; //上家牌型
+	repeated ForwardCardInfo szForwordCardInfo = 3; //上家牌型
 	repeated int32 szLandOwnerCardList = 4; //
 	optional int32 iLaiZiCard = 5;
 	optional bool bIsTuoGuan = 6;
 	optional bool bSelfMingPai = 7;
 	repeated MinPaiInfo szMinPaiInfoList = 8;
 	optional int32 iCurBei = 9; //当前倍率
+    repeated ActorAskLandOwnerInfo szaskInfo = 10;
 }
 
 message GAME_SUB_SEND_LANDOWNERCARD_SC_MSG
@@ -152,12 +167,14 @@ message GAME_SUB_SEND_LANDOWNERCARD_SC_MSG
 	required int32 iLandownerSeatId = 1; //地主的座位
 	repeated uint32 szcardList = 2; //牌3张
 	optional uint32 laiZhiCard = 3;	//赖子牌
+	optional bool bRand = 4;	//是否随机地主(连续三次都没人叫地主,会随机一个地主) flase:不是 true:随机地主 用于客户端播放音效
 };
 
 message GAME_SUB_SENDCARD_SC_MSG
 {
 	repeated uint32 szcardList =1; //牌
-	repeated int32  szMinPaiTimes = 2; //明牌倍率列表 
+	repeated int32  szMinPaiTimes = 2; //明牌倍率列表
+	repeated  uint32 szDiPai = 3; //底牌
 };
 
 message GAME_SUB_MINGPAI_CS_MSG
@@ -178,8 +195,9 @@ enum enSeat_Operate{
 	enSeat_Operate_NONE = 0; 					//不操作
 	enSeat_Operate_Ask_LandOwner = 1; 			//叫地主
 	enSeat_Operate_Qiang_LandOwner = 2;			//抢地主
-	enSeat_Operate_Discard = 3; 				//出牌
-	enSeate_Operate_ASK_Score = 4;				//叫分
+	enSeat_Operate_AddBeiLv = 3;				//加倍选择
+	enSeat_Operate_Discard = 4; 				//出牌
+	enSeate_Operate_ASK_Score = 5;				//叫分
 };	
 
 //GAME_SUB_CS_OPERATE = 101; //玩家操作
@@ -192,7 +210,7 @@ message CS_UserOperate{
 	optional bool bAskOrQiangLand = 5;				//叫地主或者抢地主
 	optional int32 iTagVal = 6;						//扩展协议，叫分的时候，，0为不叫，1，2，3，为叫分
 	repeated int32 szLaiZiReplace = 7;				//癞子要替换的牌
-	
+	optional int32 iBeiLv = 8;  					//加倍选择 1不加倍 2加倍 3超级加倍
 };
 
 //GAME_SUB_SC_OPERATE_RESULT_NOTIFY = 102; //操作通知
@@ -206,6 +224,7 @@ message SC_OperateResultNotify{
 	optional int32 iBeiCount =6;			//倍数
 	optional int32 iTagVal = 7;				//扩展协议
 	repeated int32 szLaiZiReplace = 8;		//癞子要替换的牌
+	optional int32 iBeiLv = 9;  				//加倍选择
 };
 
 message DisCardNotice
@@ -246,15 +265,16 @@ enum enCardType
 
 
 
-enum TableState{
-
+enum TableState
+{
     Table_State_Init = 1;
 	Table_State_SendCard = 2; //发牌
 	Table_State_EnsureLandOwner = 3; //确定地主
-	Table_State_OutCard = 4; //出牌
-    Table_State_Game_End = 5;//游戏结束
-    Table_State_Dissolve = 6;
-    Table_State_Wait_Dissolve = 7;//等待解散投票
+	Table_State_AddBeiLv = 4; //加倍
+	Table_State_OutCard = 5; //出牌
+    Table_State_Game_End = 6;//游戏结束
+    Table_State_Dissolve = 7;
+    Table_State_Wait_Dissolve = 8;//等待解散投票
 }
 
 enum UserState
@@ -264,8 +284,9 @@ enum UserState
     Mj_User_State_Ready= 3; //准备
 	Mj_User_State_ShowCard = 4; //玩家在发牌中
 	Mj_User_State_QiangLandOwner = 5; //玩家在抢地主中
-    Mj_User_State_OutCard = 6; //玩家在出牌中
-    Mj_User_State_End= 7; // 结束
+	Mj_User_State_AddBeiLv = 6; //玩家选择是否加倍中
+    Mj_User_State_OutCard = 7; //玩家在出牌中
+    Mj_User_State_End= 8; // 结束
 };
 
 /////////////////////////////////////
@@ -306,6 +327,8 @@ message CS_UserTableChatRqst{
     optional uint32 mContentTime = 4;//媒体时长（单位毫秒）
     optional uint32 mImageId = 5; //图片数据id
     optional uint32 mMediaId = 6;//媒体ID
+    optional uint32 mTargetSeatId = 7; //目标座位号
+    optional uint32 mAnimationId = 8;//动画ID
 }
 
 //GAME_SUB_SC_USER_TABLE_CHAT_NOTIFY = 5;//聊天信息通知
@@ -316,6 +339,8 @@ message SC_UserTableChatNotify{
     optional uint32 mContentTime = 4;//媒体时长（单位毫秒）
     optional uint32 mImageId = 5; //图片数据id
     optional uint32 mMediaId = 6;//媒体ID
+    optional uint32 mTargetSeatId = 7; //目标座位号
+    optional uint32 mAnimationId = 8;//动画ID
 }
 
 
@@ -357,6 +382,11 @@ message PlayerBaseInfo{
 	required string  mUserIp = 11;							//用户积分		
 	required int64  mUserLng = 12;							//用户积分		
 	required int64  mUserLat = 13;							//用户积分						
+	optional int32  mVipType = 14;							//会员类型
+
+	optional int32 mGameLv = 15;		//游戏等级-对应了称号ID
+	optional int32 mTotalGameCnt = 16;	//金币场参与总局数
+	optional int32 mGameWinRate = 17;	//金币场胜率,百分比,比如值是50胜率就是50%,不需要小数点
 }
 
 message SeatInfo{
@@ -367,7 +397,7 @@ message SeatInfo{
 	required int32 iRemaindCardCount = 5;
 	required int32 iTimes = 6;   //倍数
 	required int32 iHaveTotalWin = 7; //玩家结算信息
-
+	required int32 iAddBeiLv = 8;	//玩家加倍信息 0还没进行加倍选择 1不加倍 2加倍 3超级加倍
 };
 
 message stTableAttribute
@@ -395,7 +425,7 @@ message stTableAttribute
 	required int32 				mClubId = 21;                         //俱乐部id
 	required int32			   mIsIpWarn =22; 			//是否相同ip警告
 	required int32			   mIsGpsWarn =23; 			//是否相同地点警告
-
+	optional string 			clubName = 24;
 };
 
 message TableInfo{
@@ -409,6 +439,7 @@ message TableInfo{
 	required int64 mAllWaitOperateTime = 8;//操作总时间
 	optional bool bShowCardHolder = 9; //是否显示记牌器
 	optional int32 mIStuffleCardType = 10;//洗牌方法
+	optional bool bIsSanDaBiZhua = 11;
 	
 };
 
@@ -431,11 +462,20 @@ message CS_UserDismissTable
 	
 };
 
+message TotalRecord
+{
+	required int32 iMaxMutipler = 1; //最高赢
+	required int32 iBoomCnt = 2;	//炸弹个数
+	required int32 iWinTimes = 3; //输赢次数
+	required int32 iSpringTimes = 4; //春天或者反春个数
+}
+
 message PokerUserWinDetail{
 
     required uint32 mSeatId = 1; //座位id
     required uint32 mUserId = 2; //玩家id
     required int64 mWinScore = 3; //数值
+	optional TotalRecord mTotalRecord = 4; //其他汇总
 };
 //GAME_SUB_SC_TABLE_TOTAL_WIN_NOTIFY = 15;//比赛所有输赢汇总通知
 message SC_TAbleTotalWinNotify{
@@ -448,6 +488,13 @@ message SC_TAbleTotalWinNotify{
 message SC_GameStart{
 };
 
+//结算状态
+enum enResultState
+{
+	enResultState_NULL = 0;		//无
+	enResultState_PoChan = 1;	//破产
+	enResultState_Limit = 2;	//封顶
+};
 
 message PokerSettlementDetail{
 	required int32  iWinType  = 1; //是地主胜利enWinRes
@@ -455,7 +502,7 @@ message PokerSettlementDetail{
     required int32 mValue = 3; //数值
 	optional int32 iTotalBeiLv = 4; //总倍数
 	optional int32 iBaseScore = 5; //底分
-	
+	required int32 mState = 6; //对应enResultState
 };
 
 message SeatRes{
@@ -482,14 +529,29 @@ message SeatFightRes
   	required int32 iDiZhu = 2; 		//底注
   	required int32 iBeiCount = 3; 	//倍数
  	required int64 WinScore = 4 ;	//输赢值
+	required int32 iState = 5;		//状态,0:无 1:破产 2:封顶 其他:无 对应enResultState
 };
 
-message SC_GameEnd{
+//游戏等级和星级信息
+message GameStarInfo
+{
+	optional int32 iGameLv = 1;		//当前游戏等级
+	optional int32 iGameExp = 2;	//当前游戏经验
+	optional int32 iAddGameExp = 3;	//此局游戏增加的经验
+	optional int32 iStarLv = 4;		//赛季认证等级
+	optional int32 iStarExp = 5;	//赛季认证经验
+	optional int32 iAddStarExp = 6;	//此局游戏增加的赛季认证经验
+}
 
+message SC_GameEnd
+{
 	required int32 mTableState = 1;//当前桌子状态TableState
 	required int32 iWin = 2;  // enWinRes 
 	repeated SeatRes szSeatRes = 3;//卡牌信息
 	repeated SeatFightRes szResultList = 4; //结算信息
+	optional int64 iBackGold = 5; //免输返还金币数量
+	optional int32 iBackExpire = 6; //免输返还金币过期时间,时间戳单位秒
+	optional GameStarInfo stGameStarInfo = 7; //游戏等级和星级信息
 };
 
 //录像回放桌位信息

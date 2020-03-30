@@ -106,7 +106,494 @@ enum enSubCmdID
 	REQUEST_WX_SGAME_PURCHASE_SUB_CMD						=100;    //请求威信小游戏-米大师购买钻石
 	RETURN_WX_SGAME_PURCHASE_SUB_CMD						   =101;    //返回威信小游戏-米大师购买钻石结果。
 	
+	REQUEST_DIAMOND_TO_ROOMCARD_SUB_CMD						=102;    //请求砖石换房卡
+	RETURN_DIAMOND_TO_ROOMCARD_SUB_CMD						=103;    //请求砖石换房卡结果。
+	
+	LOBBY_CS_GET_SPREAD_SUB_CMD						=104;    //请求推广获取的奖励
+	LOBBY_SC_GET_SPREAD_SUB_CMD						=105;    //请求推广奖励结果。
+	
+	LOBBY_CS_GET_PROXY_LINK_CMD						=106;    //请求查询代理分享链接
+	LOBBY_SC_GET_PROXY_LINK_CMD						=107;    //请求查询代理分享链接结果。
+	
+	LOBBY_CS_REV_PROXY_LINK_CMD						=108;    //请求接收代理分享链接
+	LOBBY_SC_REV_PROXY_LINK_CMD						=109;    //请求接收代理分享链接结果。
+	
+	LOBBY_CS_REQUEST_RANK								= 110;	// 客户端请求排行榜
+	LOBBY_SC_RESPONSE_RANK								= 111;	// 服务器返回排行榜	
+	
+	REQUEST_EXCHANGE_ITEM_SUB_CMD						=116;    //请求兑换物品
+	RETURN_EXCHANGE_ITEM_SUB_CMD						=117;    //返回兑换物品结果。
+	
+	REQUEST_EXCHANGE_ITEM_TIMES_SUB_CMD						=118;    //请求兑换物品次数
+	RETURN_EXCHANGE_ITEM_TIMES_SUB_CMD						=119;    //返回兑换物品次数结果。
+	
+	REQUEST_EXCHANGE_ITEM_LIST_SUB_CMD						=120;    //请求兑换物品列表
+	RETURN_EXCHANGE_ITEM_LIST_SUB_CMD						=121;    //返回兑换物品列表结果。
+	
+	//斗地主相关
+	REQUEST_START_DDZ_CMD_CS				= 122; //请求开始斗地主
+	REQUEST_START_DDZ_CMD_SC				= 123; //请求开始斗地主返回
+	REQUEST_DDZ_BACK_GOLD_CMD_CS			= 124; //斗地主请求免输返还
+	REQUEST_DDZ_BACK_GOLD_CMD_SC			= 125; //斗地主请求免输返还返回
+	REQUEST_SJRZ_INFO_CMD_CS				= 126; //请求赛季认证信息
+	REQUEST_SJRZ_INFO_CMD_SC				= 127; //请求赛季认证信息返回
+	REQUEST_SJRZ_AWARDS_CMD_CS				= 128; //请求领取赛季认证奖励
+	REQUEST_SJRZ_AWARDS_CMD_SC				= 129; //请求领取赛季认证奖励返回
+	REQUEST_SJRZRANK_AWARD_RECORD_CS		= 130; //请求历史赛季认证星级排行榜
+	REQUEST_SJRZRANK_AWARD_RECORD_SC		= 131; //请求历史赛季认证星级排行榜返回
+	LOBBY_SC_NOTIFY_GAMELV_UP				= 132; //服务器主动推送玩家等级提升了
+	REQUEST_GG_FREE_DIAMOND_CMD_CS			= 133; //请求看广告免费领取钻石
+	REQUEST_GG_FREE_DIAMOND_CMD_SC			= 134; //请求看广告免费领取钻石返回
+	
 	TEST_SUB_CMD                           				= 200;       //test
+
+	LOBBY_QUERY_CREATE_PERMISSIONS_SC					= 201;		//创建 俱乐部权限查询
+	LOBBY_QUERY_CREATE_PERMISSIONS_CS					= 202;		//客户端请求权限查询
+	RETURN_IAP_GIVE_ROOMCARD_SUB_CMD                    = 203;   // 通知客户端 充值加房卡	
+
+	LOBBY_ACTOR_WIN_GOLD_RANK_CACHEMSG_SC						 = 204; //服务器Cache消息推送
+	LOBBY_REQUEST_WINGOLD_AWARD_RECORD_SC		= 205; //查询玩家金币场排行榜奖励获取记录
+	LOBBY_REQUEST_WINGOLD_AWARD_RECORD_CS		= 206; //查询玩家金币场排行榜奖励获取记录
+
+	LOBBY_QUERY_SPREAD_RECORD_CS 	= 207;	//请求推广记录
+	LOBBY_QUERY_SPREAD_RECORD_SC	= 208; //请求推广记录返回
+	LOBBY_SPREAD_ONE_KEY_GET_AWARD_CS =	209; //一键获取玩家奖励
+	LOBBY_SPREAD_ONE_KEY_GET_AWARD_SC = 210;//一键获取玩家奖励服务器返回
+
+
+	LOBBY_AWARD_GAME_PROCESS_SC = 211; //游戏进度奖励
+
+	LOBBY_SERVER_TO_CLIENT_CONFIG_SC = 212; //服务器推送配置
+
+	LOBBY_REQ_SHARE_GAME_AWARD_CS = 213; //客户端请求分享奖励
+
+	LOBBY_COMMON_AWARD_SC = 214; //通用奖励协议
+	
+	LOBBY_REQ_CACHE_MSG_CS = 215; //请求下发缓存消息
+
+	LOBBY_IAP_RETURN_SC = 216; //IAP购买成功返回通知客户端
+
+	LOBBY_RED_POINT_NOTICE_CS = 217; // 红点提醒
+	LOBBY_RED_POINT_NOTICE_SC = 218; // 红点提醒
+
+	LOBBY_REQ_SET_GUIDE_FLAG_CS = 219 ;//引导标识
+
+	LOBBY_CS_REALNAME_AUTHENTICATION_CMD2		= 220;	//电话号码绑定
+	LOBBY_SC_REALNAME_AUTHENTICATION_CMD2		= 221;	//电话号码绑定
+	
+	LOBBY_CS_CHILI_EXCHANGE_CMD					= 222;	//小辣椒兑换物品请求
+	LOBBY_SC_CHILI_EXCHANGE_RT_CMD				= 223;	//小辣椒兑换物品请求返回
+
+	LOBBY_CS_EXCHANGE_RMB_RECORDS_CMD			= 224;	//客户端请求红包兑换记录
+	LOBBY_SC_EXCHANGE_RMB_RECORDS_CMD			= 225;	//客户端请求红包兑换记录返回
+
+	// 客户端请求设置桌布值
+	LOBBY_SET_DESK_CLOTH_CMD_CS = 226;
+	LOBBY_SET_DESK_CLOTH_CMD_SC = 227;
+
+	// 更新IP地址
+	LOBBY_SYNC_IPADDR_CMD_CS						= 230;
+	LOBBY_SYNC_IPADDR_CMD_SC						= 231;
+
+	//赠送功能相关
+	LOBBY_CS_REQ_GIVE_FUNC_STATE					= 232;	//请求赠送功能状态
+	LOBBY_SC_REQ_GIVE_FUNC_STATE					= 233;	//请求赠送功能状态返回
+	LOBBY_CS_CHECK_ACCID							= 234;	//检测ACCid是否正确
+	LOBBY_SC_CHECK_ACCID							= 235;	//检测ACCid是否正确返回
+	LOBBY_CS_GIVE_GOODS_TO_SOMEONE					= 236;	//客户端请求赠送东西给其他人
+	LOBBY_SC_GIVE_GOODS_TO_SOMEONE					= 237;	//客户端请求赠送东西给其他人返回
+	LOBBY_CS_REQ_GIVE_GOODS_RECORDS					= 238;	//客户端请求赠送/接受赠送记录
+	LOBBY_SC_REQ_GIVE_GOODS_RECORDS					= 239;	//客户端请求赠送/接受赠送记录返回
+
+	LOBBY_RED_POINT_SETMASK_CS = 240; // 设置红点掩码
+
+
+	LOBBY_SC_UPDATE_CONFIG_VER = 241; //更新数据表版本号
+
+	LOBBY_CS_REQ_ROOM_MATCH_COUNT = 242; //请求金币场红包房间进度
+	LOBBY_SC_REQ_ROOM_MATCH_COUNT = 243; //请求金币场红包房间进度返回
+	LOBBY_SC_ROOM_MATCH_COUNT_AWARD = 244; //金币场红包发奖,服务器发奖时主动推送
+
+	LOBBY_CS_REQ_COIN_GAME_MONEY = 245; //金币场请求红包奖励信息
+	LOBBY_SC_REQ_COIN_GAME_MONEY = 246; //金币场请求红包奖励信息返回
+
+
+	LOBBY_CS_REQ_GGSDK_PARAM = 247; //请求广告参数
+	LOBBY_SC_REQ_GGSDK_PARAM = 248; //请求广告参数返回
+	
+	REQUEST_TC_APP_PURCHASE_SUB_CMD						= 300;    //请求腾讯开放平台支付
+	RETURN_TC_APP_PURCHASE_SUB_CMD						= 301;    //返回腾讯开放平台支付	
+	REQUEST_360_PURCHASE_SUB_CMD						   = 302;    //请求360充值预付订单
+	RETURN_360_PURCHASE_SUB_CMD						   = 303;    //返回360充值预付订单
+	REQUEST_baidu_PURCHASE_SUB_CMD					   = 304;//请求百度充值订单
+	RETURN_baidu_PURCHASE_SUB_CMD					      = 305;//返回百度充值订单
+	REQUEST_huawei_PURCHASE_SUB_CMD					   = 306;//请求华为充值订单
+	RETURN_huawei_PURCHASE_SUB_CMD					   = 307;//返回华为充值订单
+	REQUEST_XMI_PURCHASE_SUB_CMD					      = 308;//请求小米充值订单
+	RETURN_XMI_PURCHASE_SUB_CMD					      = 309;//返回小米充值订单
+	REQUEST_OPPO_PURCHASE_SUB_CMD					      = 310;//请求OPPO充值订单
+	RETURN_OPPO_PURCHASE_SUB_CMD					      = 311;//返回OPPO充值订单
+	REQUEST_VIVO_PURCHASE_SUB_CMD					      = 312;//请求VIVO充值订单
+	RETURN_VIVO_PURCHASE_SUB_CMD					      = 313;//返回VIVO充值订单
+}
+
+
+//REQUEST_GG_FREE_DIAMOND_CMD_CS 请求看广告免费领取钻石
+message REQUEST_GG_FREE_DIAMOND_CMD_CS_MSG
+{
+	required string strADFlag = 1; //看广告的标记
+}
+
+//REQUEST_GG_FREE_DIAMOND_CMD_SC 请求看广告免费领取钻石返回
+message REQUEST_GG_FREE_DIAMOND_CMD_SC_MSG
+{
+	required int32 iReault = 1; //领取结果 非0失败
+	required string strMsg = 2; //结果描述
+	repeated AwardUnit szAwardList = 3; //获得的奖励
+}
+
+//LOBBY_SC_NOTIFY_GAMELV_UP 服务器主动推送玩家等级提升了
+message LOBBY_SC_NOTIFY_GAMELV_UP_MSG
+{
+	required int32 iCurGameLv = 1; //当前等级
+	repeated AwardUnit szAwardList = 2; //获得的奖励
+	repeated int32 szTitleId = 3; //获得的称号ID,因为可能升多级所以可能是多个称号
+}
+
+//REQUEST_SJRZRANK_AWARD_RECORD_CS 请求历史赛季认证星级排行榜
+message REQUEST_SJRZRANK_AWARD_RECORD_CS_MSG
+{
+}
+
+//REQUEST_SJRZRANK_AWARD_RECORD_SC 请求历史赛季认证星级排行榜返回
+message REQUEST_SJRZRANK_AWARD_RECORD_SC_MSG
+{
+	repeated RecordUnit szRecordList = 1;//历史排行信息
+}
+
+//REQUEST_SJRZ_INFO_CMD_CS 请求赛季认证信息
+message REQUEST_SJRZ_INFO_CMD_CS_MSG
+{
+}
+
+//REQUEST_SJRZ_INFO_CMD_SC 请求赛季认证信息返回
+message REQUEST_SJRZ_INFO_CMD_SC_MSG
+{
+	required int32 iResult = 1;	//请求结果 非0失败
+	required string strMsg = 2;	//返回说明
+	repeated int32 iBaseAwardList = 3;  //已领取的初级奖励-记录的是对应星级
+	repeated int32 iMoreAwardList = 4; //已领取的至尊奖励-记录的是对应星级
+}
+
+//REQUEST_SJRZ_AWARDS_CMD_CS 请求领取赛季认证奖励
+message REQUEST_SJRZ_AWARDS_CMD_CS_MSG
+{
+	required int32 iType = 1; //领取的类型 1初级 其他至尊
+	required int32 iStarLv = 2; //领取奖励的对应星级
+	optional string strAdFlag = 3; //观看广告领取3倍至尊奖励标志-观看广告返回的数据
+}
+
+//REQUEST_SJRZ_AWARDS_CMD_SC 请求领取赛季认证奖励返回
+message REQUEST_SJRZ_AWARDS_CMD_SC_MSG
+{
+	required int32 iResult = 1;	//请求结果 非0失败 如果成功,客户端需要自行把UI状态修改
+	required string strMsg = 2;	//返回说明
+	required int32 iType = 3; //领取的类型,客户端传什么就会原样返回
+	required int32 iStarLv = 4; //领取奖励的对应星级,客户端传什么就会原样返回
+	optional bool bAdFlag = 5; //是个观看广告3倍领取-只有至尊奖励才有
+}
+
+//REQUEST_DDZ_BACK_GOLD_CMD_CS 斗地主请求免输返还
+message REQUEST_DDZ_BACK_GOLD_CMD_CS_MSG
+{
+	required uint32 iRoomId = 1; //房间ID
+	optional string strAdFlag = 2; //看广告标记
+}
+
+//REQUEST_DDZ_BACK_GOLD_CMD_SC 斗地主请求免输返还返回
+message REQUEST_DDZ_BACK_GOLD_CMD_SC_MSG
+{
+	required int32 iResult = 1;	//请求免输返还金币结果 非0失败 成功时客户端需自动把返还按钮去掉,服务器不会推送
+	required string strMgs = 2;	//返还说明
+	optional int64 iBackGold = 3;	//返还金币数量
+}
+
+//REQUEST_START_DDZ_CMD_CS 请求开始斗地主
+message REQUEST_START_DDZ_CMD_CS_MSG
+{
+	required uint32 iRoomId = 1;	//房间ID
+	optional bool bIsMingPai = 2;	//明牌开始
+	optional string strAdFlag = 3; //看广告标记,如果有此参数并且验证成功,表示优先查看底牌(是否查看底牌)
+	repeated uint32 mCards = 4;		//测试使用,自己设定的本局牌型
+	optional int32 iLaiZiCard = 5;	//测试使用,癞子牌
+}
+
+//REQUEST_START_DDZ_CMD_SC 请求开始斗地主返回
+message REQUEST_START_DDZ_CMD_SC_MSG
+{
+	required int32 iRoomId = 1; //房间ID
+	required int32 iRet = 2; //返回码 0成功 其他失败
+	required string msg = 3; //返回说明
+}
+
+//LOBBY_CS_REQ_COIN_GAME_MONEY
+message LOBBY_CS_REQ_COIN_GAME_MONEY_MSG
+{
+	required int32 UserId = 1;//玩家uid
+}
+
+//LOBBY_SC_REQ_COIN_GAME_MONEY
+message LOBBY_SC_REQ_COIN_GAME_MONEY_MSG
+{
+	repeated RoomInfo InfoList = 1;//房间信息列表
+}
+
+message RoomInfo{
+	required int32 RoomId = 1;//房间ID
+	required int32 TotalNums = 2;//总共需要的局数
+	required AwardUnit AwardInfo = 3; //奖励信息
+}
+
+
+//LOBBY_CS_REQ_ROOM_MATCH_COUNT
+message LOBBY_CS_REQ_ROOM_MATCH_COUNT_MSG
+{
+	required int32 RoomId = 1; //房间ID
+}
+
+//LOBBY_SC_REQ_ROOM_MATCH_COUNT
+message LOBBY_SC_REQ_ROOM_MATCH_COUNT_MSG
+{
+	required int32 RoomId = 1; //房间ID
+	required int32 MatchCount = 2; //参与次数
+}
+
+//LOBBY_SC_ROOM_MATCH_COUNT_AWARD
+message LOBBY_SC_ROOM_MATCH_COUNT_AWARD_MSG
+{
+	required int32 RoomId = 1; //房间ID
+	repeated AwardUnit szAwardList = 2; //奖励列表
+}
+
+message LOBBY_SC_UPDATE_CONFIG_VER_MSG
+{
+	required int32 versions = 1; //版本号
+}
+
+//通用请求空结果
+message LOBBY_CS_COMMON_EMPTY_MSG
+{
+}
+
+message LOBBY_CS_REQ_GIVE_GOODS_RECORDS_MSG
+{
+	required int32 iReqType = 1;	//请求类型 1赠送记录 2接受赠送记录 其他无效
+	required int32 iRecordType = 2;	//记录类型 1-话费类型 2-实物类型 4-cdkey类型 对应wp-物品.xlsx表dwType列
+	required int32 iRecordNum = 3;	//查询条数
+}
+
+message give_records_msg
+{
+	required int64 iAccID = 1; //赠送/接受赠送的玩家靓号
+	required string strNickName = 2; //赠送/接受赠送的玩家昵称
+	required string strItemName = 3; //赠送道具名称
+	required int64 iTime = 4; //时间戳,单位:秒
+}
+
+message LOBBY_SC_REQ_GIVE_GOODS_RECORDS_MSG
+{
+	required int32 iReqType = 1;  // 请求类型 1赠送记录 2接受赠送记录 其他无效
+	required int32 iRecordType = 2;  // 记录类型 1-话费类型 2-实物类型 4-cdkey类型 对应wp-物品.xlsx表dwType列
+	repeated give_records_msg infos = 3; // 记录列表
+}
+
+message LOBBY_CS_GIVE_GOODS_TO_SOMEONE_MSG
+{
+	required int32 iItemId = 1;		//物品ID
+	required int32 iAccId = 2;		//接受者AccId(靓号)
+	optional string UniqueID = 3;	//唯一ID(实物和话费对应的uniqueID)
+	optional int64 iAutoId = 4;		//自增ID(CDKey对应的为自增ID)
+}
+
+message LOBBY_SC_GIVE_GOODS_TO_SOMEONE_MSG
+{
+	required bool bResult = 1;		//结果 true-成功 false-失败
+	required string strMsg = 2;		//结果描述
+	optional string UniqueID = 3;	//唯一ID(实物和话费对应的uniqueID)
+	optional int64 iAutoId = 4;		//自增ID(CDKey对应的为自增ID)
+}
+
+message LOBBY_CS_CHECK_ACCID_MSG
+{
+	required int32 iAccId = 1;  // AccId靓号
+}
+
+message LOBBY_SC_CHECK_ACCID_MSG
+{
+	required bool bResult = 1;  // 结果 true-accid输入正确 false-accid输入错误
+	required int32 iAccId = 2; // AccId靓号
+	optional string strNickName = 3; // 昵称
+}
+
+message LOBBY_SC_REQ_GIVE_FUNC_STATE_MSG
+{
+	required int32 iState = 1; //赠送功能状态 0关闭 1开启
+}
+
+message LOBBY_CS_EXCHANGE_RMB_RECORDS_CMD_MSG
+{
+	repeated int64 product_id = 1;  // 商品id-RMB id
+}
+
+message LOBBY_SC_EXCHANGE_RMB_RECORDS_CMD_MSG
+{
+	repeated itemAndTimes info  = 1; // 红包兑换次数信息
+}
+
+//LOBBY_CS_CHILI_EXCHANGE_CMD = 222 小辣椒兑换物品请求
+message LOBBY_CS_CHILI_EXCHANGE_CMD_MSG 
+{
+	required int32 id = 1;  // 兑换的物品id-对应数据表配置的id
+}
+//LOBBY_SC_CHILI_EXCHANGE_RT_CMD = 223 小辣椒兑换物品请求返回
+message LOBBY_SC_CHILI_EXCHANGE_RT_CMD_MSG 
+{
+	required int32 result = 1;	// 结果码:0 成功,非0失败.1:兑换的物品不存在 2:小辣椒不足
+	required int32 id = 2;		// 兑换的物品id-对应数据表配置的id
+	optional string resultStr = 3; // 结果说明
+}
+
+message LOBBY_REQ_SET_GUIDE_FLAG_CS_MSG
+{
+	required int32 iNewGuideFlag = 1;	
+}
+
+message LOBBY_RED_POINT_NOTICE_CS_MSG
+{
+
+}
+
+enum enRedPointType
+{
+	enRedPointType_DT_SHARE = 0x01; //大厅分享
+	enRedPointType_GOLD_SHARE = 0x02; //金币场分享
+	enRedPointType_MIAL = 0x04;  //邮件
+	enRedPointType_ITEM = 0x08; //兑换
+	enReadPointType_ITEM_RedPackage = 0x10; //兑换中红包
+	enReadPointType_ITEM_TelFee = 0x20; //兑换中话费
+	enRedPointType_DAZHUANPAN = 0x40; //大转盘
+	enRedPointType_MONTH_CARD= 0x80; //月卡
+	enRedPointType_TASK= 0x100; //日常任务
+	enRedPointType_MAIN_TASK = 0x200; //主线任务
+	enRedPointType_SIGN_IN = 0x400; //签到抽奖
+	enRedPointType_WELFARE_NEW_PLAYER = 0x800; //福利中心-新人福利
+	enRedPointType_WELFARE_INVITE = 0x1000; //福利中心-邀请福利
+	enRedPointType_ITEM_CDKEY = 0x2000; //兑换中兑换码
+	enRedPointType_INVITE_TASK = 0x4000; //邀请任务
+	enRedPointType_TIAOZHAN_TASK= 0x8000; //挑战任务
+}
+
+message LOBBY_RED_POINT_NOTICE_SC_MSG
+{
+	required int64 iRedFlag = 1; //enRedPointType
+}
+
+message LOBBY_IAP_RETURN_SC_MSG
+{
+	required int32 	result = 1;
+	required string transaction_id =2;
+	required int32 iGoodId = 3;		//索引ID
+	required string strProductId = 4;  //商品ID
+	optional bool bIsFirstPay = 5[default=false]; 		//是首冲
+	optional int32 discount = 6; //折扣 100
+}
+
+
+message LOBBY_REQ_CACHE_MSG_CS_MSG
+{
+}
+
+message LOBBY_REQ_SHARE_GAME_AWARD_CS_MSG
+{
+	required int32 iWhere = 1; // 1 金币场分享 2.大厅分享 3.完成任务分享
+	
+}
+
+enum enCommonAwardType
+{
+	enCommonAwardType_SMRZ = 1;	 //实名认证
+	enCommonAwardType_SHARE = 2; //分析获得金币
+	enCommonAwardType_FOLLOW_GZH = 3; //关注公众号
+	enCommonAwardType_SHARE_LOBBY = 4; //大厅
+	enCommonAwardType_ACTIVE_INVITE = 5; //邀好友瓜分百万红包活动
+}
+
+message LOBBY_COMMON_AWARD_SC_MSG
+{
+	repeated AwardUnit szAwardList = 1;
+	optional int32 iType = 2;
+}
+
+message LOBBY_AWARD_GAME_PROCESS_SC_MSG
+{
+	repeated AwardUnit szAwardList = 1;
+}
+
+message LOBBY_QUERY_SPREAD_RECORD_CS_MSG
+{}
+
+message SpreadRecordUnit
+{
+	required string strNickName = 1;
+	required int32 iCurPay = 2;
+	optional stSpreadAward szAwardList = 3;
+	required string strFaceId = 4 ; //头像
+}
+
+message LOBBY_QUERY_SPREAD_RECORD_SC_MSG
+{
+	repeated SpreadRecordUnit  szRecordList = 1;
+	optional stSpreadAward selfSpreatAward = 2;
+	required int32 iSpreadCount = 3;
+}
+
+message LOBBY_SPREAD_ONE_KEY_GET_AWARD_CS_MSG
+{}
+
+message LOBBY_SPREAD_ONE_KEY_GET_AWARD_SC_MSG
+{
+	required stSpreadAward selfSpreatAward = 1;
+}
+
+
+message LOBBY_REQUEST_WINGOLD_AWARD_RECORD_CS_MSG
+{}
+
+message RecordUnit
+{
+	required int32 dwTimeStamp = 1;
+	required int32 dwRank = 2;
+	repeated AwardUnit szAwardList = 3;
+}
+
+message LOBBY_REQUEST_WINGOLD_AWARD_RECORD_SC_MSG
+{
+	repeated RecordUnit szRecordList =1;
+}
+
+message LOBBY_ACTOR_WIN_GOLD_RANK_CACHEMSG_SC_MSG
+{
+	repeated AwardUnit szAwardList = 1;
+}
+
+message LOBBY_QUERY_CREATE_PERMISSIONS_CS_MSG
+{
+	required string strPackName = 1;
+}
+message LOBBY_QUERY_CREATE_PERMISSIONS_SC_MSG
+{
+	required bool bIsCanBuild = 1;   //true可以创建 false 不可以创建
+	optional string strContact = 2;	 //客服联系方式 
 }
 
 //USER_MAIN_INFO_SUB_CMD                      	              = 1;	//服务器发送大厅用户主要信息给客户端
@@ -144,8 +631,58 @@ message SC_Logon_Success
 	optional int32 iVipLv  = 56;  //玩家VIP等级
 	optional string strRealName  = 57;  //玩家真实姓名
 	optional string strIDCard  = 58;  //玩家身份证号
+	optional int64 iCardCnt = 59;
+	optional int32 CanBuildClub = 60; //是否可创建俱乐部
+	optional bytes strMiscData=61;
+	optional int32 iCurRoomId=62;  //我当前所在的房间id
+	optional int32 iSpreadAward=63;  //分享活动是否开启 1 开启 其它关闭
+	optional int64 dwRMB = 64;
+	optional int64 dwMatchCard = 65; //参赛卡
+	optional int32 mMatchTypeId = 66; //比赛类型ID
+	optional int32 mRoomType = 67; //房间类型
+	optional int64 iChili = 68; //小辣椒数量
+	optional string strAgentID = 69; //代理ID
+	optional bool bNewUser = 70;	//是否为新玩家,true是 false不是
+	optional bool bAwardRedPacket = 71;	//是否可以领取红包,用于客户端引导
+	required int32 DataCfgVer = 72;	//服务器当前数据表版本号
+	
+	optional int32 gamelv = 73; //游戏等级
+	optional int64 gameexp = 74;//游戏经验值
+	optional int32 startlv = 75;//游戏星级
+	optional int64 startexp = 76;//游戏当前星级值
+	optional int64 gamewin = 77; //胜利次数
+	optional int64 gametotal = 78;//总对局次数
+	optional int64 gamemcwin = 79;//最高连胜次数
+	optional int32 rechangenickts = 80;//剩余修改昵称次数
+	optional int32 maxchangenickts = 81;//最大修改昵称次数
+	optional int32 curtitle = 82;//当前称号id
+	
+	optional int64 jqptm = 83;//记牌器-时间
+	optional int32 jqpCount = 84;//记牌器数量(和JPQTM是两种道具)
+	optional int32 superCard = 85;//超级加倍卡数量
+	optional int64 blesscard = 86;//福卡
+
+	optional int64 sjrzEndTime = 87;//赛季认证-当前赛季结束时间,时间戳,单位秒
+	optional int32 sjrzId = 88;//赛季认证-当前赛季id
+	optional int32 sjrzAdCnt = 89;//赛季认证-已观看广告数量
+	optional int32 sjrzAdLimit = 90;//赛季认证-领取至尊奖励需要观看的广告数量
+	
 }
 
+message MiscData
+{
+	repeated int32 szGoodId = 1; //首冲ID列表
+	optional int32 redPackVal = 2; //红包金额
+	optional int32 oldredPackVal = 3; //已领取红包金额
+	optional int32 isRevRedpack = 4; //是否已领取红包 0 未领取 1已领取---客户端表现
+	optional int32 iRemaindRankTimes= 5;
+	optional bool bIsFollowGZH = 6 [default = false]; //是否已经关注公众号
+	optional bool bIsFollowNewGZH = 7 [default = false];
+	optional int32 iGameScore = 8; //游戏积分
+	optional int32 iGuideFlag = 9 [default =0]; //引导标识
+	optional bool  bHaveExchange = 10 [default = false]; //是否已经兑换
+	optional int32 iDeskCloth = 11; //桌布
+};
 
 //GAME_KIND_INFO_SUB_CMD                                      = 2;	//服务器发送可用游戏类型给客户端
 message GameKindInfo_Repeat
@@ -230,11 +767,39 @@ message SC_LobbyWorldChat
 //UPDATE_USER_ATT_SUB_CMD                              = 7;       //更新玩家属性数据
 message SC_Update_User_Att
 {
-	required int32 iDiamond  = 6;																//用户Level
-        required int32 iTicket = 9;															//用户彩票
-	required int64 iGold = 11;																//金币数量
-	required string mobile = 17;												//绑定的手机号
-	required int64 iInsureGold = 18;													 	//保险箱金币
+	required int32 iDiamond  = 1;																//用户Level
+    required int32 iTicket = 2;															//用户彩票
+	required int64 iGold = 3;																//金币数量
+	required string mobile = 4;												//绑定的手机号
+	required int64 iInsureGold = 5;													 	//保险箱金币
+	optional int64 iCardCnt = 6;									//房卡
+	optional int32 CanBuildClub = 7;								//更新是否可创建俱乐部状态 序号改了客户端要出问题，就不改了吧
+	optional bytes strMiscData = 8;								//杂项数据
+	optional int64 dwRMB = 9;
+	optional int64 dwMatchCard = 10;							//参赛券
+	optional int64 dwChili = 11;							//小辣椒
+	optional string strAgentId = 12;					//代理ID
+	optional bool bNewUser = 13;	//是否为新玩家,true是 false不是
+	optional bool bAwardRedPacket = 14;	//是否可以领取红包,用于客户端引导
+	
+	optional int32 gamelv = 15; //游戏等级
+	optional int64 gameexp = 16;//游戏经验值
+	optional int32 startlv = 17;//游戏星级
+	optional int64 startexp = 18;//游戏当前星级值
+	optional int64 gamewin = 19; //胜利次数
+	optional int64 gametotal = 20;//总对局次数
+	optional int64 gamemcwin = 21;//最高连胜次数
+	optional int64 jqptm = 22;//记牌器-时间
+	optional int32 jqpCount = 23;//记牌器数量(和JPQTM是两种道具)
+	optional int32 superCard = 24;//超级加倍卡数量
+	optional int64 blesscard = 25;//福卡
+	optional int32 curtitle = 26;//当前称号id
+
+	optional int64 sjrzEndTime = 27;//赛季认证-当前赛季结束时间,时间戳,单位秒
+	optional int32 sjrzId = 28;//赛季认证-当前赛季id
+	optional int32 sjrzAdCnt = 29;//赛季认证-已观看广告数量
+	optional int32 sjrzAdLimit = 30;//赛季认证-领取至尊奖励需要观看的广告数量
+
 }
 
 //LOBBY_NOTIFY_USER_VIPINFO_SUB_CMD
@@ -446,6 +1011,18 @@ message SC_Notify_GodMan_Progress
 message SC_ReturnIapGiveDiamond
 {
 	required int32   num			  = 1;  // 获取钻石数量
+	required string  transaction_id  	  = 2;  // 交易id
+	required int32 	 result = 3;		//交易结果 0 成功， 1:IAP认证失败， 2：没有对应的产品ID， 3：产品ID与票据不符。
+	optional bool bIsFirstPay = 4[default=false]; 		//是首冲
+	
+}
+
+
+
+//RETURN_IAP_GIVE_ROOMCARD_SUB_CMD      // 通知客户端 充值加房卡	
+message SC_ReturnIapGiveRoomCard
+{
+	required int32   num			  = 1;  // 获取房卡数量
 	required string  transaction_id  	  = 2;  // 交易id
 	required int32 	 result = 3;		//交易结果 0 成功， 1:IAP认证失败， 2：没有对应的产品ID， 3：产品ID与票据不符。
 	
@@ -1017,8 +1594,8 @@ message User_Room_Info_Repeat
 	required int32 iDiamond = 8;												//用户钻石
 	required int64 i64RegistDate = 9;											//注册日期
 	optional string szDescription = 10 [default = ""];                                              			//个人说明
-	optional string szImage = 11 [default = ""];;                                                                           //头像
-	optional string szMobile = 12 [default = ""];;                                          				//手机号
+	optional string szImage = 11 [default = ""];                                                                       //头像
+	optional string szMobile = 12 [default = ""];                                        				//手机号
 	required int32 iUserStatus = 13;											//用户状态
 	optional string logonip = 14;                                                                                           // 登录ip 
 }
@@ -1064,6 +1641,20 @@ message SC_Sign_Red
 	required int64 WeekGold	  = 3;  //周奖励红包金豆数量
 	required int64 SignCount  = 4;  //签到次数
 	required int64 LastSignTime	  = 5;  //最后一次签到时间
+}
+
+//LOBBY_CS_REALNAME_AUTHENTICATION_CMD2		= 96;	//实名认证请求
+message CS_RealName_Authentication2
+{
+	required string phonenumber = 1;	//手机号			
+	required string  token      = 2; //验证码
+}
+
+//LOBBY_SC_REALNAME_AUTHENTICATION_CMD2		= 97;	//实名认证返回
+message SC_RealName_Authentication2
+{
+	required int32 iResult = 1; //处理结果 0 成功其它错误读取错误消息
+	required string strMsg   = 2; //错误消息 
 }
 
 //LOBBY_CS_REALNAME_AUTHENTICATION_CMD		= 96;	//实名认证请求
@@ -1112,4 +1703,441 @@ message SC_Response_Wx_SGame_Purchase
 {
 	required int32 iResult = 1; //处理结果 0 成功其它错误读取错误消息
 	required string strMsg   = 2; //错误消息 
+}
+
+//REQUEST_DIAMOND_TO_ROOMCARD_SUB_CMD						=102;    //请求砖石换房卡
+message CS_RequestDiamondToRoomCard 
+{
+	required int32   id      	          = 2;  // 商品编号
+}
+//RETURN_DIAMOND_TO_ROOMCARD_SUB_CMD						=103;    //请求砖石换房卡结果。
+message SC_ReturnDiamondToRoomCard 
+{
+	required int32 result 			       = 1;  // 结果码：0 成功，非0失败。1:商品不存在， 2：砖石不足
+	required int32   id      	          = 2;  // 商品编号
+	optional string resultStr = 3;
+}
+
+// LOBBY_CS_GET_SPREAD_SUB_CMD
+message CS_GetSpreadCmd 
+{
+	optional int32   itype      	         = 1;  //可选字段 获取奖励的类型
+}
+
+//LOBBY_SC_GET_SPREAD_SUB_CMD
+message SC_GetSpreadCmd 
+{
+	required int64   iTotal      	         = 1;  //获取奖励的总数量
+	required int64   iPre      	         = 2;  //获取奖励的单价
+	optional int32   itype      	         = 3;  //可选字段 获取奖励的类型
+}
+
+//LOBBY_CS_GET_PROXY_LINK_CMD	请求查询代理分享链接
+message CS_GetProxyLinkCmd 
+{
+	required string   code      	         = 1;  //查询链接code
+}
+//LOBBY_SC_GET_PROXY_LINK_CMD	请求查询代理分享链接结果
+message SC_GetProxyLinkCmd
+{
+	required int64   iResult      	      = 1;  //查询结果 0-有数据 其他-错误
+	optional int64   senduserid            = 2;  //赠送用户 ID
+	optional string  sendnick              = 3;  //赠送用户 NICK
+	optional int32   sendtype              = 4;  //赠送类型 5房卡
+	optional int32   sendcnt               = 5;  //赠送数量
+	optional string  strMsg      	         = 6;  //查询错误的提示	
+}
+
+//LOBBY_CS_REV_PROXY_LINK_CMD		请求接收代理分享链接
+message CS_RevProxyLinkCmd 
+{
+	required string   code      	         = 1;  //接收链接code
+}
+
+//LOBBY_SC_REV_PROXY_LINK_CMD	  请求接收代理分享链接结果。
+message SC_RevProxyLinkCmd
+{
+	required int64   iResult      	      = 1;  //接收结果 0-成功 其他-错误
+	required string  strMsg      	         = 2;  //接收的提示	
+}
+
+
+
+
+enum enRankType
+{
+	RankType_GOLD								= 1;	// 金币总榜
+	RankType_WEEK_WIN_GOLD						= 2;	// 每周金币赢分榜
+	RankType_DAY_WIN_GOLD						= 3;	// 每日金币赢分榜
+	RankType_DAY_GOLD_TIMES						= 4;	// 金币场对局数
+	RankType_SJRZ_STAR							= 5;	// 赛季认证星级排行榜
+}
+
+//LOBBY_CS_REQUEST_RANK								= 110;	// 客户端请求排行榜
+message Rank_CS_Request_Rank
+{
+	required int32 mRankType							= 1;	//排行榜类型
+	required int32 mRankCount							= 2;	//排行数量
+	required int64 mRankTime							= 3;
+}
+
+message Rank_Repeat
+{
+	required int32 mRank								= 1;	//排名
+	required string mRankValue							= 2; 	//值
+	optional int32 dwUserID								= 3;	//玩家ID
+	optional int32 dwAccID								= 4;	//玩家Accid
+	optional string szNickName							= 5;	//昵称
+	optional string dwFaceID							= 6;	//头像
+	optional int32 dwSex								= 7;	//性别
+	optional int64 lGold								= 8;	//金币
+	repeated  AwardUnit szAwardList = 9; //预计奖励
+	optional int32 vipType 								= 10;	//会员类型
+
+}
+
+//排行榜额外数据
+message Rank_SC_Extra_Data
+{
+	optional int64 iStartTime = 1;		//排行榜开始时间
+	optional int64 iEndTime = 2;		//排行榜结束时间
+	optional int32 iSJRZId = 3;			//赛季认证当前赛季ID
+}
+
+//LOBBY_SC_RESPONSE_RANK								= 111;	// 服务器返回排行榜	
+message Rank_SC_Response_Rank
+{
+	required int32 mRankType							= 1;	//排行榜类型
+	required int32 mRankCount							= 2;	//排行数量
+	required int64 mRankTime							= 3;	//排行榜时间
+	repeated Rank_Repeat mRankItem						= 4;	//排行数据
+	optional int32 mMyRank								= 5;	//自己的排行
+	optional string mMyValue							= 6;	//自己的排行数据
+	repeated AwardUnit szAwardList 						= 7;	//个人预计奖励
+	optional Rank_SC_Extra_Data mExtraData				= 8;	//额外数据									
+}
+
+enum enAwardType
+{
+	enAwardType_None			= 0;	//无意义
+    enAwardType_Diamond			= 1;	//钻石类道具
+	enAwardType_Gold			= 2;	//金币类型道具
+	enAwardType_Point			= 3;	//积分
+	enAwardType_RMB				= 4;	//RMB道具
+	enAwardType_RoomCard		= 5;	//房卡
+	enAwardType_dwRMB			= 6;	//RMB 券
+	enAwardType_dwMatchCard		= 7;	//参赛卡
+	enAwardType_Chili			= 8;	//小辣椒
+	enAwardType_VIP				= 9;	//vip时长
+	enAwardType_JPQ_TM			= 11;	//记牌器 时间
+	enAwardType_BlessCard		= 12;	//福卡
+	enAwardType_JPQCount		= 13;	//记牌器 数量
+	enAwardType_SuperCard		= 14;	//超级加倍卡
+};
+
+message stSpreadAward
+{
+	repeated AwardUnit awardInfo = 1; //奖励列表 
+}
+
+message AwardUnit
+{
+	required int32 awardType =1 ; //enAwardType
+	required int32 awardVal = 2;	
+}
+
+message GameSpeedInfo
+{
+	required int32 mRoomId					= 1;	//房间ID
+	required int32 iGameScore				= 2;
+	//required int32 mCurCount				= 2;	//当前进度
+	//required int32 mAllCount				= 3;	//总进度
+	//required int32 mGetAwardCount			= 4;	//当前领奖
+	//required int32 mTotalAwardCount		= 5;	//总共领奖
+	//optional AwardUnit awardInfo			= 6;	//奖励
+}
+
+//REQUEST_EXCHANGE_ITEM_SUB_CMD						=116;    //请求兑换物品
+message RequestExchangeItem
+{
+	required int64  product_id   		  = 1;  // 商品id
+}
+
+//RETURN_EXCHANGE_ITEM_SUB_CMD						=117;    //返回兑换物品结果。
+message ReturnExchangeItem
+{
+	required int32  result = 1;     //兑换结果 0 兑换成功其他失败
+	required int32  exType = 2;     //兑换类型
+	optional string reson  = 3;     //兑换结果 失败时的原因		
+}
+
+	
+//REQUEST_EXCHANGE_ITEM_TIMES_SUB_CMD						=118;    //请求兑换物品次数
+message RequestExchangeItemTimes
+{
+	optional int32  type   		  = 1;  // 0:所有物品兑换 1:RMB兑换 2：其他兑换
+}
+
+message itemAndTimes
+{
+	required int64  product_id   = 1;  // 商品id
+	required int32  times        = 2;  // 今日兑换次数
+}
+
+//RETURN_EXCHANGE_ITEM_TIMES_SUB_CMD						=119;    //返回兑换物品次数结果。
+message ReturnExchangeItemTimes
+{
+	optional int32        type   		  = 1;  // 0:所有物品兑换 1:RMB兑换 2：其他兑换
+	repeated itemAndTimes info         = 2;
+}
+//REQUEST_EXCHANGE_ITEM_LIST_SUB_CMD						=120;    //请求兑换物品列表
+message RequestExchangeItemList
+{
+	optional int32  type   		  = 1;  // 0:所有物品兑换 1:RMB兑换 2：其他兑换
+	required int32  page         = 2;  //分页 1 开始
+	required int32  limit        = 3;  //分页 每页条数
+}
+message itemListItem{
+	required int64  product_id   = 1;  // 商品id
+	required string desc         = 2;  // 商品描述
+	required string time         = 3;  // 兑换完成时间
+}
+//RETURN_EXCHANGE_ITEM_LIST_SUB_CMD						=121;    //返回兑换物品列表结果。
+message ReturnExchangeItemList
+{
+	optional int32  type   		  = 1;  // 0:所有物品兑换次数 1:红包兑换次数 2：其他兑换次数
+	repeated itemListItem   items = 2; //兑换列表
+	required int64  total        = 3;  // 商品总条数
+}
+
+
+message LOBBY_SERVER_TO_CLIENT_CONFIG_SC_MSG
+{
+	required bool bIsOpenRelife = 1;
+	optional int32 iRelifTimesLimt = 2; //单日救济金次数
+	optional int32 iRelifGoldCount = 3; //单次救济金数量
+	optional int32 iFirstPayProductId = 4;	//首冲商品ID
+	optional int32 iFirstPayAddRandTimes = 5; //首冲获取随机次数
+	optional int32 iDailyRandTimes = 6;  //每日转盘次数
+}
+
+
+// ----------------------------------------------------------------------------
+// 桌布，请求设置
+// ----------------------------------------------------------------------------
+ 
+message LOBBY_SET_DESK_CLOTH_MSG_CS
+{
+	required int64	iVal = 1;
+}
+
+message LOBBY_SET_DESK_CLOTH_MSG_SC
+{
+	required bool  	bRet = 3;  // 是否成功
+}
+
+
+// ----------------------------------------------------------------------------
+// 桌布，请求设置
+// ----------------------------------------------------------------------------
+
+// LOBBY_SYNC_IPADDR_CMD_CS
+message LOBBY_SYNC_IPADDR_MSG_CS
+{
+	required string	addr = 1;
+}
+
+// LOBBY_SYNC_IPADDR_CMD_SC
+message LOBBY_SYNC_IPADDR_MSG_SC
+{
+	required bool	bRet = 1;
+}
+
+// LOBBY_RED_POINT_SETMASK_CS 设置红点掩码
+message LOBBY_RED_POINT_SETMASK_CS_MSG
+{
+	required int64 iRedMask = 1; //enRedPointType
+}
+
+
+//REQUEST_TC_APP_PURCHASE_SUB_CMD//请求腾讯开放平台支付
+message CS_Request_Tc_App_Purchase 
+{
+	required string openkey  = 1;
+	required string openid   = 2;
+	required string pf       = 3;
+	required string pfkey    = 4;	
+	required int32   shopid  = 5;  //商品ID
+	required string  package = 6;  //
+	required string  paytoken = 7;  //
+}
+
+//RETURN_TC_APP_PURCHASE_SUB_CMD   //返回腾讯开放平台支付
+message SC_Response_Tc_App_Purchase 
+{
+	required int32  ret   = 1;
+	required string msg   = 2;
+	optional string urlparams   = 3;
+}
+//REQUEST_360_PURCHASE_SUB_CMD			    //请求360充值预付订单
+message CS_Request_360_Purchase 
+{
+	required int64  product_id   		  = 1;  // 商品id
+	required string  package           = 2;  //包用于生成签名
+}
+
+//RETURN_360_PURCHASE_SUB_CMD				    //返回360充值预付订单
+message SC_Response_360_Purchase 
+{
+	required string tokenid = 1;
+	required string tokenorder = 2;
+	required string qhuserid = 3;
+	required int32  amount = 4;
+	required string  productname = 5;
+	required int64  productid = 6;
+	required string  notifyurl = 7;
+	required string  appname = 8;
+	required string  apporderid = 9;
+	optional string  extra1 = 10;
+	optional string  extra2 = 11;
+}
+
+
+//REQUEST_baidu_PURCHASE_SUB_CMD					//请求百度充值订单
+message CS_Request_baidu_Purchase 
+{
+	required int64  product_id   		  = 1;  // 商品id
+	required string  package           = 2;  //包用于生成签名
+}
+//RETURN_baidu_PURCHASE_SUB_CMD				//返回百度充值订单
+message SC_Response_baidu_Purchase 
+{
+	required string cpOrder = 1;
+	required string  productname = 2;
+	required int32  amount = 3;
+	required int64  ration = 4;
+	optional string  extra1 = 5;
+	required string bduserid = 6; 
+	required int64  productid = 7;
+}
+
+//REQUEST_huawei_PURCHASE_SUB_CMD			//请求华为预支付订单
+message CS_Requset_huawei_Purchase
+{
+	required int64 iProductID			= 1;//产品ID
+	required string strPackage			= 2;//包名
+}
+
+//RETURN_huawei_PURCHASE_SUB_CMD			//返回华为预支付订单号及相关信息
+message SC_Response_huawei_Purchase
+{
+	required string strProductName			= 1;//商品自定义名称
+	required string strProductDesc			= 2;//商品自定义描述
+	required string strAppID				= 3;//appid
+	required string strRequestID			= 4;//订单号
+	required string strAmount				= 5;//金额
+	required string strMerchantID			= 6;//商户ID
+	required string strServiceCatalog		= 7;//商品类型默认X6表示游戏
+	required string strMerchantName			= 8;//商户名称
+	required int32 iChannel					= 9;//渠道默认3
+	required string strBackUrl				= 10;//回调地址
+	required string strCurrency				= 11;//支付币种
+	required string strCountry				= 12;//国家码默认CN
+	required string strReserved				= 13;//玩家userid
+	required string strSign					= 14;//签名
+}
+
+
+//REQUEST_XMI_PURCHASE_SUB_CMD					//请求小米充值订单
+message CS_Request_XMI_Purchase 
+{
+	required int64  product_id   		  = 1;  // 商品id
+	required string  package           = 2;  //包用于生成签名
+}
+//RETURN_XMI_PURCHASE_SUB_CMD					 //返回小米充值订单
+message SC_Response_XMI_Purchase 
+{
+	required string  cporder = 1;
+	required string  cpuserinfo = 2;
+	required int32   amount = 3;
+	required string  userbalance = 4;
+	required string  uservip = 5;
+	required string  userpartname = 6;
+	required string  username = 7;
+	required string  userid = 8;
+	required string  servername = 9;
+	required int64   productid = 10;
+}
+
+//REQUEST_OPPO_PURCHASE_SUB_CMD					//请求OPPO充值订单
+message CS_Request_OPPO_Purchase 
+{
+	required int64  product_id   		  = 1;  // 商品id
+	required string  package           = 2;  //包用于生成签名
+}
+
+//RETURN_OPPO_PURCHASE_SUB_CMD					  //返回OPPO充值订单
+message SC_Response_OPPO_Purchase 
+{
+	required string  cporder = 1;
+	required int32   amount = 2;
+	required string  attach = 3;
+	required string  productname = 4;
+	required string  productdesc = 5;
+	required string  callback = 6;
+	required int64   productid = 7;
+}
+
+
+//REQUEST_VIVO_PURCHASE_SUB_CMD					  //请求VIVO充值订单
+message CS_Request_VIVO_Purchase 
+{
+	required int64  product_id   		  = 1;  // 商品id
+	required string  package           = 2;  //包用于生成签名
+}
+//RETURN_VIVO_PURCHASE_SUB_CMD					   //返回VIVO充值订单
+message SC_Response_VIVO_Purchase 
+{
+	required string  appid = 1;
+	required string  cporder = 2;
+	required string  productname = 3;
+	required string  productdesc = 4;
+	required int32   amount = 5;
+   required string  sign = 6;
+   required string  openid = 7;
+	required string  notifyurl = 8;
+	required string  expiretime = 9;
+	required int32  level = 10;
+	required int32  vip = 11;
+	required int32 balance = 12;
+	required string party = 13;
+	required string roleid = 14;
+	required string rolename = 15;
+	required string servername = 16;
+	required string extinfo = 17;
+	required int64   productid = 18;
+}
+
+//LOBBY_CS_REQ_GGSDK_PARAM //请求广告参数
+message CS_Request_GGSDK_Param 
+{
+	required int32  ggsdkid   		  = 1;  // 配置id
+	required string  package           = 2;  //包名
+	optional string  cparam           = 3;  //客户端参数
+}
+
+//LOBBY_SC_REQ_GGSDK_PARAM  //请求广告参数返回
+message SC_Response_GGSDK_Param 
+{
+	required int32   result       = 1; // 0成功  1 失败
+	optional string  reason       = 2; //失败原因	
+	
+   optional string  userid       = 3; //玩家id  userid_accid
+	optional string  codeid	      = 4; //位码
+	optional string  rewardname	= 5; //配置中的奖励名称
+	optional int32   rewardnub    = 6; //配置中的
+	optional string  extra        = 7; //额外参数  广告字串_服务id
+	optional int32  limitcnt = 8; //配置表中的限制
+	optional int32  curcnt = 9; //当前次数--包括本次
+	optional string  cparam           = 10;  //客户端参数
 }
