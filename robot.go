@@ -35,6 +35,7 @@ const (
 	TimerLoginRegister = iota
 	TimerLoginLoginSvr
 	TimerLoginLobbySvr
+	TimerLoginAddGold
 	TimerClubCreateClub
 	TimerClubAddGold
 	TimerClubJoinClub
@@ -71,6 +72,7 @@ const (
 	RobotEventRegister       = "RobotEventRegister"
 	RobotEventLoginLoginSvrd = "RobotEventLoginLoginSvrd"
 	RobotEventLoginLobbySvrd = "RobotEventLoginLobbySvrd"
+	RobotEventLoginAddGold   = "RobotEventLoginAddGold"
 
 	//俱乐部
 	RobotEventClubEnter   = "RobotEventClubEnter"
@@ -290,6 +292,7 @@ func (r *Robot) FsmInit(startState FsmState) error {
 	r.mFsm.AddStateEvent(RobotStateLogin, RobotEventRegister, r.RobotStateLoginEventRegister)
 	r.mFsm.AddStateEvent(RobotStateLogin, RobotEventLoginLoginSvrd, r.RobotStateLoginEventLoginLoginSvrd)
 	r.mFsm.AddStateEvent(RobotStateLogin, RobotEventLoginLobbySvrd, r.RobotStateLoginEventLoginLobbySvrd)
+	r.mFsm.AddStateEvent(RobotStateLogin, RobotEventLoginAddGold, r.RobotStateLoginEventLoginAddGold)
 
 	//微游戏
 	r.mFsm.AddStateEvent(RobotStateClub, RobotEventInit, r.RobotStateClubEventInit)
@@ -897,6 +900,13 @@ func (r *Robot) HandelUserDiamondToGoldReturn(msgHead *net.MsgHead) {
 	if err != nil {
 		logger.Log4.Debug("unmarshal SC_ReturnDiamondToGold error: %s", err)
 	}
+
+	if r.mCurTaskStep == TaskStepLoginAddGold {
+		r.CancelTimer(TimerLoginAddGold)
+	} else if r.mCurTaskStep == TaskStepClubAddGold {
+		r.CancelTimer(TimerClubAddGold)
+	}
+
 	logger.Log4.Debug("SC_ReturnDiamondToGold: %+v", returnDiamondToGold)
 
 	if returnDiamondToGold.GetResult() == 0 {
@@ -1141,7 +1151,10 @@ func (r *Robot) RobotStateLoginEventTimer(e *fsm.Event) {
 		r.mCurTaskStepReuslt = TaskResultLogin_Lobbysvr_SendLoginRequestTimeOut
 		r.FsmSendEvent(RobotEventTaskAnalysis, nil)
 		break
-
+	case TimerLoginAddGold:
+		r.mCurTaskStepReuslt = TaskResultLogin_SendRequestAddGoldTimeOut
+		r.FsmSendEvent(RobotEventTaskAnalysis, nil)
+		break
 	default:
 		break
 	}
@@ -1173,6 +1186,9 @@ func (r *Robot) RobotStateLoginEventTaskAnalysis(e *fsm.Event) {
 		break
 	case TaskStepLoginLobbySvr:
 		r.FsmSendEvent(RobotEventLoginLobbySvrd, nil)
+		break
+	case TaskStepLoginAddGold:
+		r.FsmSendEvent(RobotEventLoginAddGold, nil)
 		break
 	default:
 		break
@@ -1456,6 +1472,40 @@ func (r *Robot) RobotStateLoginEventLoginLobbySvrd(e *fsm.Event) {
 		r.SetTimer(TimerLoginLobbySvr, RequestTimeOut)
 
 	}
+	return
+
+}
+
+//微游戏状态： 请求加金币
+func (r *Robot) RobotStateLoginEventLoginAddGold(e *fsm.Event) {
+	logger.Log4.Debug("<ENTER> :UserId-%d:CurState：%s", r.mRobotData.MUId, e.FSM.CurState())
+	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
+
+	if r.mRobotData.MUserGold >= 1000000 {
+		r.mCurTaskStepReuslt = TaskResultSuccess
+		r.FsmSendEvent(RobotEventTaskAnalysis, nil)
+		logger.Log4.Debug("UserId-%d: gold:%d", r.mRobotData.MUId, r.mRobotData.MUserGold)
+		return
+	}
+	if r.mRobotData.MUserDiamond < 5 {
+		r.mCurTaskStepReuslt = TaskResultLogin_SendRequestAddDiamondNotEnough
+		r.FsmSendEvent(RobotEventTaskAnalysis, nil)
+		logger.Log4.Debug("UserId-%d: gold:%d, But  can not add ,because:MUserDiamond:%d",
+			r.mRobotData.MUId, r.mRobotData.MUserGold, r.mRobotData.MUserDiamond)
+		return
+	}
+	//
+	err := r.RequestDiamondToGold()
+	if err != nil {
+		//网络连接失败，结束当前任务
+		r.mCurTaskStepReuslt = TaskResultLogin_SendRequestAddGoldFail
+		r.FsmSendEvent(RobotEventTaskAnalysis, nil)
+		return
+	} else {
+		//设置请求定时器
+		r.SetTimer(TimerLoginAddGold, RequestTimeOut)
+	}
+
 	return
 
 }
@@ -1838,7 +1888,7 @@ func (r *Robot) RequestDiamondToGold() error {
 		return errors.New("ERR_NO_NET_CONNECT")
 	}
 	m := &LobbySubCmd.CS_RequestDiamondToGold{
-		Id: proto.Int32(2),
+		Id: proto.Int32(8),
 	}
 
 	err := r.mNetClient.SenMsg(int16(Main.EnMainCmdID_LOBBY_MAIN_CMD), int16(LobbySubCmd.EnSubCmdID_REQUEST_DIAMOND_TO_GOLD_SUB_CMD), m)

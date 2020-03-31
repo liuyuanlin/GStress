@@ -31,30 +31,35 @@ const (
 	TaskResultLogin_Lobbysvr_SendLoginRequestTimeOut = 12
 	TaskResultLogin_Lobbysvr_LoginResponseFail       = 13
 
-	TaskResultClub_CfgErr                           = 14
-	TaskResultClub_SendRequestCreateClubFail        = 15
-	TaskResultClub_SendRequestCreateClubTimeOut     = 16
-	TaskResultClub_SendRequestCreateClubReponseFail = 17
+	TaskResultLogin_SendRequestAddGoldFail         = 14
+	TaskResultLogin_SendRequestAddGoldTimeOut      = 15
+	TaskResultLogin_SendRequestAddGoldReponseFail  = 16
+	TaskResultLogin_SendRequestAddDiamondNotEnough = 17
 
-	TaskResultClub_SendRequestJoinClubFail        = 18
-	TaskResultClub_SendRequestJoinClubTimeOut     = 19
-	TaskResultClub_SendRequestJoinClubReponseFail = 20
+	TaskResultClub_CfgErr                           = 18
+	TaskResultClub_SendRequestCreateClubFail        = 19
+	TaskResultClub_SendRequestCreateClubTimeOut     = 20
+	TaskResultClub_SendRequestCreateClubReponseFail = 21
 
-	TaskResultParamErr = 21
-	TaskResultNotLogin = 22
+	TaskResultClub_SendRequestJoinClubFail        = 22
+	TaskResultClub_SendRequestJoinClubTimeOut     = 23
+	TaskResultClub_SendRequestJoinClubReponseFail = 24
 
-	TaskResultClub_SendRequestCreateRoomFail        = 23
-	TaskResultClub_SendRequestCreateRoomTimeOut     = 24
-	TaskResultClub_SendRequestCreateRoomReponseFail = 25
+	TaskResultParamErr = 25
+	TaskResultNotLogin = 26
 
-	TaskResultClub_SendRequestEnterRoomFail        = 26
-	TaskResultClub_SendRequestEnterRoomTimeOut     = 27
-	TaskResultClub_SendRequestEnterRoomReponseFail = 28
+	TaskResultClub_SendRequestCreateRoomFail        = 27
+	TaskResultClub_SendRequestCreateRoomTimeOut     = 28
+	TaskResultClub_SendRequestCreateRoomReponseFail = 29
 
-	TaskResultClub_SendRequestAddGoldFail         = 29
-	TaskResultClub_SendRequestAddGoldTimeOut      = 30
-	TaskResultClub_SendRequestAddGoldReponseFail  = 31
-	TaskResultClub_SendRequestAddDiamondNotEnough = 32
+	TaskResultClub_SendRequestEnterRoomFail        = 30
+	TaskResultClub_SendRequestEnterRoomTimeOut     = 31
+	TaskResultClub_SendRequestEnterRoomReponseFail = 32
+
+	TaskResultClub_SendRequestAddGoldFail         = 33
+	TaskResultClub_SendRequestAddGoldTimeOut      = 34
+	TaskResultClub_SendRequestAddGoldReponseFail  = 35
+	TaskResultClub_SendRequestAddDiamondNotEnough = 36
 )
 
 type TaskState int
@@ -83,6 +88,7 @@ const (
 	TaskStepRegister      = 10101
 	TaskStepLoginLoginSvr = 10102
 	TaskStepLoginLobbySvr = 10103
+	TaskStepLoginAddGold  = 10104
 
 	TaskStepClubEnter   = 20101
 	TaskStepClubAddGold = 20102
@@ -198,6 +204,10 @@ func (t *TaskMng) LoadTaskStep(taskAttr *TaskAttr) error {
 		var lTaskStepReport2 TaskStepReport
 		lTaskStepReport2.MTaskStep = TaskStepLoginLobbySvr
 		taskAttr.MTaskReport.MTaskStepReport = append(taskAttr.MTaskReport.MTaskStepReport, lTaskStepReport2)
+
+		var lTaskStepReport3 TaskStepReport
+		lTaskStepReport3.MTaskStep = TaskStepLoginAddGold
+		taskAttr.MTaskReport.MTaskStepReport = append(taskAttr.MTaskReport.MTaskStepReport, lTaskStepReport3)
 	case TaskTypeClub:
 		//进入俱乐部
 		var lTaskStepReport1 TaskStepReport
