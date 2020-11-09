@@ -254,11 +254,11 @@ func (t *XzmjTable) UpdateTableUserInfo(seatInfo []*XueZhanMj.SeatInfo) {
 		t.MTableUser[lSeatId].MBaseInfo.MUserIp = userBaseInfo.GetMUserIp()
 		t.MTableUser[lSeatId].MBaseInfo.MUserLng = int(userBaseInfo.GetMUserLng())
 		t.MTableUser[lSeatId].MBaseInfo.MUserLat = int(userBaseInfo.GetMUserLat())
-
-		if t.MTableUser[lSeatId].MBaseInfo.MUserID == t.MRobot.mRobotData.MUserId {
-			t.MSelfSeatId = int(lSeatId)
-		}
-
+		/*
+			if t.MTableUser[lSeatId].MBaseInfo.MUserID == t.MRobot.mRobotData.MUserId {
+				t.MSelfSeatId = int(lSeatId)
+			}
+		*/
 	}
 }
 

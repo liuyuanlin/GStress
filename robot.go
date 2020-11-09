@@ -6,7 +6,6 @@ import (
 	"GStress/msg/ClientCommon"
 	"GStress/msg/GameSubUserCmd"
 	"GStress/msg/GateSubCmd"
-	"GStress/msg/LobbySubCmd"
 	"GStress/msg/LoginSubCmd"
 
 	//"GStress/msg/XueZhanMj"
@@ -95,7 +94,7 @@ type Robot struct {
 	mWg                sync.WaitGroup
 }
 
-func (r *Robot) Init(robotAttr RobotAttr, taskMap TaskMap, systemCfg ExcelCfg, startState string) error {
+func (r *Robot) Init(taskMap TaskMap, systemCfg ExcelCfg, startState string) error {
 	logger.Log4.Debug("<ENTER> ")
 	defer logger.Log4.Debug("<Leave> ")
 	var lRetErr error
@@ -109,7 +108,7 @@ func (r *Robot) Init(robotAttr RobotAttr, taskMap TaskMap, systemCfg ExcelCfg, s
 		return lRetErr
 	}
 	r.mSystemCfg.MLoginSvrPort = loginSvrPort
-	logger.Log4.Debug("UserName-%s: mSystemCfg:%v", robotAttr.MUserName, r.mSystemCfg)
+	logger.Log4.Debug("UserName-%s: mSystemCfg:%v", r.mRobotData.MUserName, r.mSystemCfg)
 
 	//初始化相关数据
 	r.mCurTaskId = 0
@@ -119,13 +118,12 @@ func (r *Robot) Init(robotAttr RobotAttr, taskMap TaskMap, systemCfg ExcelCfg, s
 	r.mIsWorkEnd = false
 	r.mIsLoginOk = false
 	r.mIsEnterRoom = false
-	r.mRobotData.Init(robotAttr)
 
 	//初始化事件队列
 	r.mEventQueue = sq.NewQueue(512)
 
 	//初始任务管理器
-	lRetErr = r.mTaskMng.Init(taskMap, robotAttr)
+	lRetErr = r.mTaskMng.Init(taskMap, r.mRobotData)
 	if lRetErr != nil {
 		logger.Log4.Error("lRetErr:%s", lRetErr)
 		return lRetErr
@@ -247,7 +245,6 @@ func (r *Robot) FsmInit(startState FsmState) error {
 	r.mFsm.AddStateEvent(RobotStateLogin, RobotEventTimer, r.RobotStateLoginEventTimer)
 	r.mFsm.AddStateEvent(RobotStateLogin, RobotEventTaskAnalysis, r.RobotStateLoginEventTaskAnalysis)
 	r.mFsm.AddStateEvent(RobotStateLogin, RobotEventLoginLoginSvrd, r.RobotStateLoginEventLoginLoginSvrd)
-	r.mFsm.AddStateEvent(RobotStateLogin, RobotEventLoginAddGold, r.RobotStateLoginEventLoginAddGold)
 
 	return nil
 }
@@ -411,30 +408,6 @@ message SC_ClubBaseInfoOnLogin
 };
 */
 
-func (r *Robot) HandelLobbyMainMsg(msgHead *net.MsgHead) {
-	logger.Log4.Debug("<ENTER> :UserId-%d:", r.mRobotData.MUId)
-	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
-
-	if msgHead == nil {
-		return
-	}
-	switch msgHead.MSubCmd {
-	case int16(LobbySubCmd.EnSubCmdID_USER_MAIN_INFO_SUB_CMD):
-		r.HandelUserMainInfo(msgHead)
-		break
-	case int16(LobbySubCmd.EnSubCmdID_RETURN_DIAMOND_TO_GOLD_SUB_CMD):
-		r.HandelUserDiamondToGoldReturn(msgHead)
-		break
-	case int16(LobbySubCmd.EnSubCmdID_UPDATE_USER_ATT_SUB_CMD):
-		r.HandelUserUpdateAtt(msgHead)
-		break
-	default:
-		break
-	}
-
-	return
-}
-
 /*
 //USER_MAIN_INFO_SUB_CMD                      	              = 1;	//服务器发送大厅用户主要信息给客户端
 //登陆成功
@@ -475,86 +448,6 @@ message SC_Logon_Success
 
 
 */
-
-func (r *Robot) HandelUserMainInfo(msgHead *net.MsgHead) {
-	logger.Log4.Debug("<ENTER> :UserId-%d:", r.mRobotData.MUId)
-	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
-
-	if msgHead == nil {
-		return
-	}
-
-	logonSuccessInfo := &LobbySubCmd.SC_Logon_Success{}
-	err := proto.Unmarshal(msgHead.MData, logonSuccessInfo)
-	if err != nil {
-		logger.Log4.Debug("unmarshal SC_Logon_Success error: %s", err)
-	}
-	logger.Log4.Debug("logonSuccessInfo: %+v", logonSuccessInfo)
-
-	r.mRobotData.MUserGold = int(logonSuccessInfo.GetIGold())
-	r.mRobotData.MUserDiamond = int(logonSuccessInfo.GetIDiamond())
-
-	return
-
-}
-func (r *Robot) HandelUserDiamondToGoldReturn(msgHead *net.MsgHead) {
-	logger.Log4.Debug("<ENTER> :UserId-%d:", r.mRobotData.MUId)
-	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
-
-	if msgHead == nil {
-		return
-	}
-
-	returnDiamondToGold := &LobbySubCmd.SC_ReturnDiamondToGold{}
-	err := proto.Unmarshal(msgHead.MData, returnDiamondToGold)
-	if err != nil {
-		logger.Log4.Debug("unmarshal SC_ReturnDiamondToGold error: %s", err)
-	}
-	/*
-		if r.mCurTaskStep == TaskStepLoginAddGold {
-			r.CancelTimer(TimerLoginAddGold)
-		} else if r.mCurTaskStep == TaskStepClubAddGold {
-			r.CancelTimer(TimerClubAddGold)
-		}
-	*/
-	logger.Log4.Debug("SC_ReturnDiamondToGold: %+v", returnDiamondToGold)
-
-	if returnDiamondToGold.GetResult() == 0 {
-		r.mCurTaskStepReuslt = TaskResultSuccess
-		r.FsmSendEvent(RobotEventTaskAnalysis, nil)
-	} else {
-		r.mCurTaskStepReuslt = TaskResultClub_SendRequestAddGoldReponseFail
-		r.FsmSendEvent(RobotEventTaskAnalysis, nil)
-	}
-	logger.Log4.Debug("UserId-%d: add gold result:%d, retsultStr:%s",
-		r.mRobotData.MUId, returnDiamondToGold.GetResult(), returnDiamondToGold.GetResultStr())
-
-	return
-
-}
-func (r *Robot) HandelUserUpdateAtt(msgHead *net.MsgHead) {
-	logger.Log4.Debug("<ENTER> :UserId-%d:", r.mRobotData.MUId)
-	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
-
-	if msgHead == nil {
-		return
-	}
-
-	userAtt := &LobbySubCmd.SC_Update_User_Att{}
-	err := proto.Unmarshal(msgHead.MData, userAtt)
-	if err != nil {
-		logger.Log4.Debug("unmarshal SC_Update_User_Att error: %s", err)
-	}
-	logger.Log4.Debug("userAtt: %+v", userAtt)
-
-	r.mRobotData.MUserGold = int(userAtt.GetIGold())
-	r.mRobotData.MUserDiamond = int(userAtt.GetIDiamond())
-	logger.Log4.Debug("UserId-%d: Gold:%d, Diamond:%d",
-		r.mRobotData.MUId, r.mRobotData.MUserGold, r.mRobotData.MUserDiamond)
-
-	return
-
-}
 
 func (r *Robot) HandelGateMainMsg(msgHead *net.MsgHead) {
 	logger.Log4.Debug("<ENTER> :UserId-%d:", r.mRobotData.MUId)
@@ -858,60 +751,6 @@ func (r *Robot) ConnectLoginSvr() error {
 	return nil
 
 }
-
-//微游戏状态： 请求加金币
-func (r *Robot) RobotStateLoginEventLoginAddGold(e *fsm.Event) {
-	logger.Log4.Debug("<ENTER> :UserId-%d:CurState：%s", r.mRobotData.MUId, e.FSM.CurState())
-	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
-
-	if r.mRobotData.MUserGold >= 1000000 {
-		r.mCurTaskStepReuslt = TaskResultSuccess
-		r.FsmSendEvent(RobotEventTaskAnalysis, nil)
-		logger.Log4.Debug("UserId-%d: gold:%d", r.mRobotData.MUId, r.mRobotData.MUserGold)
-		return
-	}
-	if r.mRobotData.MUserDiamond < 5 {
-		r.mCurTaskStepReuslt = TaskResultLogin_SendRequestAddDiamondNotEnough
-		r.FsmSendEvent(RobotEventTaskAnalysis, nil)
-		logger.Log4.Debug("UserId-%d: gold:%d, But  can not add ,because:MUserDiamond:%d",
-			r.mRobotData.MUId, r.mRobotData.MUserGold, r.mRobotData.MUserDiamond)
-		return
-	}
-	/*
-		err := r.RequestDiamondToGold()
-		if err != nil {
-			//网络连接失败，结束当前任务
-			r.mCurTaskStepReuslt = TaskResultLogin_SendRequestAddGoldFail
-			r.FsmSendEvent(RobotEventTaskAnalysis, nil)
-			return
-		} else {
-			//设置请求定时器
-			//r.SetTimer(TimerLoginAddGold, RequestTimeOut)
-		}
-	*/
-
-	return
-
-}
-
-/*
-// LOGIN_GATE_SUB_CMD
-message LoginGateInfo
-{
-	required uint32 userid   = 1;			// 角色id
-	required string token   = 2;
-	required int32 iDevice   = 3			[default = 1];					//device id: 1 IOS, 2 Android, 3 Windo//ws
-	required int32 iPlatform = 4			[default = 1];					//platform id: 1 Apple Store, 2 360, 3 ?
-	required string iVersion = 5			[default = "1.0.0.0"];			//具体版本号
-	optional uint32  uiSpread = 6;                  //推广号
-	optional string packageflag  = 7;                  //标示包名
-	optional string devicestring  = 8;                  //设备串号
-	optional string userName  = 9;                  //登录用的用户名
-	optional string packmark = 10;					//包标识
-	optional string ip_address = 11;				//IP地址
-}
-
-*/
 
 func (r *Robot) SetTimer(timerType TimerType, timeValue time.Duration) error {
 	logger.Log4.Debug("<ENTER> :UserId-%d", r.mRobotData.MUId)

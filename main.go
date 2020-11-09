@@ -97,96 +97,16 @@ func main() {
 	var gRobots []*Robot
 	for _, row := range RobotsCfg.MExcelRows {
 		var robot Robot
-		var robotAttr RobotAttr
 		//获取机器人ID
 		Uid, err := strconv.Atoi(row["Uid"])
 		if err != nil {
 			logger.Log4.Error("err:%s", err)
 			return
 		}
-		robotAttr.MUId = Uid
-		//获取机器人类型
-		userType, err := strconv.Atoi(row["UserType"])
-		if err != nil {
-			logger.Log4.Error("err:%s", err)
-			return
-		}
-		robotAttr.MUserType = userType
-		//获取机器人是否自动登陆
-		isNeedAutoLogin, err := strconv.Atoi(row["IsNeedAutoLogin"])
-		if err != nil {
-			logger.Log4.Error("err:%s", err)
-			return
-		}
-		if isNeedAutoLogin == 0 {
-			robotAttr.MIsNeedAutoLogin = false
-		} else {
-			robotAttr.MIsNeedAutoLogin = true
-		}
+		robot.mRobotData.MUId = Uid
 
-		robotAttr.MUserName = row["UserName"]
-		robotAttr.MPassWord = row["Password"]
-		robotAttr.MDevice = row["Device"]
-		robotAttr.MClientIp = row["ClientIp"]
-		robotAttr.MPackageflag = row["Packagefla"]
-		robotAttr.MTencentToken = row["TencentToken"]
-		robotAttr.MTencentCodeId = row["TencentCodeId"]
-
-		//获取血战麻将桌子id
-		xzmjTableId, err := strconv.Atoi(row["XzmjTableId"])
-		if err != nil {
-			logger.Log4.Error("err:%s", err)
-			return
-		}
-		robotAttr.MXzmjTableId = xzmjTableId
-
-		//获取血战麻将房间id
-		xzmjRoomId, err := strconv.Atoi(row["XzmjRoomId"])
-		if err != nil {
-			logger.Log4.Error("err:%s", err)
-			return
-		}
-		robotAttr.MXzmjRoomId = xzmjRoomId
-
-		//获取斗地主桌子id
-		ddzTableId, err := strconv.Atoi(row["DdzTableId"])
-		if err != nil {
-			logger.Log4.Error("err:%s", err)
-			return
-		}
-		robotAttr.MDdzTableId = ddzTableId
-
-		//获取斗地主房间id
-		ddzRoomId, err := strconv.Atoi(row["DdzRoomId"])
-		if err != nil {
-			logger.Log4.Error("err:%s", err)
-			return
-		}
-		robotAttr.MDdzRoomId = ddzRoomId
-
-		//斗地主matchtype
-		ddzRoomType, err := strconv.Atoi(row["DDZRoomType"])
-		if err != nil {
-			logger.Log4.Error("err:%s", err)
-			return
-		}
-		robotAttr.MDdzRoomType = ddzRoomType
-
-		//斗地主matchtypeid
-		ddzRoomTypeID, err := strconv.Atoi(row["DDZMatchTypeId"])
-		if err != nil {
-			logger.Log4.Error("err:%s", err)
-			return
-		}
-		robotAttr.MDdzMatchTypeId = ddzRoomTypeID
-
-		//获取微游戏ID
-		wantClubId, err := strconv.Atoi(row["ClubId"])
-		if err != nil {
-			logger.Log4.Error("err:%s", err)
-			return
-		}
-		robotAttr.MWantClubId = wantClubId
+		robot.mRobotData.MUserName = row["UserName"]
+		robot.mRobotData.MPassWord = row["Password"]
 
 		//获取任务数量
 		taskCount, err := strconv.Atoi(row["TaskCount"])
@@ -204,12 +124,12 @@ func main() {
 				logger.Log4.Error("err:%s", err)
 				return
 			}
-			robotAttr.MTaskId = append(robotAttr.MTaskId, taskId)
+			robot.mRobotData.MTaskId = append(robot.mRobotData.MTaskId, taskId)
 		}
-		logger.Log4.Error("robotAttr:%v", robotAttr)
-		err = robot.Init(robotAttr, lTaskMap, systemCfg, "Init")
+		logger.Log4.Error("RobotData:%v", robot.mRobotData)
+		err = robot.Init(lTaskMap, systemCfg, "Init")
 		if err != nil {
-			logger.Log4.Error("UserName-%s: Init Fail", robotAttr.MUserName)
+			logger.Log4.Error("UserName-%s: Init Fail", robot.mRobotData.MUserName)
 			continue
 		}
 		gRobots = append(gRobots, &robot)

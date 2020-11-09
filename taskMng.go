@@ -128,18 +128,18 @@ type TaskMng struct {
 	MUId             int
 }
 
-func (t *TaskMng) Init(taskMap TaskMap, robotAttr RobotAttr) error {
-	logger.Log4.Info("UserId-%d:<ENTER>", robotAttr.MUId)
-	defer logger.Log4.Debug("UserId-%d:<LEAVE>", robotAttr.MUId)
+func (t *TaskMng) Init(taskMap TaskMap, robotData RobotData) error {
+	logger.Log4.Info("UserId-%d:<ENTER>", robotData.MUId)
+	defer logger.Log4.Debug("UserId-%d:<LEAVE>", robotData.MUId)
 	var lRetErr error
 	//1.初始化相关
 	t.MUnCompletedTask = sq.NewQueue(512)
 	t.MCompletedTask = sq.NewQueue(512)
 	t.MTaskInfo = make(TaskMap)
-	t.MUId = robotAttr.MUId
+	t.MUId = robotData.MUId
 	t.MCurTask = nil
 
-	for _, taskId := range robotAttr.MTaskId {
+	for _, taskId := range robotData.MTaskId {
 		lTaskInfo, ok := t.MTaskInfo[taskId]
 		if ok {
 			//任务已经添加过了
