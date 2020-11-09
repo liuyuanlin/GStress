@@ -7,6 +7,7 @@ import (
 	"net/url"
 
 	"GStress/logger"
+	"GStress/msg/ClientCommon"
 	"errors"
 
 	"github.com/golang/protobuf/proto"
@@ -42,7 +43,7 @@ type NetClient struct {
 
 func NewNetClient(addr string, path string) (*NetClient, error) {
 
-	u := url.URL{Scheme: "ws", Host: addr, Path: ""}
+	u := url.URL{Scheme: "ws", Host: addr, Path: "/ws"}
 	logger.Log4.Debug("connecting to %s", u.String())
 
 	c, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
@@ -72,87 +73,22 @@ func (n *NetClient) Close() {
 }
 
 //TODO-liuyuanlin:
-func (n *NetClient) SenMsg(mainCmd int16, paraCmd int16, pb proto.Message) error {
+func (n *NetClient) SenMsg(sendmsg *ClientCommon.SendData) error {
 
 	if n.mConn == nil {
 
 		return errors.New("no conn")
 	}
-	//消息体封装
-	data, err := proto.Marshal(pb)
+
+	sendData, err := proto.Marshal(sendmsg)
 	if err != nil {
 		logger.Log4.Error("marshaling error: ", err)
 		return err
 	}
 
-	//消息头封装
-	var lProtoCmd ProtoCmd
-	lProtoCmd.size = int32(len(data))
-	lProtoCmd.cmd = mainCmd
-	lProtoCmd.para = paraCmd
-
-	buf := new(bytes.Buffer)
-	binary.Write(buf, binary.LittleEndian, lProtoCmd)
-	b1 := buf.Bytes()
-
 	var buffer bytes.Buffer //Buffer是一个实现了读写方法的可变大小的字节缓冲
 
-	//整个消息长度封装
-	var lAllLen int32 = 0
-	lAllLen = int32(len(b1) + len(data))
-	b0 := Int32ToBytes(lAllLen)
-
-	//发送内容拼接
-	buffer.Write(b0)
-	buffer.Write(b1)
-	buffer.Write(data)
-	b3 := buffer.Bytes()
-
-	//发送数据
-	err = n.mConn.WriteMessage(websocket.BinaryMessage, b3)
-	if err != nil {
-		logger.Log4.Error("write:", err)
-		return err
-	}
-
-	return nil
-}
-
-func (n *NetClient) SenGameMsg(mainCmd int16, paraCmd int16, roomId int16, pb proto.Message) error {
-
-	if n.mConn == nil {
-
-		return errors.New("no conn")
-	}
-	//消息体封装
-	data, err := proto.Marshal(pb)
-	if err != nil {
-		logger.Log4.Error("marshaling error: ", err)
-		return err
-	}
-
-	//消息头封装
-	var lProtoCmd ProtoCmd
-	lProtoCmd.size = int32(len(data))
-	lProtoCmd.cmd = mainCmd
-	lProtoCmd.para = paraCmd
-	lProtoCmd.roomID = roomId
-
-	buf := new(bytes.Buffer)
-	binary.Write(buf, binary.LittleEndian, lProtoCmd)
-	b1 := buf.Bytes()
-
-	var buffer bytes.Buffer //Buffer是一个实现了读写方法的可变大小的字节缓冲
-
-	//整个消息长度封装
-	var lAllLen int32 = 0
-	lAllLen = int32(len(b1) + len(data))
-	b0 := Int32ToBytes(lAllLen)
-
-	//发送内容拼接
-	buffer.Write(b0)
-	buffer.Write(b1)
-	buffer.Write(data)
+	buffer.Write(sendData)
 	b3 := buffer.Bytes()
 
 	//发送数据
@@ -166,11 +102,10 @@ func (n *NetClient) SenGameMsg(mainCmd int16, paraCmd int16, roomId int16, pb pr
 }
 
 //TODO-liuyuanlin:
-func (n *NetClient) ReadMsg() (*MsgHead, error) {
+func (n *NetClient) ReadMsg() (*(ClientCommon.PushData), error) {
 	logger.Log4.Debug("<ENTER>")
 	defer logger.Log4.Debug("<LEAVE>")
 
-	var lMsgHead MsgHead
 	//检查连接
 	if n.mConn == nil {
 
@@ -184,21 +119,12 @@ func (n *NetClient) ReadMsg() (*MsgHead, error) {
 
 	}
 
+	pushdata := new(ClientCommon.PushData)
+	proto.Unmarshal(buf, pushdata)
+
 	logger.Log4.Info("recv: %v", buf)
-	lProtoCmd := new(ProtoCmd)
-	lProtoCmd.cmd = int16(binary.LittleEndian.Uint16(buf[4:6]))
-	lProtoCmd.para = int16(binary.LittleEndian.Uint16(buf[6:8]))
-	lProtoCmd.dwTimeStamp = int32(binary.LittleEndian.Uint32(buf[8:12]))
-	lProtoCmd.roomID = int16(binary.LittleEndian.Uint16(buf[12:14]))
-	lProtoCmd.size = int32(binary.LittleEndian.Uint32(buf[14:18]))
 
-	messagedata := buf[18:]
+	logger.Log4.Info("recv-lMsgHead: %v", pushdata)
 
-	lMsgHead.MMainCmd = lProtoCmd.cmd
-	lMsgHead.MSubCmd = lProtoCmd.para
-	lMsgHead.MData = messagedata
-	logger.Log4.Info("recv-lMsgHead: %v", lMsgHead)
-
-	return &lMsgHead, nil
-
+	return pushdata, nil
 }

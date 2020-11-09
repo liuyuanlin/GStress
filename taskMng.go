@@ -73,22 +73,18 @@ const (
 type TaskType int
 
 const (
-	TaskTypeNone    = 0
-	TaskTypeLogin   = 101
-	TaskTypeClub    = 201
-	TaskTypeXzmj    = 301
-	TaskTypeDdz     = 401
-	TaskTypeDdznNew = 501
+	TaskTypeNone  = 0
+	TaskTypeLogin = 101
+	TaskTypeClub  = 201
+	TaskTypeXzmj  = 301
 )
 
 type TaskStep int
 
 const (
 	TaskStepNone          = 0
-	TaskStepRegister      = 10101
-	TaskStepLoginLoginSvr = 10102
-	TaskStepLoginLobbySvr = 10103
-	TaskStepLoginAddGold  = 10104
+	TaskStepLoginLoginSvr = 10102 //登陆
+	TaskStepRegisterGame  = 10103 //注册游戏
 
 	TaskStepClubEnter   = 20101
 	TaskStepClubAddGold = 20102
@@ -96,13 +92,6 @@ const (
 	TaskStepXzmjCreateRoom = 30101
 	TaskStepXzmjEnterRoom  = 30102
 	TaskStepXzmjStartGame  = 30103
-
-	TaskStepDdzCreateRoom = 40101
-	TaskStepDdzEnterRoom  = 40102
-	TaskStepDdzStartGame  = 40103
-
-	TaskStepDdzEnterRoomNew = 50101
-	TaskStepDdzStartGameNew = 50102
 )
 
 type TaskInfo struct {
@@ -190,24 +179,11 @@ func (t *TaskMng) LoadTaskStep(taskAttr *TaskAttr) error {
 	switch taskAttr.MTaskInfo.MTaskType {
 	case TaskTypeLogin:
 
-		//注册账号
-		var lTaskStepReport0 TaskStepReport
-		lTaskStepReport0.MTaskStep = TaskStepRegister
-		taskAttr.MTaskReport.MTaskStepReport = append(taskAttr.MTaskReport.MTaskStepReport, lTaskStepReport0)
-
 		//登陆登陆服务
 		var lTaskStepReport1 TaskStepReport
 		lTaskStepReport1.MTaskStep = TaskStepLoginLoginSvr
 		taskAttr.MTaskReport.MTaskStepReport = append(taskAttr.MTaskReport.MTaskStepReport, lTaskStepReport1)
 
-		//登陆大厅服务
-		var lTaskStepReport2 TaskStepReport
-		lTaskStepReport2.MTaskStep = TaskStepLoginLobbySvr
-		taskAttr.MTaskReport.MTaskStepReport = append(taskAttr.MTaskReport.MTaskStepReport, lTaskStepReport2)
-
-		var lTaskStepReport3 TaskStepReport
-		lTaskStepReport3.MTaskStep = TaskStepLoginAddGold
-		taskAttr.MTaskReport.MTaskStepReport = append(taskAttr.MTaskReport.MTaskStepReport, lTaskStepReport3)
 	case TaskTypeClub:
 		//进入俱乐部
 		var lTaskStepReport1 TaskStepReport
@@ -230,30 +206,6 @@ func (t *TaskMng) LoadTaskStep(taskAttr *TaskAttr) error {
 		//开始游戏
 		var lTaskStepReport2 TaskStepReport
 		lTaskStepReport2.MTaskStep = TaskStepXzmjStartGame
-		taskAttr.MTaskReport.MTaskStepReport = append(taskAttr.MTaskReport.MTaskStepReport, lTaskStepReport2)
-
-	case TaskTypeDdz:
-		//创建创建房间
-		var lTaskStepReport0 TaskStepReport
-		lTaskStepReport0.MTaskStep = TaskStepDdzCreateRoom
-		taskAttr.MTaskReport.MTaskStepReport = append(taskAttr.MTaskReport.MTaskStepReport, lTaskStepReport0)
-		//进入房间
-		var lTaskStepReport1 TaskStepReport
-		lTaskStepReport1.MTaskStep = TaskStepDdzEnterRoom
-		taskAttr.MTaskReport.MTaskStepReport = append(taskAttr.MTaskReport.MTaskStepReport, lTaskStepReport1)
-		//开始游戏
-		var lTaskStepReport2 TaskStepReport
-		lTaskStepReport2.MTaskStep = TaskStepDdzStartGame
-		taskAttr.MTaskReport.MTaskStepReport = append(taskAttr.MTaskReport.MTaskStepReport, lTaskStepReport2)
-
-	case TaskTypeDdznNew:
-		//进入房间
-		var lTaskStepReport1 TaskStepReport
-		lTaskStepReport1.MTaskStep = TaskStepDdzEnterRoomNew
-		taskAttr.MTaskReport.MTaskStepReport = append(taskAttr.MTaskReport.MTaskStepReport, lTaskStepReport1)
-		//开始游戏
-		var lTaskStepReport2 TaskStepReport
-		lTaskStepReport2.MTaskStep = TaskStepDdzStartGameNew
 		taskAttr.MTaskReport.MTaskStepReport = append(taskAttr.MTaskReport.MTaskStepReport, lTaskStepReport2)
 
 	default:

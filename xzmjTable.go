@@ -217,10 +217,11 @@ func (t *XzmjTable) HandleTableInfoNotify(msgHead *net.MsgHead) {
 	t.UpdateTableUserInfo(tableInfo.GetMSeatInfos())
 
 	//处理相关逻辑
-	if t.MTableState == Xzmj_Table_State_Game_End {
-		t.MRobot.ReportXzmjGameEnd()
-	}
-
+	/*
+		if t.MTableState == Xzmj_Table_State_Game_End {
+			t.MRobot.ReportXzmjGameEnd()
+		}
+	*/
 }
 
 func (t *XzmjTable) UpdateTableUserInfo(seatInfo []*XueZhanMj.SeatInfo) {
