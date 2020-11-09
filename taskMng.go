@@ -26,40 +26,8 @@ const (
 	TaskResultLogin_Loginsvr_SendLoginRequestTimeOut = 8
 	TaskResultLogin_Loginsvr_LoginResponseFail       = 9
 
-	TaskResultLogin_Gatesvr_ConnectFail              = 10
-	TaskResultLogin_Lobbysvr_SendLoginRequestFail    = 11
-	TaskResultLogin_Lobbysvr_SendLoginRequestTimeOut = 12
-	TaskResultLogin_Lobbysvr_LoginResponseFail       = 13
-
-	TaskResultLogin_SendRequestAddGoldFail         = 14
-	TaskResultLogin_SendRequestAddGoldTimeOut      = 15
-	TaskResultLogin_SendRequestAddGoldReponseFail  = 16
-	TaskResultLogin_SendRequestAddDiamondNotEnough = 17
-
-	TaskResultClub_CfgErr                           = 18
-	TaskResultClub_SendRequestCreateClubFail        = 19
-	TaskResultClub_SendRequestCreateClubTimeOut     = 20
-	TaskResultClub_SendRequestCreateClubReponseFail = 21
-
-	TaskResultClub_SendRequestJoinClubFail        = 22
-	TaskResultClub_SendRequestJoinClubTimeOut     = 23
-	TaskResultClub_SendRequestJoinClubReponseFail = 24
-
 	TaskResultParamErr = 25
 	TaskResultNotLogin = 26
-
-	TaskResultClub_SendRequestCreateRoomFail        = 27
-	TaskResultClub_SendRequestCreateRoomTimeOut     = 28
-	TaskResultClub_SendRequestCreateRoomReponseFail = 29
-
-	TaskResultClub_SendRequestEnterRoomFail        = 30
-	TaskResultClub_SendRequestEnterRoomTimeOut     = 31
-	TaskResultClub_SendRequestEnterRoomReponseFail = 32
-
-	TaskResultClub_SendRequestAddGoldFail         = 33
-	TaskResultClub_SendRequestAddGoldTimeOut      = 34
-	TaskResultClub_SendRequestAddGoldReponseFail  = 35
-	TaskResultClub_SendRequestAddDiamondNotEnough = 36
 )
 
 type TaskState int
@@ -75,8 +43,6 @@ type TaskType int
 const (
 	TaskTypeNone  = 0
 	TaskTypeLogin = 101
-	TaskTypeClub  = 201
-	TaskTypeXzmj  = 301
 )
 
 type TaskStep int
@@ -86,12 +52,6 @@ const (
 	TaskStepLoginLoginSvr = 10102 //登陆
 	TaskStepRegisterGame  = 10103 //注册游戏
 
-	TaskStepClubEnter   = 20101
-	TaskStepClubAddGold = 20102
-
-	TaskStepXzmjCreateRoom = 30101
-	TaskStepXzmjEnterRoom  = 30102
-	TaskStepXzmjStartGame  = 30103
 )
 
 type TaskInfo struct {
@@ -183,30 +143,6 @@ func (t *TaskMng) LoadTaskStep(taskAttr *TaskAttr) error {
 		var lTaskStepReport1 TaskStepReport
 		lTaskStepReport1.MTaskStep = TaskStepLoginLoginSvr
 		taskAttr.MTaskReport.MTaskStepReport = append(taskAttr.MTaskReport.MTaskStepReport, lTaskStepReport1)
-
-	case TaskTypeClub:
-		//进入俱乐部
-		var lTaskStepReport1 TaskStepReport
-		lTaskStepReport1.MTaskStep = TaskStepClubEnter
-		taskAttr.MTaskReport.MTaskStepReport = append(taskAttr.MTaskReport.MTaskStepReport, lTaskStepReport1)
-
-		var lTaskStepReport2 TaskStepReport
-		lTaskStepReport2.MTaskStep = TaskStepClubAddGold
-		taskAttr.MTaskReport.MTaskStepReport = append(taskAttr.MTaskReport.MTaskStepReport, lTaskStepReport2)
-
-	case TaskTypeXzmj:
-		//创建创建房间
-		var lTaskStepReport0 TaskStepReport
-		lTaskStepReport0.MTaskStep = TaskStepXzmjCreateRoom
-		taskAttr.MTaskReport.MTaskStepReport = append(taskAttr.MTaskReport.MTaskStepReport, lTaskStepReport0)
-		//进入房间
-		var lTaskStepReport1 TaskStepReport
-		lTaskStepReport1.MTaskStep = TaskStepXzmjEnterRoom
-		taskAttr.MTaskReport.MTaskStepReport = append(taskAttr.MTaskReport.MTaskStepReport, lTaskStepReport1)
-		//开始游戏
-		var lTaskStepReport2 TaskStepReport
-		lTaskStepReport2.MTaskStep = TaskStepXzmjStartGame
-		taskAttr.MTaskReport.MTaskStepReport = append(taskAttr.MTaskReport.MTaskStepReport, lTaskStepReport2)
 
 	default:
 		lRetErr = errors.New("ERR_TASK_TYPE")

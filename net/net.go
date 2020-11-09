@@ -79,7 +79,7 @@ func (n *NetClient) SenMsg(sendmsg *ClientCommon.SendData) error {
 
 		return errors.New("no conn")
 	}
-
+	logger.Log4.Info("recv-msg: %v", sendmsg)
 	sendData, err := proto.Marshal(sendmsg)
 	if err != nil {
 		logger.Log4.Error("marshaling error: ", err)
@@ -124,7 +124,7 @@ func (n *NetClient) ReadMsg() (*(ClientCommon.PushData), error) {
 
 	logger.Log4.Info("recv: %v", buf)
 
-	logger.Log4.Info("recv-lMsgHead: %v", pushdata)
+	logger.Log4.Info("recv-msg: %v", pushdata)
 
 	return pushdata, nil
 }

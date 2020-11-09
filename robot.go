@@ -4,11 +4,7 @@ import (
 	"GStress/fsm"
 	"GStress/logger"
 	"GStress/msg/ClientCommon"
-	"GStress/msg/GameSubUserCmd"
-	"GStress/msg/GateSubCmd"
-	"GStress/msg/LoginSubCmd"
 
-	//"GStress/msg/XueZhanMj"
 	"GStress/net"
 	"errors"
 	"strconv"
@@ -60,8 +56,6 @@ const (
 type SystemConfig struct {
 	MLoginSvrAddr string
 	MLoginSvrPort int
-	MGateSvrAddr  string
-	MGateSvrPort  int
 }
 
 type RobotEventData struct {
@@ -89,8 +83,6 @@ type Robot struct {
 	mIsWorkEnd         bool
 	mSystemCfg         SystemConfig
 	mIsLoginOk         bool
-	mXzmjTable         XzmjTable
-	mIsEnterRoom       bool
 	mWg                sync.WaitGroup
 }
 
@@ -117,7 +109,6 @@ func (r *Robot) Init(taskMap TaskMap, systemCfg ExcelCfg, startState string) err
 	r.mCurTaskStepReuslt = TaskResultNone
 	r.mIsWorkEnd = false
 	r.mIsLoginOk = false
-	r.mIsEnterRoom = false
 
 	//初始化事件队列
 	r.mEventQueue = sq.NewQueue(512)
@@ -134,9 +125,6 @@ func (r *Robot) Init(taskMap TaskMap, systemCfg ExcelCfg, startState string) err
 		logger.Log4.Error("lRetErr:%s", lRetErr)
 		return lRetErr
 	}
-
-	//初始化血战麻将
-	r.mXzmjTable.Init(r)
 
 	//初始化定时器组
 	r.mTimers = make(map[TimerType]*time.Timer)
@@ -345,196 +333,6 @@ func (r *Robot) RobotStateLoginEventRemoteMsg(e *fsm.Event) {
 
 }
 
-func (r *Robot) HandelGameMainUserMsg(msgHead *net.MsgHead) {
-	logger.Log4.Debug("<ENTER> :UserId-%d:", r.mRobotData.MUId)
-	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
-
-	if msgHead == nil {
-		return
-	}
-	switch msgHead.MSubCmd {
-	case int16(GameSubUserCmd.EnSubCmdID_GAME_SUB_SC_USER_LEAVE_ROOM_NOTIFY):
-		r.HandelUserLeaveRoomNotify(msgHead)
-		break
-	case int16(GameSubUserCmd.EnSubCmdID_GAME_SUB_SC_USER_ROOM_INFO_NOTIFY):
-		//r.HandelUserLeaveRoom(msgHead)
-		break
-	default:
-		break
-	}
-
-	return
-}
-
-func (r *Robot) HandelUserLeaveRoomNotify(msgHead *net.MsgHead) {
-	logger.Log4.Debug("<ENTER> :UserId-%d:", r.mRobotData.MUId)
-	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
-
-	if msgHead == nil {
-		return
-	}
-
-	leaveRoomNotify := &GameSubUserCmd.SCUserLeaveRoomNotify{}
-	err := proto.Unmarshal(msgHead.MData, leaveRoomNotify)
-	if err != nil {
-		logger.Log4.Debug("unmarshal SCUserLeaveRoomNotify error: %s", err)
-	}
-	logger.Log4.Debug("leaveRoomNotify: %+v", leaveRoomNotify)
-
-	if r.mCurTaskType == TaskTypeXzmj {
-
-		r.mCurTaskStepReuslt = TaskResultSuccess
-		r.FsmSendEvent(RobotEventTaskAnalysis, nil)
-	}
-
-	return
-}
-
-/*
-//SC_CLUB_BASE_INFO_ON_LONGIN         = 114;   //服务端主动推送俱乐部基本信息在登陆时
-message SC_ClubBaseInfoOnLogin
-{
-	required int64             iClubID         = 1;         //创建的俱乐部ID
-	required string            strClubName     = 2;         //俱乐部名称
-	required int64             iUserLv         = 4;         //玩家权限 0 普通 1 管理员 2 创建者
-	required string            strNotice       = 5;       //公告
-	optional string            strQrTicket     = 6;       //俱乐部二维码票据
-	optional string            strQrUrl        = 7;       //俱乐部二维码地址
-	optional int64             iQrExpire       = 8;       //俱乐部二维码有效期
-	optional int64             iQrCreateTime   = 9;       //俱乐部二维码创建时间
-	optional int32             iCheatLimit     = 10;      //俱乐部聊天限制
-	optional string            strClubKeFu     = 11;      //俱乐部客服
-	optional string            strClubBrief    = 12;      //俱乐部简介
-};
-*/
-
-/*
-//USER_MAIN_INFO_SUB_CMD                      	              = 1;	//服务器发送大厅用户主要信息给客户端
-//登陆成功
-message SC_Logon_Success
-{
-	required string szNickName = 1;	             							//昵称
-	required string iFaceID = 2;									//头像索引
-	required int32 iGender = 3;									//用户性别(0保密, 1男, 2女)
-	required int32 iUserID = 5;									//用户 ID
-	required int32 iAccid = 6 ;	        						//用户别名id，用于显示
-    required int32 iTicket = 9;								        //用户彩票
-	required int64 iGold = 11;									//金币数量
-	required int32 iDiamond = 13;									//用户钻石
-	required int64 i64RegistDate = 14;								//注册日期
-	required string szDescription = 17 [default = ""];                                              //个人说明
-	required string szImage = 18 [default = ""];                                                   //头像
-	required string szMobile = 19 [default = ""];                                                   //手机号
-	repeated int32 iKindID = 26;							                //游戏ID列表
-	required int64 iServerTime = 27;						        	//当前服务器时间(utc时间)
-	required string szLocal = 34;                                                                   //所在地
-	required string szLastLogonIP = 35;								 //最后登录IP
-	optional int32 iScoreRoomID = 44;								 //创建房间的ID
-	required int64 iInsureGold = 45;													 	//保险箱金币
-	required int32 iModifyNickTimes = 46;					 	//修改昵称次数
-	required int32 iGetRelifTimes = 47;							//今日已领取的救济金次数
-	required int32 iGetRelifTotalTimes = 48;					//总共领取的救济金次数
-	required int32 iMaxGetRelifTimes = 49;					//用户最大可领取次数
-	optional int32 iFirstRecharge = 50;					//用户是否有第一次充值 1 没有充值过 2 已经失去首充奖励机会 其它无效
-	optional int64 SignCount  = 51;  //签到次数
-	optional int64 LastSignTime	  = 52;  //最后一次签到时间
-	optional int32 SignEnable  = 53;  //签到功能开关,1 开启，0 关闭。
-	optional int32 RechargeFirstEnable  = 54;  //首充功能开关,1 开启，0 关闭。
-	optional int32 RechargeExtraEnable  = 55;  //额外赠送功能开关,1 开启，0 关闭。
-	optional int32 iVipLv  = 56;  //玩家VIP等级
-	optional string strRealName  = 57;  //玩家真实姓名
-	optional string strIDCard  = 58;  //玩家身份证号
-}
-
-
-*/
-
-func (r *Robot) HandelGateMainMsg(msgHead *net.MsgHead) {
-	logger.Log4.Debug("<ENTER> :UserId-%d:", r.mRobotData.MUId)
-	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
-
-	if msgHead == nil {
-		return
-	}
-	switch msgHead.MSubCmd {
-	case int16(GateSubCmd.EnSubCmdID_LOGIN_GATE_RESULT_SUB_CMD):
-		r.HandelLoginGateResult(msgHead)
-		break
-	default:
-		break
-	}
-
-	return
-}
-
-func (r *Robot) HandelLoginGateResult(msgHead *net.MsgHead) {
-	logger.Log4.Debug("<ENTER> :UserId-%d:", r.mRobotData.MUId)
-	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
-
-	if msgHead == nil {
-		return
-	}
-
-	loginGateResultInfo := &GateSubCmd.LoginGateResultInfo{}
-	err := proto.Unmarshal(msgHead.MData, loginGateResultInfo)
-	if err != nil {
-		logger.Log4.Debug("unmarshal LoginGateResultInfo error: %s", err)
-	}
-	logger.Log4.Debug("loginGateResultInfo: %+v", loginGateResultInfo)
-	lRet := loginGateResultInfo.GetRetcode()
-	if lRet == 0 {
-		//网关登陆成功，还需要等待大厅玩家基础信息和微游戏的基础信息
-		logger.Log4.Debug("UserId-%d: login gate  success", r.mRobotData.MUId)
-
-	} else {
-
-		//确认登陆网关失败后，则关闭定时器，
-		//r.CancelTimer(TimerLoginLobbySvr)
-		r.mCurTaskStepReuslt = TaskResultLogin_Lobbysvr_LoginResponseFail
-		r.FsmSendEvent(RobotEventTaskAnalysis, nil)
-		logger.Log4.Debug("UserId-%d: login gate fail, the record:%d", r.mRobotData.MUId, lRet)
-	}
-
-	return
-
-}
-
-func (r *Robot) HandelCreateAccountResult(msgHead *net.MsgHead) {
-	logger.Log4.Debug("<ENTER> :UserId-%d:", r.mRobotData.MUId)
-	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
-
-	if msgHead == nil {
-		return
-	}
-
-	//收到响应取消定时器
-	r.CancelTimer(TimerLoginRegister)
-
-	createAccountResult := &LoginSubCmd.SC_Create_Account_Result{}
-	err := proto.Unmarshal(msgHead.MData, createAccountResult)
-	if err != nil {
-		logger.Log4.Debug("unmarshal SC_Create_Account_Result error: %s", err)
-	}
-	logger.Log4.Debug("loginErrorCode: %+v", createAccountResult)
-	lRet := createAccountResult.GetRetCode()
-	if lRet == 0 {
-		logger.Log4.Debug("UserId-%d: register success", r.mRobotData.MUId)
-	}
-	if lRet == 5 {
-		logger.Log4.Debug("UserId-%d: register exist", r.mRobotData.MUId)
-	}
-	if lRet != 0 && lRet != 5 {
-		r.mCurTaskStepReuslt = TaskResultLogin_Loginsvr_RegisterResponseFail
-		r.FsmSendEvent(RobotEventTaskAnalysis, nil)
-	} else {
-		r.mCurTaskStepReuslt = TaskResultSuccess
-		r.FsmSendEvent(RobotEventTaskAnalysis, nil)
-	}
-
-	return
-
-}
-
 func (r *Robot) HandelReturnLoginInfo(msg *ClientCommon.PushData) {
 	logger.Log4.Debug("<ENTER> :UserId-%d:", r.mRobotData.MUId)
 	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
@@ -550,6 +348,7 @@ func (r *Robot) HandelReturnLoginInfo(msg *ClientCommon.PushData) {
 	if err != nil {
 		logger.Log4.Debug("unmarshal LoginReturnInfo error: %s", err)
 	}
+	logger.Log4.Debug("msg: %+v", msg)
 	logger.Log4.Debug("loginReturnInfo: %+v", loginReturnInfo)
 
 	/*
@@ -578,15 +377,16 @@ func (r *Robot) HandelLoginErrorCode(msgHead *net.MsgHead) {
 
 	//收到响应取消定时器
 	r.CancelTimer(TimerLoginLoginSvr)
-
-	loginErrorCode := &LoginSubCmd.LoginErrorCode{}
-	err := proto.Unmarshal(msgHead.MData, loginErrorCode)
-	if err != nil {
-		logger.Log4.Debug("unmarshal LoginErrorCode error: %s", err)
-	}
-	logger.Log4.Debug("loginErrorCode: %+v", loginErrorCode)
-	r.mCurTaskStepReuslt = TaskResultLogin_Loginsvr_LoginResponseFail
-	r.FsmSendEvent(RobotEventTaskAnalysis, nil)
+	/*
+		//loginErrorCode := &LoginSubCmd.LoginErrorCode{}
+		err := proto.Unmarshal(msgHead.MData, loginErrorCode)
+		if err != nil {
+			logger.Log4.Debug("unmarshal LoginErrorCode error: %s", err)
+		}
+		logger.Log4.Debug("loginErrorCode: %+v", loginErrorCode)
+		r.mCurTaskStepReuslt = TaskResultLogin_Loginsvr_LoginResponseFail
+		r.FsmSendEvent(RobotEventTaskAnalysis, nil)
+	*/
 }
 
 //登陆状态：处理网络异常
@@ -797,77 +597,4 @@ func (r *Robot) CancelTimer(timerType TimerType) error {
 	t.Stop()
 	delete(r.mTimers, timerType)
 	return nil
-}
-
-/*
-	//微游戏
-	r.mFsm.AddStateEvent(RobotStateClub, RobotEventInit, r.RobotStateClubEventInit)
-	r.mFsm.AddStateEvent(RobotStateClub, RobotEventQuit, r.RobotStateClubEventQuit)
-	r.mFsm.AddStateEvent(RobotStateClub, RobotEventRemoteMsg, r.RobotStateClubEventRemoteMsg)
-	r.mFsm.AddStateEvent(RobotStateClub, RobotEventSocketAbnormal, r.RobotStateClubEventSocketAbnormal)
-	r.mFsm.AddStateEvent(RobotStateClub, RobotEventTimer, r.RobotStateClubEventTimer)
-	r.mFsm.AddStateEvent(RobotStateClub, RobotEventTaskAnalysis, r.RobotStateClubEventTaskAnalysis)
-	r.mFsm.AddStateEvent(RobotStateClub, RobotEventClubEnter, r.RobotStateClubEventClubEnter)
-*/
-
-//微游戏状态
-func (r *Robot) RobotStateClubEventInit(e *fsm.Event) {
-	logger.Log4.Debug("<ENTER> :UserId-%d:CurState：%s", r.mRobotData.MUId, e.FSM.CurState())
-	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
-	if r.mIsLoginOk == false {
-		r.mCurTaskStepReuslt = TaskResultNotLogin
-	}
-	r.FsmSendEvent(RobotEventTaskAnalysis, nil)
-}
-
-func (r *Robot) RobotStateClubEventQuit(e *fsm.Event) {
-	logger.Log4.Debug("<ENTER> :UserId-%d:CurState：%s", r.mRobotData.MUId, e.FSM.CurState())
-	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
-
-}
-
-//登陆状态：处理网络异常
-func (r *Robot) RobotStateClubEventSocketAbnormal(e *fsm.Event) {
-	logger.Log4.Debug("<ENTER> :UserId-%d:CurState：%d", r.mRobotData.MUId, e.FSM.CurState())
-	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
-
-	if r.mCurTaskStepReuslt == TaskResultNone {
-		r.mCurTaskStepReuslt = TaskResultSocketErr
-		r.FsmSendEvent(RobotEventTaskAnalysis, nil)
-	}
-	if r.mNetClient != nil {
-		r.mNetClient.Close()
-		r.mNetClient = nil
-	}
-
-}
-
-//登陆状态：处理定时事件
-func (r *Robot) RobotStateClubEventTimer(e *fsm.Event) {
-	logger.Log4.Debug("<ENTER> :UserId-%d:CurState：%d", r.mRobotData.MUId, e.FSM.CurState())
-	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
-	if len(e.Args) == 0 {
-		logger.Log4.Error("UserId-%d: no Remote Msg", r.mRobotData.MUId)
-		return
-	}
-	timerData := e.Args[0].(*TimertData)
-	switch timerData.MTimerType {
-	/*
-		case TimerClubCreateClub:
-			r.mCurTaskStepReuslt = TaskResultClub_SendRequestCreateClubTimeOut
-			r.FsmSendEvent(RobotEventTaskAnalysis, nil)
-			break
-		case TimerClubJoinClub:
-			r.mCurTaskStepReuslt = TaskResultClub_SendRequestJoinClubTimeOut
-			r.FsmSendEvent(RobotEventTaskAnalysis, nil)
-			break
-		case TimerClubAddGold:
-			r.mCurTaskStepReuslt = TaskResultClub_SendRequestAddGoldTimeOut
-			r.FsmSendEvent(RobotEventTaskAnalysis, nil)
-			break
-	*/
-
-	default:
-		break
-	}
 }
