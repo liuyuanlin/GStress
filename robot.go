@@ -25,6 +25,7 @@ type TimerType int
 const (
 	TimerLoginRegister = iota
 	TimerLoginLoginSvr
+	TimerRegisterGame
 )
 
 type FsmState string
@@ -47,10 +48,8 @@ const (
 	RobotEventSocketAbnormal = "RobotEventSocketAbnormal"
 	RobotEventTimer          = "RobotEventTimer"
 	RobotEventTaskAnalysis   = "RobotEventTaskAnalysis"
-	RobotEventRegister       = "RobotEventRegister"
 	RobotEventLoginLoginSvrd = "RobotEventLoginLoginSvrd"
-	RobotEventLoginLobbySvrd = "RobotEventLoginLobbySvrd"
-	RobotEventLoginAddGold   = "RobotEventLoginAddGold"
+	RobotEventRegisterGame   = "RobotEventRegisterGame"
 )
 
 type SystemConfig struct {
@@ -233,6 +232,7 @@ func (r *Robot) FsmInit(startState FsmState) error {
 	r.mFsm.AddStateEvent(RobotStateLogin, RobotEventTimer, r.RobotStateLoginEventTimer)
 	r.mFsm.AddStateEvent(RobotStateLogin, RobotEventTaskAnalysis, r.RobotStateLoginEventTaskAnalysis)
 	r.mFsm.AddStateEvent(RobotStateLogin, RobotEventLoginLoginSvrd, r.RobotStateLoginEventLoginLoginSvrd)
+	r.mFsm.AddStateEvent(RobotStateLogin, RobotEventRegisterGame, r.RobotStateLoginEventRegisterGame)
 
 	return nil
 }
@@ -327,6 +327,9 @@ func (r *Robot) RobotStateLoginEventRemoteMsg(e *fsm.Event) {
 	case int64(ClientCommon.Cmd_LOGIN):
 		r.HandelReturnLoginInfo(msg)
 		break
+	case int64(ClientCommon.Cmd_REGISTER):
+		r.HandelRspRegisterGame(msg)
+		break
 	default:
 		break
 	}
@@ -350,18 +353,44 @@ func (r *Robot) HandelReturnLoginInfo(msg *ClientCommon.PushData) {
 	}
 	logger.Log4.Debug("msg: %+v", msg)
 	logger.Log4.Debug("loginReturnInfo: %+v", loginReturnInfo)
+	if msg.Data == nil {
+		r.mCurTaskStepReuslt = TaskResultLogin_Loginsvr_LoginResponseFail
+		r.FsmSendEvent(RobotEventTaskAnalysis, nil)
+		r.mIsLoginOk = false
+		return
+	}
 
-	/*
-	   message LoginReturnInfo
-	   {
-	   	required int32  userid = 2 ;	        	//账号对应id
-	   	required string lobbyAddress = 3 ;		//网关地址
-	   	required int32 lobbyPort = 4 ;          //网关端口端口
-	   	required string token = 5;	        	//登录token
-	   	required string account  = 6;	        // 登录对应的账号
-	   	required int32 accountType  = 7;	        // 登录类型,0-普通用户， 1-游客用户， 2-微信用户
-	   }
-	*/
+	logger.Log4.Debug("loginReturnInfo: %+v", loginReturnInfo)
+	r.mIsLoginOk = true
+	r.mRobotData.UserIdentifier = loginReturnInfo.UserIdentifier
+
+	r.mCurTaskStepReuslt = TaskResultSuccess
+	r.FsmSendEvent(RobotEventTaskAnalysis, nil)
+}
+
+func (r *Robot) HandelRspRegisterGame(msg *ClientCommon.PushData) {
+	logger.Log4.Debug("<ENTER> :UserId-%d:", r.mRobotData.MUId)
+	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
+
+	if msg == nil {
+		return
+	}
+	//收到响应取消定时器
+	r.CancelTimer(TimerRegisterGame)
+
+	RegisterRspInfo := &ClientCommon.RegisterRsp{}
+	err := proto.Unmarshal(msg.Data, RegisterRspInfo)
+	if err != nil {
+		logger.Log4.Debug("unmarshal RegisterRsp error: %s", err)
+	}
+	logger.Log4.Debug("msg: %+v", msg)
+	if msg.Data == nil {
+		r.mCurTaskStepReuslt = TaskResultLogin_Loginsvr_RegisterGameResponseFail
+		r.FsmSendEvent(RobotEventTaskAnalysis, nil)
+		return
+	}
+
+	logger.Log4.Debug("loginReturnInfo: %+v", RegisterRspInfo)
 
 	r.mCurTaskStepReuslt = TaskResultSuccess
 	r.FsmSendEvent(RobotEventTaskAnalysis, nil)
@@ -420,7 +449,7 @@ func (r *Robot) RobotStateLoginEventTimer(e *fsm.Event) {
 		r.FsmSendEvent(RobotEventTaskAnalysis, nil)
 		break
 	case TimerLoginRegister:
-		r.mCurTaskStepReuslt = TaskResultLogin_Loginsvr_SendRegisterRequestTimeOut
+		r.mCurTaskStepReuslt = TaskResultLogin_Loginsvr_SendRegisterGameRequestTimeOut
 		r.FsmSendEvent(RobotEventTaskAnalysis, nil)
 		break
 		/*
@@ -459,10 +488,86 @@ func (r *Robot) RobotStateLoginEventTaskAnalysis(e *fsm.Event) {
 	case TaskStepLoginLoginSvr:
 		r.FsmSendEvent(RobotEventLoginLoginSvrd, nil)
 		break
+	case TaskStepRegisterGame:
+		r.FsmSendEvent(RobotEventRegisterGame, nil)
+		break
 	default:
 		break
 	}
 	return
+}
+
+//登陆状态： 向游戏服务注册
+func (r *Robot) RobotStateLoginEventRegisterGame(e *fsm.Event) {
+	logger.Log4.Debug("<ENTER> :UserId-%d:CurState：%d", r.mRobotData.MUId, e.FSM.CurState())
+	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
+	if r.mIsLoginOk != true {
+		//网络连接失败，结束当前任务
+		r.mCurTaskStepReuslt = TaskResultNotLogin
+		r.FsmSendEvent(RobotEventTaskAnalysis, nil)
+		return
+	}
+	err := r.RequestRegisterGame()
+	if err != nil {
+		//请求失败，结束当前任务
+		r.mCurTaskStepReuslt = TaskResultLogin_Loginsvr_SendRegisterGameRequestFail
+		r.FsmSendEvent(RobotEventTaskAnalysis, nil)
+	} else {
+		//设置请求定时器
+		r.SetTimer(TimerRegisterGame, RequestTimeOut)
+
+	}
+	return
+}
+
+//请求向游戏服务器注册
+func (r *Robot) RequestRegisterGame() error {
+	logger.Log4.Debug("<ENTER> :UserId-%d", r.mRobotData.MUId)
+	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
+
+	if r.mNetClient == nil {
+		logger.Log4.Error("UserId-%d: no connect", r.mRobotData.MUId)
+		return errors.New("ERR_NO_NET_CONNECT")
+	}
+
+	/*
+			//注删长连接 --- 哪个用户 --- 哪个游戏
+		message RegisterReq {
+		    string UserIdentifier = 1;
+		    int64 ActivityId = 2;
+		    int32 GameId = 3;
+		    SocketType SocketType = 4;
+		    int32 PreviewFlag = 5;
+		    string RandomCode = 6;
+		}
+	*/
+	m := &ClientCommon.RegisterReq{
+		UserIdentifier: r.mRobotData.UserIdentifier,
+		ActivityId:     r.mRobotData.ActivityId,
+		GameId:         r.mRobotData.GameId,
+		SocketType:     ClientCommon.SocketType_PHONE,
+		PreviewFlag:    0,
+		RandomCode:     "",
+	}
+
+	data, err := proto.Marshal(m)
+	if err != nil {
+		logger.Log4.Error("marshaling error: ", err)
+		return err
+	}
+
+	send := &ClientCommon.SendData{
+		//GameId: r.mRobotData.GameId,
+		GameId: 0,
+		CmdId:  int64(ClientCommon.Cmd_REGISTER),
+		Data:   data,
+	}
+	err = r.mNetClient.SenMsg(send)
+	if err != nil {
+		logger.Log4.Error("UserId-%d: send fail", r.mRobotData.MUId)
+		return errors.New("ERR_NET_SEND_FAIL")
+	}
+	return nil
 }
 
 //登陆状态：处理登陆loginsvr

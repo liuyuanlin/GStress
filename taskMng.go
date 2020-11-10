@@ -17,14 +17,14 @@ const (
 	TaskResultSuccess   = 1
 	TaskResultSocketErr = 2
 
-	TaskResultLogin_Loginsvr_ConnectFail                = 3
-	TaskResultLogin_Loginsvr_SendRegisterRequestFail    = 4
-	TaskResultLogin_Loginsvr_SendRegisterRequestTimeOut = 5
-	TaskResultLogin_Loginsvr_RegisterResponseFail       = 6
+	TaskResultLogin_Loginsvr_ConnectFail             = 3
+	TaskResultLogin_Loginsvr_SendLoginRequestFail    = 4
+	TaskResultLogin_Loginsvr_SendLoginRequestTimeOut = 5
+	TaskResultLogin_Loginsvr_LoginResponseFail       = 6
 
-	TaskResultLogin_Loginsvr_SendLoginRequestFail    = 7
-	TaskResultLogin_Loginsvr_SendLoginRequestTimeOut = 8
-	TaskResultLogin_Loginsvr_LoginResponseFail       = 9
+	TaskResultLogin_Loginsvr_SendRegisterGameRequestFail    = 7
+	TaskResultLogin_Loginsvr_SendRegisterGameRequestTimeOut = 8
+	TaskResultLogin_Loginsvr_RegisterGameResponseFail       = 9
 
 	TaskResultParamErr = 25
 	TaskResultNotLogin = 26
@@ -49,8 +49,8 @@ type TaskStep int
 
 const (
 	TaskStepNone          = 0
-	TaskStepLoginLoginSvr = 10102 //登陆
-	TaskStepRegisterGame  = 10103 //注册游戏
+	TaskStepLoginLoginSvr = 10101 //登陆
+	TaskStepRegisterGame  = 10102 //注册游戏
 
 )
 
@@ -143,6 +143,11 @@ func (t *TaskMng) LoadTaskStep(taskAttr *TaskAttr) error {
 		var lTaskStepReport1 TaskStepReport
 		lTaskStepReport1.MTaskStep = TaskStepLoginLoginSvr
 		taskAttr.MTaskReport.MTaskStepReport = append(taskAttr.MTaskReport.MTaskStepReport, lTaskStepReport1)
+
+		//注册游戏服务器
+		var lTaskStepReport2 TaskStepReport
+		lTaskStepReport2.MTaskStep = TaskStepRegisterGame
+		taskAttr.MTaskReport.MTaskStepReport = append(taskAttr.MTaskReport.MTaskStepReport, lTaskStepReport2)
 
 	default:
 		lRetErr = errors.New("ERR_TASK_TYPE")

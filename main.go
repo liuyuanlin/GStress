@@ -44,15 +44,16 @@ func main() {
 
 	var systemCfg ExcelCfg
 	systemCfg.Parser(*RobotClientCfg, "robotClientSys0")
-
+	logger.Log4.Debug("lTaskInfo:xxxxx1")
 	robotTaskCfgFile := systemCfg.MExcelRows[0]["RobotTaskCfgFile"]
 	var taskCfg ExcelCfg
+	logger.Log4.Debug("lTaskInfo:xxxxx12")
 	taskCfg.Parser(robotTaskCfgFile, "robotTask0")
-
+	logger.Log4.Debug("lTaskInfo:xxxxx2")
 	robotsCfgFile := systemCfg.MExcelRows[0]["RobotsCfgFile"]
 	var RobotsCfg ExcelCfg
 	RobotsCfg.Parser(robotsCfgFile, "robots0")
-
+	logger.Log4.Debug("lTaskInfo:xxxxx3")
 	//解析任务属性
 	lTaskMap := make(map[int]TaskInfo)
 	for _, row := range taskCfg.MExcelRows {
@@ -107,6 +108,22 @@ func main() {
 
 		robot.mRobotData.MUserName = row["UserName"]
 		robot.mRobotData.MPassWord = row["Password"]
+
+		//获取活动ID
+		activityId, err := strconv.Atoi(row["ActivityId"])
+		if err != nil {
+			logger.Log4.Error("err:%s", err)
+			return
+		}
+		robot.mRobotData.ActivityId = int64(activityId)
+
+		//获取GameID
+		gameid, err := strconv.Atoi(row["GameId"])
+		if err != nil {
+			logger.Log4.Error("err:%s", err)
+			return
+		}
+		robot.mRobotData.GameId = int32(gameid)
 
 		//获取任务数量
 		taskCount, err := strconv.Atoi(row["TaskCount"])
