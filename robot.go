@@ -36,6 +36,7 @@ const (
 	RobotStateInit    = "RobotStateInit"
 	RobotStateTaskMng = "RobotStateTaskMng"
 	RobotStateLogin   = "RobotStateLogin"
+	RobotStateEgg     = "RobotStateEgg"
 )
 
 type FsmStateEvent string
@@ -51,6 +52,10 @@ const (
 	RobotEventTaskAnalysis   = "RobotEventTaskAnalysis"
 	RobotEventLoginLoginSvrd = "RobotEventLoginLoginSvrd"
 	RobotEventRegisterGame   = "RobotEventRegisterGame"
+
+	RobotEventEggGameWait = "RobotEventEggGameWait" //砸金蛋等待
+	RobotEventEggGamePlay = "RobotEventEggGamePlay" //砸金蛋进行中
+	RobotEventEggGameEnd  = "RobotEventEggGameEnd"  //砸金蛋结束
 )
 
 type SystemConfig struct {
@@ -214,6 +219,7 @@ func (r *Robot) FsmInit(startState FsmState) error {
 			RobotStateInit,
 			RobotStateTaskMng,
 			RobotStateLogin,
+			RobotStateEgg,
 		},
 	)
 	//初始化状态计划机事件
@@ -234,6 +240,17 @@ func (r *Robot) FsmInit(startState FsmState) error {
 	r.mFsm.AddStateEvent(RobotStateLogin, RobotEventTaskAnalysis, r.RobotStateLoginEventTaskAnalysis)
 	r.mFsm.AddStateEvent(RobotStateLogin, RobotEventLoginLoginSvrd, r.RobotStateLoginEventLoginLoginSvrd)
 	r.mFsm.AddStateEvent(RobotStateLogin, RobotEventRegisterGame, r.RobotStateLoginEventRegisterGame)
+
+	//砸金蛋游戏状态
+	r.mFsm.AddStateEvent(RobotStateEgg, RobotEventInit, r.RobotStateEggEventInit)
+	r.mFsm.AddStateEvent(RobotStateEgg, RobotEventQuit, r.RobotStateEggEventQuit)
+	r.mFsm.AddStateEvent(RobotStateEgg, RobotEventRemoteMsg, r.RobotStateEggEventRemoteMsg)
+	r.mFsm.AddStateEvent(RobotStateEgg, RobotEventSocketAbnormal, r.RobotStateEggEventSocketAbnormal)
+	r.mFsm.AddStateEvent(RobotStateEgg, RobotEventTimer, r.RobotStateEggEventTimer)
+	r.mFsm.AddStateEvent(RobotStateEgg, RobotEventTaskAnalysis, r.RobotStateEggEventTaskAnalysis)
+	r.mFsm.AddStateEvent(RobotStateEgg, RobotEventEggGameWait, r.RobotStateEggGameWait)
+	r.mFsm.AddStateEvent(RobotStateEgg, RobotEventEggGamePlay, r.RobotStateEggGamePlay)
+	r.mFsm.AddStateEvent(RobotStateEgg, RobotEventEggGameEnd, r.RobotStateEggGameEnd)
 
 	return nil
 }
@@ -284,6 +301,9 @@ func (r *Robot) RobotStateTaskMngEventDispatch(e *fsm.Event) {
 	switch taskType {
 	case TaskTypeLogin:
 		r.FsmTransferState(RobotStateLogin)
+		break
+	case TaskTypeEgg:
+		r.FsmTransferState(RobotStateEgg)
 		break
 	default:
 		r.FsmSendEvent(RobotEventDispatch, nil)

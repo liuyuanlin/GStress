@@ -26,6 +26,8 @@ const (
 	TaskResultLogin_Loginsvr_SendRegisterGameRequestTimeOut = 8
 	TaskResultLogin_Loginsvr_RegisterGameResponseFail       = 9
 
+	TaskResultEgg_SendEggOpenRequestFail = 10
+
 	TaskResultParamErr = 25
 	TaskResultNotLogin = 26
 )
@@ -43,6 +45,8 @@ type TaskType int
 const (
 	TaskTypeNone  = 0
 	TaskTypeLogin = 101
+	TaskTypeEgg   = 201 //砸金蛋
+
 )
 
 type TaskStep int
@@ -51,6 +55,10 @@ const (
 	TaskStepNone          = 0
 	TaskStepLoginLoginSvr = 10101 //登陆
 	TaskStepRegisterGame  = 10102 //注册游戏
+
+	TaskStepEggWait = 20101 //等待开始
+	TaskStepEggPlay = 20102 //游戏开始
+	TaskStepEggEnd  = 20103 //游戏结束
 
 )
 
@@ -148,7 +156,24 @@ func (t *TaskMng) LoadTaskStep(taskAttr *TaskAttr) error {
 		var lTaskStepReport2 TaskStepReport
 		lTaskStepReport2.MTaskStep = TaskStepRegisterGame
 		taskAttr.MTaskReport.MTaskStepReport = append(taskAttr.MTaskReport.MTaskStepReport, lTaskStepReport2)
+		break
+	case TaskTypeEgg:
+		//等待游戏开始
+		var lTaskStepReport1 TaskStepReport
+		lTaskStepReport1.MTaskStep = TaskStepEggWait
+		taskAttr.MTaskReport.MTaskStepReport = append(taskAttr.MTaskReport.MTaskStepReport, lTaskStepReport1)
 
+		//游戏中
+		var lTaskStepReport2 TaskStepReport
+		lTaskStepReport2.MTaskStep = TaskStepEggPlay
+		taskAttr.MTaskReport.MTaskStepReport = append(taskAttr.MTaskReport.MTaskStepReport, lTaskStepReport2)
+
+		//游戏结束
+		var lTaskStepReport3 TaskStepReport
+		lTaskStepReport3.MTaskStep = TaskStepEggEnd
+		taskAttr.MTaskReport.MTaskStepReport = append(taskAttr.MTaskReport.MTaskStepReport, lTaskStepReport3)
+
+		break
 	default:
 		lRetErr = errors.New("ERR_TASK_TYPE")
 		return lRetErr
