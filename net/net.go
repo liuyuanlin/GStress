@@ -125,6 +125,7 @@ func (n *NetClient) ReadMsg() (*(ClientCommon.PushData), error) {
 	logger.Log4.Info("recv: %v", buf)
 
 	logger.Log4.Info("recv-msg: %v", pushdata)
+	logger.Log4.Debug("pushdata.CmdId:%d", pushdata.CmdId)
 
 	return pushdata, nil
 }

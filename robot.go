@@ -4,6 +4,7 @@ import (
 	"GStress/fsm"
 	"GStress/logger"
 	"GStress/msg/ClientCommon"
+	"GStress/msg/redenvelopegame"
 
 	"GStress/net"
 	"errors"
@@ -323,6 +324,7 @@ func (r *Robot) RobotStateLoginEventRemoteMsg(e *fsm.Event) {
 		return
 	}
 	msg := e.Args[0].(*ClientCommon.PushData)
+	logger.Log4.Debug("msg.CmdId:%d", msg.CmdId)
 	switch msg.CmdId {
 	case int64(ClientCommon.Cmd_LOGIN):
 		r.HandelReturnLoginInfo(msg)
@@ -330,6 +332,9 @@ func (r *Robot) RobotStateLoginEventRemoteMsg(e *fsm.Event) {
 	case int64(ClientCommon.Cmd_REGISTER):
 		r.HandelRspRegisterGame(msg)
 		break
+	case int64(redenvelopegame.GoldenEggCMD_GOLDENEGG_LOGIN):
+		r.HandelClientGoldenEggLoginRsp(msg)
+
 	default:
 		break
 	}
@@ -390,10 +395,54 @@ func (r *Robot) HandelRspRegisterGame(msg *ClientCommon.PushData) {
 		return
 	}
 
-	logger.Log4.Debug("loginReturnInfo: %+v", RegisterRspInfo)
+	logger.Log4.Debug("RegisterRspInfo: %+v", RegisterRspInfo)
 
 	r.mCurTaskStepReuslt = TaskResultSuccess
 	r.FsmSendEvent(RobotEventTaskAnalysis, nil)
+}
+
+func (r *Robot) HandelClientGoldenEggLoginRsp(msg *ClientCommon.PushData) {
+	logger.Log4.Debug("<ENTER> :UserId-%d:", r.mRobotData.MUId)
+	defer logger.Log4.Debug("<LEAVE>:UserId-%d:", r.mRobotData.MUId)
+
+	if msg == nil {
+		return
+	}
+	//收到响应取消定时器
+	r.CancelTimer(TimerRegisterGame)
+
+	ClientGoldenEggLoginRspInfo := &redenvelopegame.ClientGoldenEggLoginRsp{}
+	err := proto.Unmarshal(msg.Data, ClientGoldenEggLoginRspInfo)
+	if err != nil {
+		logger.Log4.Debug("unmarshal ClientGoldenEggLoginRsp error: %s", err)
+	}
+	logger.Log4.Debug("msg: %+v", msg)
+	if msg.Data == nil {
+		logger.Log4.Debug("ClientGoldenEggLoginRsp is  NULL:")
+		return
+	}
+
+	logger.Log4.Debug("RegisterRspInfo: %+v", ClientGoldenEggLoginRspInfo)
+
+	/*
+			//砸金蛋玩家信息
+		type EggGameInfo struct {
+			BatchId    int64 //批次id
+			State      int64 //游戏状态
+			JoinCount   int64 //参与人数
+			SystemTime int64 //系统时间
+			StartTime  int64 //游戏开始时间
+			EndTime    int64 //游戏结束时间
+		}
+	*/
+	//
+	r.mRobotData.mEggGameInfo.BatchId = ClientGoldenEggLoginRspInfo.CurrentGameInfo.BatchId
+	r.mRobotData.mEggGameInfo.State = int64(ClientGoldenEggLoginRspInfo.CurrentGameInfo.State)
+	r.mRobotData.mEggGameInfo.JoinCount = ClientGoldenEggLoginRspInfo.CurrentGameInfo.JoinCount
+	r.mRobotData.mEggGameInfo.SystemTime = ClientGoldenEggLoginRspInfo.CurrentGameInfo.SystemTime
+	r.mRobotData.mEggGameInfo.StartTime = ClientGoldenEggLoginRspInfo.CurrentGameInfo.StartTime
+	r.mRobotData.mEggGameInfo.EndTime = ClientGoldenEggLoginRspInfo.CurrentGameInfo.EndTime
+
 }
 
 func (r *Robot) HandelLoginErrorCode(msgHead *net.MsgHead) {
