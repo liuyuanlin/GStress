@@ -642,15 +642,22 @@ func (r *Robot) ConnectLoginSvr() error {
 	}
 	r.mNetClient = lnetClient
 	go func() {
-		msgHead, err := r.mNetClient.ReadMsg()
-		if err != nil {
-			logger.Log4.Error("UserId-%d: ReadMsg err:%s", r.mRobotData.MUId, err)
-			r.FsmSendEvent(RobotEventSocketAbnormal, nil)
-			return
-		} else {
-			logger.Log4.Debug("UserId-%d: msgHead :%v", r.mRobotData.MUId, msgHead)
-			r.FsmSendEvent(RobotEventRemoteMsg, msgHead)
+		r.mWg.Add(1)
+		for {
+			if r.mNetClient == nil {
+				break
+			}
+			msgHead, err := r.mNetClient.ReadMsg()
+			if err != nil {
+				logger.Log4.Error("UserId-%d: Gate ReadMsg err:%s", r.mRobotData.MUId, err)
+				r.FsmSendEvent(RobotEventSocketAbnormal, nil)
+				break
+			} else {
+				logger.Log4.Debug("UserId-%d: Gate msgHead :%v", r.mRobotData.MUId, msgHead)
+				r.FsmSendEvent(RobotEventRemoteMsg, msgHead)
+			}
 		}
+		r.mWg.Done()
 
 	}()
 	return nil
