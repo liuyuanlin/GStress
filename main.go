@@ -15,7 +15,7 @@ var (
 	RobotClientCfg = flag.String("cfg", "./cfg/robotClientSys0.xlsx", "The test cfg")
 	LogLevel       = flag.String("log", "debug", "The log level: debug,info,warn,error")
 	FileLogLevel   = flag.String("fileLog", "debug", "The File log level:debug,info,warn,error")
-	WaitTime       = flag.Int("wt", 1000, "the robot start wait time")
+	WaitTime       = flag.Int("wt", 100, "the robot start wait time")
 )
 
 func main() {

@@ -344,7 +344,7 @@ func (r *Robot) RobotStateLoginEventRemoteMsg(e *fsm.Event) {
 		return
 	}
 	msg := e.Args[0].(*ClientCommon.PushData)
-	logger.Log4.Debug("msg.CmdId:%d", msg.CmdId)
+	logger.Log4.Debug("UserId-%d: msg.CmdId:%d", r.mRobotData.MUId, msg.CmdId)
 	switch msg.CmdId {
 	case int64(ClientCommon.Cmd_LOGIN):
 		r.HandelReturnLoginInfo(msg)
@@ -374,10 +374,10 @@ func (r *Robot) HandelReturnLoginInfo(msg *ClientCommon.PushData) {
 	loginReturnInfo := &ClientCommon.LoginRsp{}
 	err := proto.Unmarshal(msg.Data, loginReturnInfo)
 	if err != nil {
-		logger.Log4.Debug("unmarshal LoginReturnInfo error: %s", err)
+		logger.Log4.Debug("UserId-%d:unmarshal LoginReturnInfo error: %s", r.mRobotData.MUId, err)
 	}
-	logger.Log4.Debug("msg: %+v", msg)
-	logger.Log4.Debug("loginReturnInfo: %+v", loginReturnInfo)
+	logger.Log4.Debug("UserId-%d:msg: %+v", r.mRobotData.MUId, msg)
+	logger.Log4.Debug("UserId-%d:loginReturnInfo: %+v", r.mRobotData.MUId, loginReturnInfo)
 	if msg.Data == nil {
 		r.mCurTaskStepReuslt = TaskResultLogin_Loginsvr_LoginResponseFail
 		r.FsmSendEvent(RobotEventTaskAnalysis, nil)
@@ -385,7 +385,14 @@ func (r *Robot) HandelReturnLoginInfo(msg *ClientCommon.PushData) {
 		return
 	}
 
-	logger.Log4.Debug("loginReturnInfo: %+v", loginReturnInfo)
+	logger.Log4.Debug("UserId-%d: loginReturnInfo: %+v", r.mRobotData.MUId, loginReturnInfo)
+	if loginReturnInfo.UserIdentifier == "" {
+		logger.Log4.Debug("UserId-%d:loginReturnInfo.UserIdentifier %+v", r.mRobotData.MUId, loginReturnInfo.UserIdentifier)
+		r.mCurTaskStepReuslt = TaskResultLogin_Loginsvr_LoginResponseFail
+		r.FsmSendEvent(RobotEventTaskAnalysis, nil)
+		r.mIsLoginOk = false
+		return
+	}
 	r.mIsLoginOk = true
 	r.mRobotData.UserIdentifier = loginReturnInfo.UserIdentifier
 
@@ -403,19 +410,26 @@ func (r *Robot) HandelRspRegisterGame(msg *ClientCommon.PushData) {
 	//收到响应取消定时器
 	r.CancelTimer(TimerRegisterGame)
 
-	RegisterRspInfo := &ClientCommon.RegisterRsp{}
-	err := proto.Unmarshal(msg.Data, RegisterRspInfo)
-	if err != nil {
-		logger.Log4.Debug("unmarshal RegisterRsp error: %s", err)
-	}
-	logger.Log4.Debug("msg: %+v", msg)
+	logger.Log4.Debug("UserId-%d:msg: %+v", r.mRobotData.MUId, msg)
 	if msg.Data == nil {
 		r.mCurTaskStepReuslt = TaskResultLogin_Loginsvr_RegisterGameResponseFail
 		r.FsmSendEvent(RobotEventTaskAnalysis, nil)
 		return
 	}
 
-	logger.Log4.Debug("RegisterRspInfo: %+v", RegisterRspInfo)
+	RegisterRspInfo := &ClientCommon.RegisterRsp{}
+	err := proto.Unmarshal(msg.Data, RegisterRspInfo)
+	if err != nil {
+		logger.Log4.Debug("UserId-%d:unmarshal RegisterRsp error: %s", r.mRobotData.MUId, err)
+	}
+	logger.Log4.Debug("UserId-%d:RegisterRspInfo: %+v", r.mRobotData.MUId, RegisterRspInfo)
+
+	if RegisterRspInfo.Code != ClientCommon.Code_SUCCESS {
+		logger.Log4.Debug("UserId-%d: 消息错误 RegisterRspInfo.Code:%v ", r.mRobotData.MUId, RegisterRspInfo.Code)
+		r.mCurTaskStepReuslt = TaskResultLogin_Loginsvr_RegisterGameResponseFail
+		r.FsmSendEvent(RobotEventTaskAnalysis, nil)
+		return
+	}
 
 	r.mCurTaskStepReuslt = TaskResultSuccess
 	r.FsmSendEvent(RobotEventTaskAnalysis, nil)
@@ -431,19 +445,23 @@ func (r *Robot) HandelClientGoldenEggLoginRsp(msg *ClientCommon.PushData) {
 	//收到响应取消定时器
 	r.CancelTimer(TimerRegisterGame)
 
-	ClientGoldenEggLoginRspInfo := &redenvelopegame.ClientGoldenEggLoginRsp{}
-	err := proto.Unmarshal(msg.Data, ClientGoldenEggLoginRspInfo)
-	if err != nil {
-		logger.Log4.Debug("unmarshal ClientGoldenEggLoginRsp error: %s", err)
-	}
-	logger.Log4.Debug("msg: %+v", msg)
+	logger.Log4.Debug("UserId-%d:msg: %+v", r.mRobotData.MUId, msg)
 	if msg.Data == nil {
-		logger.Log4.Debug("ClientGoldenEggLoginRsp is  NULL:")
+		logger.Log4.Debug("UserId-%d:ClientGoldenEggLoginRsp is  NULL:", r.mRobotData.MUId)
 		return
 	}
 
-	logger.Log4.Debug("RegisterRspInfo: %+v", ClientGoldenEggLoginRspInfo)
+	ClientGoldenEggLoginRspInfo := &redenvelopegame.ClientGoldenEggLoginRsp{}
+	err := proto.Unmarshal(msg.Data, ClientGoldenEggLoginRspInfo)
+	if err != nil {
+		logger.Log4.Debug("UserId-%d:unmarshal ClientGoldenEggLoginRsp error: %s", r.mRobotData.MUId, err)
+	}
 
+	logger.Log4.Debug("UserId-%d:RegisterRspInfo: %+v", r.mRobotData.MUId, ClientGoldenEggLoginRspInfo)
+	if ClientGoldenEggLoginRspInfo.Code != redenvelopegame.Code_SUCCESS {
+		logger.Log4.Debug("UserId-%d: 消息错误 ClientGoldenEggLoginRspInfo.Code:%v ", r.mRobotData.MUId, ClientGoldenEggLoginRspInfo.Code)
+		return
+	}
 	/*
 			//砸金蛋玩家信息
 		type EggGameInfo struct {
