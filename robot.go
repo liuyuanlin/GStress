@@ -344,19 +344,26 @@ func (r *Robot) RobotStateLoginEventRemoteMsg(e *fsm.Event) {
 		return
 	}
 	msg := e.Args[0].(*ClientCommon.PushData)
-	logger.Log4.Debug("UserId-%d: msg.CmdId:%d", r.mRobotData.MUId, msg.CmdId)
-	switch msg.CmdId {
-	case int64(ClientCommon.Cmd_LOGIN):
-		r.HandelReturnLoginInfo(msg)
-		break
-	case int64(ClientCommon.Cmd_REGISTER):
-		r.HandelRspRegisterGame(msg)
-		break
-	case int64(redenvelopegame.GoldenEggCMD_GOLDENEGG_LOGIN):
-		r.HandelClientGoldenEggLoginRsp(msg)
-
-	default:
-		break
+	logger.Log4.Debug("UserId-%d: msg.CmdId:%d,GameId:%d", r.mRobotData.MUId, msg.CmdId, msg.GameId)
+	if msg.GameId == 0 {
+		switch msg.CmdId {
+		case int64(ClientCommon.Cmd_LOGIN):
+			r.HandelReturnLoginInfo(msg)
+			break
+		case int64(ClientCommon.Cmd_REGISTER):
+			r.HandelRspRegisterGame(msg)
+			break
+		default:
+			break
+		}
+	} else if msg.GameId == 1 {
+		//砸金蛋游戏
+		switch msg.CmdId {
+		case int64(redenvelopegame.GoldenEggCMD_GOLDENEGG_LOGIN):
+			r.HandelClientGoldenEggLoginRsp(msg)
+		default:
+			break
+		}
 	}
 
 }
